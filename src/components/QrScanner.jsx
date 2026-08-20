@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import jsQR from 'jsqr';
 import { 
   QrCode, Camera, AlertTriangle, RefreshCw, Upload, Zap, X, 
-  FileText, Smartphone, Check, Video, VideoOff, Layers 
+  FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw
 } from 'lucide-react';
 import StatusLamp from './StatusLamp';
 import ResultCard from './ResultCard';
@@ -21,6 +21,10 @@ export default function QrScanner() {
   // カメラ切り替え用デバイスリスト & 選択デバイス
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
+
+  // 明るさ (Brightness) & コントラスト (Contrast) 調整 (白飛び対策)
+  const [brightness, setBrightness] = useState(100); // 100% = 標準, 白飛び時は 50%〜75% に調整
+  const [contrast, setContrast] = useState(100);   // 100% = 標準, エッジ強調時は 120%〜160% に調整
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -156,7 +160,6 @@ export default function QrScanner() {
         video: videoConstraints
       });
 
-      // カメラ名ラベルの更新
       updateCameraDevices();
 
       const track = stream.getVideoTracks()[0];
@@ -216,7 +219,7 @@ export default function QrScanner() {
     if (!scanResult) setScanStatus('idle');
   };
 
-  // 解析ループ
+  // 解析ループ (明るさ・コントラストの画像処理前処理をキャンバスへ反映)
   const tickScan = async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -260,7 +263,11 @@ export default function QrScanner() {
 
           canvas.width = targetWidth;
           canvas.height = targetHeight;
+
+          // 明るさ・コントラスト補正をキャンバス描画に適用
+          ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          ctx.filter = 'none';
 
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const inversionOption = scanAttemptsCountRef.current % 5 === 0 ? 'attemptBoth' : 'dontInvert';
@@ -441,6 +448,127 @@ export default function QrScanner() {
               </select>
             </div>
 
+            {/* ☀️ 白飛び防止・明るさ・コントラスト調整パネル */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.95)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sun size={15} color="#f59e0b" /> カメラ画像露光・明るさ調整 (白飛び対策)
+                </span>
+                {(brightness !== 100 || contrast !== 100) && (
+                  <button
+                    onClick={() => { setBrightness(100); setContrast(100); }}
+                    style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <RotateCcw size={12} /> リセット
+                  </button>
+                )}
+              </div>
+
+              {/* ワンタッチ補正プリセットボタン */}
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                <button
+                  className="btn"
+                  onClick={() => { setBrightness(100); setContrast(100); }}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: brightness === 100 && contrast === 100 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: brightness === 100 && contrast === 100 ? '#000' : '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}
+                >
+                  🔆 標準 (100%)
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => { setBrightness(75); setContrast(120); }}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: brightness === 75 && contrast === 120 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: brightness === 75 && contrast === 120 ? '#000' : '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}
+                >
+                  🌗 少し暗く (白飛び防止)
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => { setBrightness(50); setContrast(140); }}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: brightness === 50 && contrast === 140 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: brightness === 50 && contrast === 140 ? '#000' : '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}
+                >
+                  🕶️ かなり暗く (強光・ライト光)
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => { setBrightness(85); setContrast(170); }}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: brightness === 85 && contrast === 170 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: brightness === 85 && contrast === 170 ? '#000' : '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}
+                >
+                  ⚡ 白黒ハイコントラスト
+                </button>
+              </div>
+
+              {/* 手動調整スライダー */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '4px' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>
+                    <span>明るさ (Brightness)</span>
+                    <span style={{ color: '#00FF66', fontWeight: 700 }}>{brightness}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="30"
+                    max="160"
+                    step="5"
+                    value={brightness}
+                    onChange={(e) => setBrightness(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
+                  />
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>
+                    <span>くっきり度 (Contrast)</span>
+                    <span style={{ color: '#00FF66', fontWeight: 700 }}>{contrast}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="80"
+                    max="220"
+                    step="10"
+                    value={contrast}
+                    onChange={(e) => setContrast(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
+                  />
+                </div>
+              </div>
+
+            </div>
+
             {/* リアルビデオプレビュー枠 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               
@@ -461,7 +589,8 @@ export default function QrScanner() {
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    display: isCameraActive ? 'block' : 'none'
+                    display: isCameraActive ? 'block' : 'none',
+                    filter: `brightness(${brightness}%) contrast(${contrast}%)`
                   }} 
                 />
 
