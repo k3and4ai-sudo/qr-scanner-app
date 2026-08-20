@@ -1,0 +1,43 @@
+{
+  "name": "qr-scanner-app",
+  "private": false,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Ultra-fast, hardware-accelerated PWA QR Code Scanner & Generator powered by Web BarcodeDetector API & jsQR.",
+  "scripts": {
+    "dev": "vite --host --port 3000",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@line/liff": "^2.25.1",
+    "canvas-confetti": "^1.9.4",
+    "jsqr": "^1.4.0",
+    "lucide-react": "^0.439.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.2"
+  },
+  "keywords": [
+    "qr-code",
+    "qr-scanner",
+    "qr-generator",
+    "pwa",
+    "barcode-detector",
+    "liff",
+    "line-mini-app",
+    "react",
+    "vite"
+  ],
+  "author": "Antigravity Dev",
+  "license": "MIT"
+}

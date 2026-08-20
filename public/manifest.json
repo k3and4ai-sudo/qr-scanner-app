@@ -1,0 +1,16 @@
+{
+  "short_name": "QR Master",
+  "name": "QR Master Studio - 超高速 QRスキャナー",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#090d16",
+  "theme_color": "#00FF66",
+  "display": "standalone",
+  "orientation": "portrait"
+}
