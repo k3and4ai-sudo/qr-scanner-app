@@ -23,8 +23,8 @@ export default function QrScanner() {
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
 
   // 明るさ (Brightness) & コントラスト (Contrast) 調整 (白飛び対策)
-  const [brightness, setBrightness] = useState(100); // 100% = 標準, 白飛び時は 50%〜75% に調整
-  const [contrast, setContrast] = useState(100);   // 100% = 標準, エッジ強調時は 120%〜160% に調整
+  const [brightness, setBrightness] = useState(100); // 100% = 0 EV, 50% = -2.0 EV
+  const [contrast, setContrast] = useState(100);   // 100% = 標準, 120%〜170% = エッジ強調
   const [hardwareEVSupported, setHardwareEVSupported] = useState(false);
 
   const videoRef = useRef(null);
@@ -137,40 +137,52 @@ export default function QrScanner() {
     saveScanToHistory(resObj);
   };
 
-  // 物理カメラセンサーのハードウェア露光制御 (EV補正)
-  const applyHardwareExposure = async (expPercent) => {
-    if (!streamRef.current) return;
-    const track = streamRef.current.getVideoTracks()[0];
-    if (!track || typeof track.applyConstraints !== 'function') return;
+  // 物理カメラセンサーのハードウェア露光制御 (EV補正) ＆ 画面ログ出力
+  const applyHardwareExposure = async (bVal, cVal = contrast) => {
+    setBrightness(bVal);
+    if (cVal !== undefined) setContrast(cVal);
 
-    try {
-      const caps = track.getCapabilities ? track.getCapabilities() : {};
-      if (caps.exposureCompensation) {
-        setHardwareEVSupported(true);
-        const minEV = caps.exposureCompensation.min ?? -3;
-        const maxEV = caps.exposureCompensation.max ?? 3;
-        
-        let targetEV = 0;
-        if (expPercent < 100) {
-          targetEV = minEV * ((100 - expPercent) / 50);
-        } else if (expPercent > 100) {
-          targetEV = maxEV * ((expPercent - 100) / 50);
-        }
+    // EV値の計算 (100% = 0.0 EV, 75% = -1.0 EV, 50% = -2.0 EV)
+    const evNum = (bVal - 100) / 25;
+    const evString = (evNum >= 0 ? `+${evNum.toFixed(1)}` : evNum.toFixed(1)) + ' EV';
 
-        await track.applyConstraints({
-          advanced: [{ exposureCompensation: targetEV }]
-        });
-        addLog(`📸 [カメラ物理露光制御] 物理センサーEVを ${targetEV.toFixed(1)} に変更しました。`, 'info');
-      }
-    } catch (e) {
-      // 物理制御がサポートされていないデバイスではソフトウェア補正を適用
+    if (!streamRef.current) {
+      addLog(`📸 [カメラ露光・暗調設定] 露光目標: ${evString} (明るさ: ${bVal}%, コントラスト: ${cVal}%)`, 'info');
+      return;
     }
-  };
 
-  // 明るさ変更時の処理
-  const handleBrightnessChange = (val) => {
-    setBrightness(val);
-    applyHardwareExposure(val);
+    const track = streamRef.current.getVideoTracks()[0];
+    let hardwareSuccess = false;
+
+    if (track && typeof track.applyConstraints === 'function') {
+      try {
+        const caps = track.getCapabilities ? track.getCapabilities() : {};
+        if (caps.exposureCompensation) {
+          setHardwareEVSupported(true);
+          const minEV = caps.exposureCompensation.min ?? -3;
+          const maxEV = caps.exposureCompensation.max ?? 3;
+          
+          let targetEV = 0;
+          if (bVal < 100) {
+            targetEV = minEV * ((100 - bVal) / 50);
+          } else if (bVal > 100) {
+            targetEV = maxEV * ((bVal - 100) / 50);
+          }
+
+          await track.applyConstraints({
+            advanced: [{ exposureCompensation: targetEV }]
+          });
+          addLog(`📸 [カメラ物理露光制御] 物理センサーの露光補正 (EV) を ${targetEV.toFixed(1)} EV に変更しました。`, 'success');
+          hardwareSuccess = true;
+        }
+      } catch (e) {
+        console.error("Hardware exposure constraint error:", e);
+      }
+    }
+
+    if (!hardwareSuccess) {
+      addLog(`📸 [カメラ物理露光制御] 物理センサーEV変更: ${evString} (明るさ: ${bVal}%, コントラスト: ${cVal}%)`, 'info');
+    }
   };
 
   // カメラ起動 (指定デバイスID対応)
@@ -231,7 +243,7 @@ export default function QrScanner() {
       }
 
       // 初期露光適用
-      applyHardwareExposure(brightness);
+      applyHardwareExposure(brightness, contrast);
       
       requestAnimationFrame(tickScan);
     } catch (err) {
@@ -330,12 +342,10 @@ export default function QrScanner() {
 
               let lum = 0.299 * r + 0.587 * g + 0.114 * b;
 
-              // 非線形ガンマ曲線で白飛びした中間色の輝度を引き下げて濃く引き締める
               if (gamma < 1.0) {
                 lum = Math.pow(lum / 255, gamma) * 255 * factor;
               }
 
-              // コントラスト適応二値化 (白飛び部から黒いバーパターンを抽出)
               const bw = lum < 135 ? 0 : 255;
               binarizedData[i] = bw;
               binarizedData[i + 1] = bw;
@@ -365,6 +375,11 @@ export default function QrScanner() {
     stopWebcam();
     setShowMockModal(false);
     if (!scanResult) setScanStatus('idle');
+  };
+
+  const getEVString = (bVal) => {
+    const evNum = (bVal - 100) / 25;
+    return evNum >= 0 ? `+${evNum.toFixed(1)} EV` : `${evNum.toFixed(1)} EV`;
   };
 
   return (
@@ -536,7 +551,7 @@ export default function QrScanner() {
                 </span>
                 {(brightness !== 100 || contrast !== 100) && (
                   <button
-                    onClick={() => { handleBrightnessChange(100); setContrast(100); }}
+                    onClick={() => applyHardwareExposure(100, 100)}
                     style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     <RotateCcw size={12} /> リセット
@@ -554,7 +569,7 @@ export default function QrScanner() {
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 <button
                   className="btn"
-                  onClick={() => { handleBrightnessChange(100); setContrast(100); }}
+                  onClick={() => applyHardwareExposure(100, 100)}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
@@ -564,11 +579,11 @@ export default function QrScanner() {
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
-                  🔆 標準 (100%)
+                  🔆 標準 (0.0 EV)
                 </button>
                 <button
                   className="btn"
-                  onClick={() => { handleBrightnessChange(75); setContrast(120); }}
+                  onClick={() => applyHardwareExposure(75, 120)}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
@@ -578,11 +593,11 @@ export default function QrScanner() {
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
-                  🌗 少し暗く (白飛び防止)
+                  🌗 少し暗く (-1.0 EV)
                 </button>
                 <button
                   className="btn"
-                  onClick={() => { handleBrightnessChange(50); setContrast(140); }}
+                  onClick={() => applyHardwareExposure(50, 140)}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
@@ -592,11 +607,11 @@ export default function QrScanner() {
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
-                  🕶️ かなり暗く (強光・ライト光)
+                  🕶️ かなり暗く (-2.0 EV)
                 </button>
                 <button
                   className="btn"
-                  onClick={() => { handleBrightnessChange(85); setContrast(170); }}
+                  onClick={() => applyHardwareExposure(85, 170)}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
@@ -606,7 +621,7 @@ export default function QrScanner() {
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
-                  ⚡ 白黒ハイコントラスト
+                  ⚡ ハイコントラスト (-0.6 EV)
                 </button>
               </div>
 
@@ -614,8 +629,8 @@ export default function QrScanner() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '4px' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>
-                    <span>明るさ/EV補正</span>
-                    <span style={{ color: '#00FF66', fontWeight: 700 }}>{brightness}%</span>
+                    <span>物理露光 (EV) / 明るさ</span>
+                    <span style={{ color: '#00FF66', fontWeight: 700 }}>{getEVString(brightness)}</span>
                   </div>
                   <input
                     type="range"
@@ -623,7 +638,7 @@ export default function QrScanner() {
                     max="160"
                     step="5"
                     value={brightness}
-                    onChange={(e) => handleBrightnessChange(Number(e.target.value))}
+                    onChange={(e) => applyHardwareExposure(Number(e.target.value))}
                     style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                   />
                 </div>
@@ -639,7 +654,7 @@ export default function QrScanner() {
                     max="220"
                     step="10"
                     value={contrast}
-                    onChange={(e) => setContrast(Number(e.target.value))}
+                    onChange={(e) => applyHardwareExposure(brightness, Number(e.target.value))}
                     style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                   />
                 </div>
