@@ -53,7 +53,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               gap: '6px'
             }}
           >
-            <QrCode size={16} /> スキャナー
+            <QrCode size={16} /> QRスキャナー
           </button>
 
           <button
@@ -71,7 +71,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               gap: '6px'
             }}
           >
-            <Sparkles size={16} /> QR作成
+            <Sparkles size={16} /> QRコード作成
           </button>
 
           <button

@@ -299,12 +299,12 @@ export default function QrScanner() {
         {/* 左側: スキャンコントロール */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h4 style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Camera size={20} color="#00FF66" /> スキャンテスト実行
+            <Camera size={20} color="#00FF66" /> スキャン実行
           </h4>
 
           <div style={{ background: 'rgba(0, 255, 102, 0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(0, 255, 102, 0.2)' }}>
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', lineHeight: '1.6' }}>
-              「スキャン開始」をクリックすると、カメラモーダルが起動しリアルタイムQRコード解読を開始します。
+              「QRスキャナーを起動」をクリックすると、カメラモーダルが起動しリアルタイムQRコード解読を開始します。
             </div>
 
             <button 
@@ -346,7 +346,7 @@ export default function QrScanner() {
           ) : (
             <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '40px 20px', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.1)', textAlign: 'center', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
               <QrCode size={44} color="rgba(255, 255, 255, 0.2)" />
-              <div style={{ fontSize: '14px' }}>まだスキャンが実行されていません。<br />左側のボタンからスキャンを開始してください。</div>
+              <div style={{ fontSize: '14px' }}>まだスキャンが実行されていません。<br />左側の「QRスキャナーを起動」ボタンからスキャンを開始してください。</div>
             </div>
           )}
         </div>
