@@ -611,6 +611,34 @@ export default function QrScanner() {
                 </button>
                 <button
                   className="btn"
+                  onClick={() => applyHardwareExposure(125, 110)}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: brightness === 125 && contrast === 110 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: brightness === 125 && contrast === 110 ? '#000' : '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}
+                >
+                  💡 少し明るく (+1.0 EV)
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => applyHardwareExposure(150, 120)}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: brightness === 150 && contrast === 120 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: brightness === 150 && contrast === 120 ? '#000' : '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}
+                >
+                  ☀️ かなり明るく (+2.0 EV)
+                </button>
+                <button
+                  className="btn"
                   onClick={() => applyHardwareExposure(85, 170)}
                   style={{
                     padding: '4px 10px',
