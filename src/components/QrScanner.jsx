@@ -528,7 +528,7 @@ export default function QrScanner() {
               onClick={handleCloseModal}
               style={{ width: '100%', padding: '10px', fontSize: '13px', fontWeight: 600 }}
             >
-              カメラを閉じる
+              QRスキャナーを閉じる
             </button>
 
           </div>
