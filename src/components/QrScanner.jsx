@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import jsQR from 'jsqr';
+import liff from '@line/liff';
 import { 
   QrCode, Camera, AlertTriangle, RefreshCw, Upload, Zap, X, 
   FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw, ShieldAlert
@@ -18,6 +19,9 @@ export default function QrScanner() {
   const [isScanLaunching, setIsScanLaunching] = useState(false);
   const [logs, setLogs] = useState([]);
   
+  // LINE WebView 検出フラグ
+  const [isLineApp, setIsLineApp] = useState(false);
+
   // カメラ切り替え用デバイスリスト & 選択デバイス
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
@@ -42,8 +46,15 @@ export default function QrScanner() {
   const autoPresetIndexRef = useRef(0);
   const lastAutoTimeRef = useRef(0);
 
-  // BarcodeDetector API & カメラデバイス一覧の取得
+  // BarcodeDetector API & カメラデバイス一覧の取得 ＆ LINE WebView 検出
   useEffect(() => {
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const lineDetected = /Line/i.test(ua);
+    if (lineDetected) {
+      setIsLineApp(true);
+      addLog('📱 LINE アプリ内ブラウザ (LINE WebView) 環境を検出しました。', 'info');
+    }
+
     if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
       try {
         barcodeDetectorRef.current = new window.BarcodeDetector({ formats: ['qr_code'] });
@@ -51,6 +62,17 @@ export default function QrScanner() {
         barcodeDetectorRef.current = null;
       }
     }
+
+    // LIFF SDK の初期化チェック
+    if (liff) {
+      try {
+        if (typeof liff.isInClient === 'function' && liff.isInClient()) {
+          setIsLineApp(true);
+          addLog('🟢 LINE LIFF クライアント内での動作を確認しました。', 'success');
+        }
+      } catch (e) {}
+    }
+
     updateCameraDevices();
     return () => stopWebcam();
   }, []);
@@ -76,8 +98,29 @@ export default function QrScanner() {
     setLogs(prev => [{ time, msg, type }, ...prev]);
   };
 
+  // LINE公式ネイティブスキャナー (liff.scanCodeV2) 呼び出し
+  const handleLineNativeScan = async () => {
+    if (!liff) return;
+    try {
+      addLog('📱 LINE ネイティブカメラ (liff.scanCodeV2) を起動中...', 'info');
+      let result = null;
+      if (typeof liff.scanCodeV2 === 'function') {
+        result = await liff.scanCodeV2();
+      } else if (typeof liff.scanCode === 'function') {
+        result = await liff.scanCode();
+      }
+      if (result && result.value) {
+        addLog(`⚡ [LINEネイティブ解読成功]: "${result.value}"`, 'success');
+        processScanResult(result.value);
+      }
+    } catch (err) {
+      console.warn("LINE scanCode error or user cancel:", err);
+      addLog(`⚠️ LINEネイティブスキャンキャンセルまたはエラー: ${err.message || err}`, 'warning');
+    }
+  };
+
   // スキャン開始ハンドラー
-  const handleScan = () => {
+  const handleScan = async () => {
     if (isScanLaunching) return;
 
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -85,13 +128,34 @@ export default function QrScanner() {
     }
 
     setIsScanLaunching(true);
-    addLog('QRコードスキャナーモーダルを起動中...', 'info');
-
     setScanStatus('idle');
     scanAttemptsCountRef.current = 0;
     setAutoStatus('optimal');
     setAutoExposure(true);
 
+    // LINEアプリ内ブラウザ（LINE WebView）で liff.scanCodeV2 が利用可能な場合は最優先試行
+    if (isLineApp && liff && (typeof liff.scanCodeV2 === 'function' || typeof liff.scanCode === 'function')) {
+      try {
+        addLog('📱 LINE内検出: LINE公式ネイティブスキャナー (liff.scanCodeV2) を起動します...', 'info');
+        let res = null;
+        if (typeof liff.scanCodeV2 === 'function') {
+          res = await liff.scanCodeV2();
+        } else {
+          res = await liff.scanCode();
+        }
+        if (res && res.value) {
+          addLog(`⚡ [LINEネイティブ解読成功]: "${res.value}"`, 'success');
+          processScanResult(res.value);
+          setIsScanLaunching(false);
+          return;
+        }
+      } catch (liffErr) {
+        console.warn("liff.scanCodeV2 cancelled or not available, fallback to web camera modal:", liffErr);
+        addLog('⚠️ LINEネイティブカメラからWebカメラモーダルへ移行します。', 'warning');
+      }
+    }
+
+    addLog('QRコードスキャナーモーダルを起動中...', 'info');
     setShowMockModal(true);
     setIsScanLaunching(false);
     updateCameraDevices();
@@ -285,7 +349,11 @@ export default function QrScanner() {
       console.error("Camera access error:", err);
       let errText = 'カメラの起動に失敗しました。';
       if (err.name === 'NotAllowedError') {
-        errText = 'カメラのアクセス権限が拒否されました。ブラウザ設定で許可してください。';
+        if (isLineApp) {
+          errText = '【LINEアプリのカメラ使用が拒否されました】LINE内ブラウザでカメラのアクセス権限がオフになっています。「LINE公式ネイティブカメラ」でお試しいただくか、右下メニュー(⋮)から「他のブラウザ（Chrome/Safari）で開く」を選択してください。';
+        } else {
+          errText = 'カメラのアクセス権限が拒否されました。ブラウザ設定で許可してください。';
+        }
       } else if (err.name === 'NotFoundError') {
         errText = '利用可能なカメラが見つかりませんでした。';
       } else if (err.name === 'NotReadableError') {
@@ -509,6 +577,39 @@ export default function QrScanner() {
               「QRスキャナーを起動」をクリックすると、カメラモーダルが起動しリアルタイムQRコード解読を開始します。
             </div>
 
+            {isLineApp && (
+              <div style={{ background: 'rgba(6, 199, 85, 0.12)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(6, 199, 85, 0.35)', marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', color: '#06C755', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                  <Smartphone size={16} /> LINEアプリ内ブラウザ（LINE WebView）検出
+                </div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: '1.5', marginBottom: '10px' }}>
+                  LINE内でWebカメラが拒否された場合は、以下の「LINEネイティブカメラ」をお試しいただくか、右下メニュー(⋮)から「他のブラウザで開く」を選択してください。
+                </div>
+                <button
+                  className="btn"
+                  onClick={handleLineNativeScan}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    background: '#06C755',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(6, 199, 85, 0.3)'
+                  }}
+                >
+                  <QrCode size={18} /> LINE公式ネイティブカメラでスキャン (liff.scanCodeV2)
+                </button>
+              </div>
+            )}
+
             <button 
               className="btn btn-success" 
               onClick={handleScan}
@@ -524,7 +625,7 @@ export default function QrScanner() {
                 gap: '10px'
               }}
             >
-              <QrCode size={22} /> QRスキャナーを起動
+              <QrCode size={22} /> {isLineApp ? 'Webカメラモーダルでスキャン' : 'QRスキャナーを起動'}
             </button>
           </div>
 
@@ -948,8 +1049,27 @@ export default function QrScanner() {
               )}
 
               {cameraError && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '10px', borderRadius: '8px', color: '#ef4444', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <AlertTriangle size={16} /> {cameraError}
+                <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1.5px solid rgba(239, 68, 68, 0.4)', padding: '14px', borderRadius: '12px', color: '#ef4444', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
+                    <AlertTriangle size={18} /> {cameraError}
+                  </div>
+
+                  {isLineApp && (
+                    <div style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.25)', marginTop: '4px' }}>
+                      <div style={{ color: '#fff', fontWeight: 800, marginBottom: '6px' }}>💡 LINE内ブラウザでのカメラ解決手順:</div>
+                      <ol style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', lineHeight: '1.6', fontSize: '11px' }}>
+                        <li>画面右下または右上の <strong>メニュー (⋮ または ...)</strong> をタップ</li>
+                        <li><strong>「他のブラウザ（Safari / Chrome）で開く」</strong> を選択</li>
+                        <li>またはスマホの <strong>[設定] ➔ [LINE] ➔ [カメラ]</strong> をONにしてください</li>
+                      </ol>
+                      <button
+                        onClick={handleLineNativeScan}
+                        style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#06C755', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      >
+                        <QrCode size={16} /> LINE公式ネイティブカメラを試す (liff.scanCodeV2)
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
