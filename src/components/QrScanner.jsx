@@ -3,7 +3,7 @@ import jsQR from 'jsqr';
 import liff from '@line/liff';
 import { 
   QrCode, Camera, AlertTriangle, RefreshCw, Upload, Zap, X, 
-  FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw, ShieldAlert, Copy
+  FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw, ShieldAlert, Copy, ExternalLink
 } from 'lucide-react';
 import StatusLamp from './StatusLamp';
 import ResultCard from './ResultCard';
@@ -29,6 +29,45 @@ export default function QrScanner() {
       navigator.clipboard.writeText(window.location.href);
       setCopiedUrl(true);
       setTimeout(() => setCopiedUrl(false), 3000);
+    }
+  };
+
+  // 🌐 LINE内ブラウザから外部標準ブラウザ（Chrome/Safari）を直接強制起動するハンドラー
+  const handleOpenExternalBrowser = () => {
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+    addLog('🌐 外部ブラウザ（Chrome/Safari）への強制リダイレクトを試行中...', 'info');
+
+    // 1. LIFF openWindow ({ external: true })
+    if (liff && typeof liff.openWindow === 'function') {
+      try {
+        liff.openWindow({
+          url: currentUrl,
+          external: true
+        });
+        return;
+      } catch (e) {
+        console.warn("liff.openWindow external failed:", e);
+      }
+    }
+
+    // 2. Android Chrome Intent スキーム強制呼び出し
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    if (/Android/i.test(ua)) {
+      try {
+        const cleanUrl = currentUrl.replace(/^https?:\/\//, '');
+        const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+        window.location.href = intentUrl;
+        return;
+      } catch (e) {
+        console.warn("Android intent failed:", e);
+      }
+    }
+
+    // 3. 標準ブラウザ起動フォールバック
+    try {
+      window.open(currentUrl, '_system');
+    } catch (e) {
+      window.open(currentUrl, '_blank');
     }
   };
 
@@ -608,22 +647,22 @@ export default function QrScanner() {
             </div>
 
             {isLineApp && (
-              <div style={{ background: 'rgba(6, 199, 85, 0.12)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(6, 199, 85, 0.35)', marginBottom: '12px' }}>
-                <div style={{ fontSize: '12px', color: '#06C755', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+              <div style={{ background: 'rgba(6, 199, 85, 0.12)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(6, 199, 85, 0.35)', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontSize: '12px', color: '#06C755', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Smartphone size={16} /> LINEアプリ内ブラウザ（LINE WebView）検出
                 </div>
-                <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: '1.5', marginBottom: '10px' }}>
-                  LINE内でWebカメラが拒否された場合は、以下の「LINEネイティブカメラ」をお試しいただくか、右下メニュー(⋮)から「他のブラウザで開く」を選択してください。
+                <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: '1.5' }}>
+                  LINE内でWebカメラがブロックされる場合は、以下のボタンで即座に標準ブラウザへ切替できます：
                 </div>
                 <button
                   className="btn"
-                  onClick={handleLineNativeScan}
+                  onClick={handleOpenExternalBrowser}
                   style={{
                     width: '100%',
-                    padding: '10px',
+                    padding: '11px',
                     fontSize: '13px',
                     fontWeight: 800,
-                    background: '#06C755',
+                    background: 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)',
                     color: '#fff',
                     border: 'none',
                     borderRadius: '8px',
@@ -632,10 +671,31 @@ export default function QrScanner() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px',
-                    boxShadow: '0 4px 12px rgba(6, 199, 85, 0.3)'
+                    boxShadow: '0 4px 12px rgba(56, 189, 248, 0.35)'
                   }}
                 >
-                  <QrCode size={18} /> LINE公式ネイティブカメラでスキャン (liff.scanCodeV2)
+                  <ExternalLink size={18} /> 他のブラウザ（Chrome / Safari）で直接開く
+                </button>
+                <button
+                  className="btn"
+                  onClick={handleLineNativeScan}
+                  style={{
+                    width: '100%',
+                    padding: '9px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    background: 'rgba(6, 199, 85, 0.2)',
+                    color: '#06C755',
+                    border: '1px solid #06C755',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <QrCode size={16} /> LINE公式ネイティブカメラを試す (liff.scanCodeV2)
                 </button>
               </div>
             )}
@@ -1085,16 +1145,32 @@ export default function QrScanner() {
                   </div>
 
                   {isLineApp && (
-                    <div style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.25)', marginTop: '4px' }}>
-                      <div style={{ color: '#fff', fontWeight: 800, marginBottom: '6px' }}>💡 LINE内ブラウザでのカメラ解決手順:</div>
-                      <ol style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', lineHeight: '1.6', fontSize: '11px' }}>
-                        <li>画面右下または右上の <strong>メニュー (⋮ または ...)</strong> をタップ</li>
-                        <li><strong>「他のブラウザ（Safari / Chrome）で開く」</strong> を選択</li>
-                        <li>またはスマホの <strong>[設定] ➔ [LINE] ➔ [カメラ]</strong> をONにしてください</li>
-                      </ol>
+                    <div style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.25)', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ color: '#fff', fontWeight: 800, fontSize: '12px' }}>💡 LINE内ブラウザでのカメラ解決手順:</div>
+                      <button
+                        onClick={handleOpenExternalBrowser}
+                        style={{
+                          width: '100%',
+                          padding: '11px',
+                          background: 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontWeight: 800,
+                          fontSize: '13px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          boxShadow: '0 4px 12px rgba(56, 189, 248, 0.35)'
+                        }}
+                      >
+                        <ExternalLink size={18} /> 他のブラウザ（Chrome / Safari）で開く
+                      </button>
                       <button
                         onClick={handleLineNativeScan}
-                        style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#06C755', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                        style={{ width: '100%', padding: '9px', background: 'rgba(6, 199, 85, 0.2)', color: '#06C755', border: '1px solid #06C755', borderRadius: '8px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                       >
                         <QrCode size={16} /> LINE公式ネイティブカメラを試す (liff.scanCodeV2)
                       </button>
@@ -1184,11 +1260,31 @@ export default function QrScanner() {
 
             <div style={{ background: 'rgba(6, 199, 85, 0.08)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(6, 199, 85, 0.25)', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <div style={{ fontWeight: 800, color: '#06C755', marginBottom: '4px' }}>💡 【方法 1】他のブラウザ（Chrome / Safari）で開く（おすすめ）</div>
-                <ol style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', lineHeight: '1.7' }}>
-                  <li>画面右下または右上の <strong>「メニュー (⋮ または ...)」</strong> をタップ</li>
-                  <li><strong>「他のブラウザで開く」</strong> （または Safari / Chromeで開く）を選択</li>
-                </ol>
+                <div style={{ fontWeight: 800, color: '#06C755', marginBottom: '6px' }}>💡 【方法 1】ワンタップで他のブラウザ（Chrome / Safari）で開く</div>
+                <div style={{ fontSize: '11px', color: '#cbd5e1', marginBottom: '8px', lineHeight: '1.4' }}>
+                  以下のボタンをタップすると、LINEから自動的にスマホ標準の外部ブラウザが起動します：
+                </div>
+                <button
+                  onClick={handleOpenExternalBrowser}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'linear-gradient(135deg, #06C755 0%, #059669 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 800,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 14px rgba(6, 199, 85, 0.4)'
+                  }}
+                >
+                  <ExternalLink size={18} /> 他のブラウザ（Chrome / Safari）で開く
+                </button>
               </div>
 
               <div style={{ borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '10px' }}>
