@@ -134,3 +134,69 @@ body {
   from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* 📱 スマートフォン実機に最適化したレスポンシブデザイン & 折り返しレイアウト調整 */
+@media (max-width: 640px) {
+  .container {
+    padding: 10px 8px 30px 8px !important;
+  }
+  
+  .card {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  body {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* ナビゲーションバーのスマホ最適化 */
+  .nav-header-inner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 8px 10px !important;
+  }
+
+  .nav-title-sub {
+    display: none !important; /* スマホ画面の縦幅を節約 */
+  }
+
+  .nav-tabs-wrapper {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+  }
+
+  .nav-tab-btn {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 8px 2px !important;
+    font-size: 11px !important;
+  }
+
+  /* ワンタッチ露出補正プリセットの2行レイアウト化 */
+  .ev-buttons-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .ev-btn {
+    padding: 8px 6px !important;
+    font-size: 11px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+
+  /* スキャンカード / メインカードのレイアウト */
+  .responsive-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+}
+

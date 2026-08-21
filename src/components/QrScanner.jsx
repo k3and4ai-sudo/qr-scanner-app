@@ -594,7 +594,7 @@ export default function QrScanner() {
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
       {/* グリッドレイアウト: カメラコントロール & 結果表示 (メイン初期画面にはステータスランプ非表示) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+      <div className="responsive-main-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
         
         {/* 左側: スキャンコントロール */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -866,15 +866,15 @@ export default function QrScanner() {
               )}
 
               {/* ワンタッチ補正プリセットボタン */}
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              <div className="ev-buttons-grid" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 <button
-                  className="btn"
+                  className="btn ev-btn"
                   onClick={() => {
                     setAutoExposure(false);
                     applyHardwareExposure(100, 100);
                   }}
                   style={{
-                    padding: '4px 10px',
+                    padding: '6px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
                     background: !autoExposure && brightness === 100 && contrast === 100 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
@@ -886,13 +886,13 @@ export default function QrScanner() {
                   🔆 標準 (0.0 EV)
                 </button>
                 <button
-                  className="btn"
+                  className="btn ev-btn"
                   onClick={() => {
                     setAutoExposure(false);
                     applyHardwareExposure(50, 140);
                   }}
                   style={{
-                    padding: '4px 10px',
+                    padding: '6px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
                     background: !autoExposure && brightness === 50 && contrast === 140 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
@@ -904,13 +904,13 @@ export default function QrScanner() {
                   🕶️ 暗く (-2.0 EV)
                 </button>
                 <button
-                  className="btn"
+                  className="btn ev-btn"
                   onClick={() => {
                     setAutoExposure(false);
                     applyHardwareExposure(150, 120);
                   }}
                   style={{
-                    padding: '4px 10px',
+                    padding: '6px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
                     background: !autoExposure && brightness === 150 && contrast === 120 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
@@ -922,13 +922,13 @@ export default function QrScanner() {
                   ☀️ 明るく (+2.0 EV)
                 </button>
                 <button
-                  className="btn"
+                  className="btn ev-btn"
                   onClick={() => {
                     setAutoExposure(false);
                     applyHardwareExposure(85, 170);
                   }}
                   style={{
-                    padding: '4px 10px',
+                    padding: '6px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
                     background: !autoExposure && brightness === 85 && contrast === 170 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
@@ -937,16 +937,16 @@ export default function QrScanner() {
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
-                  ⚡ ハイコントラスト (-0.6 EV)
+                  ⚡ 強コントラスト
                 </button>
                 <button
-                  className="btn"
+                  className="btn ev-btn"
                   onClick={() => {
                     setAutoExposure(true);
                     addLog('⚡ 自動露出最適化 (Auto Exposure) を選択しました。リアルタイムで最適露出を自動調整します。', 'success');
                   }}
                   style={{
-                    padding: '4px 10px',
+                    padding: '6px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
                     background: autoExposure ? '#00FF66' : 'rgba(255,255,255,0.06)',

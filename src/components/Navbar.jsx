@@ -11,7 +11,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
       top: 0,
       zIndex: 100
     }}>
-      <div className="container" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="container nav-header-inner" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         
         {/* ロゴ */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -30,16 +30,16 @@ export default function Navbar({ activeTab, setActiveTab }) {
             <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>
               QR Master Studio
             </div>
-            <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600 }}>
+            <div className="nav-title-sub" style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600 }}>
               GPU ハードウェア加速 Web QR ツール
             </div>
           </div>
         </div>
 
         {/* タブナビゲーション */}
-        <div style={{ display: 'flex', gap: '6px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <div className="nav-tabs-wrapper" style={{ display: 'flex', gap: '6px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
           <button
-            className="btn"
+            className="btn nav-tab-btn"
             onClick={() => setActiveTab('scan')}
             style={{
               padding: '8px 14px',
@@ -57,7 +57,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
           </button>
 
           <button
-            className="btn"
+            className="btn nav-tab-btn"
             onClick={() => setActiveTab('generate')}
             style={{
               padding: '8px 14px',
@@ -75,7 +75,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
           </button>
 
           <button
-            className="btn"
+            className="btn nav-tab-btn"
             onClick={() => setActiveTab('history')}
             style={{
               padding: '8px 14px',
