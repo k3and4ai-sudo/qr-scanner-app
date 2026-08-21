@@ -3,7 +3,7 @@ import jsQR from 'jsqr';
 import liff from '@line/liff';
 import { 
   QrCode, Camera, AlertTriangle, RefreshCw, Upload, Zap, X, 
-  FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw, ShieldAlert
+  FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw, ShieldAlert, Copy
 } from 'lucide-react';
 import StatusLamp from './StatusLamp';
 import ResultCard from './ResultCard';
@@ -19,8 +19,18 @@ export default function QrScanner() {
   const [isScanLaunching, setIsScanLaunching] = useState(false);
   const [logs, setLogs] = useState([]);
   
-  // LINE WebView 検出フラグ
+  // LINE WebView 検出フラグ & ガイドモーダル
   const [isLineApp, setIsLineApp] = useState(false);
+  const [showLineGuideModal, setShowLineGuideModal] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+
+  const handleCopyCurrentUrl = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      setCopiedUrl(true);
+      setTimeout(() => setCopiedUrl(false), 3000);
+    }
+  };
 
   // カメラ切り替え用デバイスリスト & 選択デバイス
   const [devices, setDevices] = useState([]);
@@ -98,24 +108,37 @@ export default function QrScanner() {
     setLogs(prev => [{ time, msg, type }, ...prev]);
   };
 
-  // LINE公式ネイティブスキャナー (liff.scanCodeV2) 呼び出し
+  // LINE公式ネイティブスキャナー (liff.scanCodeV2) 呼び出し ＆ 未初期化時ガイド表示
   const handleLineNativeScan = async () => {
-    if (!liff) return;
-    try {
-      addLog('📱 LINE ネイティブカメラ (liff.scanCodeV2) を起動中...', 'info');
-      let result = null;
-      if (typeof liff.scanCodeV2 === 'function') {
-        result = await liff.scanCodeV2();
-      } else if (typeof liff.scanCode === 'function') {
-        result = await liff.scanCode();
+    addLog('📱 LINE公式ネイティブカメラ (liff.scanCodeV2) の起動を要求中...', 'info');
+    let success = false;
+    if (liff) {
+      try {
+        if (typeof liff.scanCodeV2 === 'function') {
+          const result = await liff.scanCodeV2();
+          if (result && result.value) {
+            addLog(`⚡ [LINEネイティブ解読成功]: "${result.value}"`, 'success');
+            processScanResult(result.value);
+            success = true;
+          }
+        } else if (typeof liff.scanCode === 'function') {
+          const result = await liff.scanCode();
+          if (result && result.value) {
+            addLog(`⚡ [LINEネイティブ解読成功]: "${result.value}"`, 'success');
+            processScanResult(result.value);
+            success = true;
+          }
+        }
+      } catch (err) {
+        console.warn("LINE scanCode error or uninitialized:", err);
       }
-      if (result && result.value) {
-        addLog(`⚡ [LINEネイティブ解読成功]: "${result.value}"`, 'success');
-        processScanResult(result.value);
-      }
-    } catch (err) {
-      console.warn("LINE scanCode error or user cancel:", err);
-      addLog(`⚠️ LINEネイティブスキャンキャンセルまたはエラー: ${err.message || err}`, 'warning');
+    }
+
+    if (!success) {
+      addLog('⚠️ LINEネイティブカメラ未初期化/非対応のため、解決案内ダイアログとWebカメラを表示します。', 'warning');
+      setShowLineGuideModal(true);
+      setShowMockModal(true);
+      updateCameraDevices();
     }
   };
 
@@ -133,30 +156,37 @@ export default function QrScanner() {
     setAutoStatus('optimal');
     setAutoExposure(true);
 
-    // LINEアプリ内ブラウザ（LINE WebView）で liff.scanCodeV2 が利用可能な場合は最優先試行
-    if (isLineApp && liff && (typeof liff.scanCodeV2 === 'function' || typeof liff.scanCode === 'function')) {
+    let lineNativeSuccess = false;
+    if (isLineApp && liff) {
       try {
-        addLog('📱 LINE内検出: LINE公式ネイティブスキャナー (liff.scanCodeV2) を起動します...', 'info');
-        let res = null;
-        if (typeof liff.scanCodeV2 === 'function') {
-          res = await liff.scanCodeV2();
-        } else {
-          res = await liff.scanCode();
-        }
-        if (res && res.value) {
-          addLog(`⚡ [LINEネイティブ解読成功]: "${res.value}"`, 'success');
-          processScanResult(res.value);
-          setIsScanLaunching(false);
-          return;
+        if (typeof liff.scanCodeV2 === 'function' || typeof liff.scanCode === 'function') {
+          addLog('📱 LINE内検出: LINE公式ネイティブスキャナーの起動を試行...', 'info');
+          let res = null;
+          if (typeof liff.scanCodeV2 === 'function') {
+            res = await liff.scanCodeV2();
+          } else {
+            res = await liff.scanCode();
+          }
+          if (res && res.value) {
+            addLog(`⚡ [LINEネイティブ解読成功]: "${res.value}"`, 'success');
+            processScanResult(res.value);
+            setIsScanLaunching(false);
+            lineNativeSuccess = true;
+            return;
+          }
         }
       } catch (liffErr) {
-        console.warn("liff.scanCodeV2 cancelled or not available, fallback to web camera modal:", liffErr);
-        addLog('⚠️ LINEネイティブカメラからWebカメラモーダルへ移行します。', 'warning');
+        console.warn("liff.scanCodeV2 not available or uninitialized:", liffErr);
       }
     }
 
-    addLog('QRコードスキャナーモーダルを起動中...', 'info');
-    setShowMockModal(true);
+    if (!lineNativeSuccess) {
+      addLog('QRコードスキャナーモーダルを起動中...', 'info');
+      setShowMockModal(true);
+      if (isLineApp) {
+        setShowLineGuideModal(true);
+      }
+    }
     setIsScanLaunching(false);
     updateCameraDevices();
   };
@@ -1110,6 +1140,94 @@ export default function QrScanner() {
           )}
         </div>
       </div>
+
+      {/* 📱 LINE内ブラウザ専用 解決ガイドモーダル */}
+      {showLineGuideModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(6px)',
+          zIndex: 10000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#0f172a',
+            border: '2px solid #06C755',
+            borderRadius: '20px',
+            width: '100%',
+            maxWidth: '480px',
+            padding: '24px',
+            boxShadow: '0 20px 50px rgba(6, 199, 85, 0.3)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '12px' }}>
+              <div style={{ color: '#06C755', fontWeight: 800, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Smartphone size={22} /> LINE内ブラウザでのカメラ解決方法
+              </div>
+              <button onClick={() => setShowLineGuideModal(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+              LINEアプリ内ブラウザ（WebView）のセキュリティ制限により、Webカメラのアクセスがブロックされています。以下の手順で一瞬でカメラが利用可能になります：
+            </div>
+
+            <div style={{ background: 'rgba(6, 199, 85, 0.08)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(6, 199, 85, 0.25)', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <div style={{ fontWeight: 800, color: '#06C755', marginBottom: '4px' }}>💡 【方法 1】他のブラウザ（Chrome / Safari）で開く（おすすめ）</div>
+                <ol style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', lineHeight: '1.7' }}>
+                  <li>画面右下または右上の <strong>「メニュー (⋮ または ...)」</strong> をタップ</li>
+                  <li><strong>「他のブラウザで開く」</strong> （または Safari / Chromeで開く）を選択</li>
+                </ol>
+              </div>
+
+              <div style={{ borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '10px' }}>
+                <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '8px' }}>💡 【方法 2】URLをコピーして Chrome / Safari で開く</div>
+                <button
+                  onClick={handleCopyCurrentUrl}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: copiedUrl ? '#00FF66' : '#38bdf8',
+                    color: copiedUrl ? '#000' : '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 800,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: copiedUrl ? '0 0 12px rgba(0, 255, 102, 0.4)' : 'none'
+                  }}
+                >
+                  {copiedUrl ? <Check size={18} /> : <Copy size={18} />}
+                  {copiedUrl ? '✅ URLをコピーしました！Chrome/Safariの検索窓に貼り付けて開いてください' : '📋 このページのURLをコピーする'}
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowLineGuideModal(false)}
+              className="btn btn-secondary"
+              style={{ padding: '12px', fontSize: '14px', fontWeight: 700 }}
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
