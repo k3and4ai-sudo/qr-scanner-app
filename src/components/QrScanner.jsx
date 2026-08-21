@@ -27,6 +27,11 @@ export default function QrScanner() {
   const [contrast, setContrast] = useState(100);   // 100% = 標準, 120%〜170% = エッジ強調
   const [hardwareEVSupported, setHardwareEVSupported] = useState(false);
 
+  // ⚡ QRコード自動露出最適化 (Auto Exposure System)
+  const [autoExposure, setAutoExposure] = useState(true);
+  const [autoStatus, setAutoStatus] = useState('optimal'); // 'optimal' | 'glare' | 'dark' | 'sweep'
+  const [currentLuminance, setCurrentLuminance] = useState(null);
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
@@ -34,6 +39,8 @@ export default function QrScanner() {
   const lastScanTimeRef = useRef(0);
   const barcodeDetectorRef = useRef(null);
   const scanAttemptsCountRef = useRef(0);
+  const autoPresetIndexRef = useRef(0);
+  const lastAutoTimeRef = useRef(0);
 
   // BarcodeDetector API & カメラデバイス一覧の取得
   useEffect(() => {
@@ -80,7 +87,11 @@ export default function QrScanner() {
     setIsScanLaunching(true);
     addLog('QRコードスキャナーモーダルを起動中...', 'info');
 
-    if (!scanResult) setScanStatus('idle');
+    setScanStatus('idle');
+    scanAttemptsCountRef.current = 0;
+    setAutoStatus('optimal');
+    setAutoExposure(true);
+
     setShowMockModal(true);
     setIsScanLaunching(false);
     updateCameraDevices();
@@ -185,15 +196,30 @@ export default function QrScanner() {
     }
   };
 
-  // カメラ起動 (指定デバイスID対応)
+  // カメラ起動 (指定デバイスID対応 & フォールバック処理付き)
   const startWebcam = async (overrideDeviceId) => {
     setCameraError(null);
+    setAutoExposure(true); // 起動時は自動露出を最優先選択
     const targetDeviceId = overrideDeviceId || selectedDeviceId;
+
+    // Secure Context (HTTPSまたはlocalhost) のチェック
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      const isHttpIp = window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      let errText = 'お使いのブラウザ環境ではカメラ機能（getUserMedia）が利用できません。';
+      if (isHttpIp) {
+        errText = '【HTTPS接続が必要です】IPアドレス(http://...)での接続では、Android Chromeなどのセキュリティ制限によりカメラの利用が禁止されています。HTTPS接続用URL（Cloudflare Tunnel）からアクセスしてください。';
+      }
+      setCameraError(errText);
+      setIsCameraActive(false);
+      if (!scanResult) setScanStatus('idle');
+      addLog(`❌ カメラ起動エラー: ${errText}`, 'error');
+      return;
+    }
 
     try {
       addLog('カメラへのアクセスを要求中 (getUserMedia)...', 'info');
       
-      const videoConstraints = targetDeviceId ? {
+      const primaryConstraints = targetDeviceId ? {
         deviceId: { exact: targetDeviceId },
         width: { ideal: 1280, max: 1920 }, 
         height: { ideal: 720, max: 1080 },
@@ -205,9 +231,18 @@ export default function QrScanner() {
         frameRate: { ideal: 30 }
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: videoConstraints
-      });
+      let stream = null;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: primaryConstraints });
+      } catch (firstErr) {
+        console.warn("Primary constraints failed, retrying with fallback constraints:", firstErr);
+        addLog('⚠️ 詳細カメラ制約に失敗したため、代替設定でカメラを再起動します...', 'warning');
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        } catch (secondErr) {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        }
+      }
 
       updateCameraDevices();
 
@@ -253,6 +288,8 @@ export default function QrScanner() {
         errText = 'カメラのアクセス権限が拒否されました。ブラウザ設定で許可してください。';
       } else if (err.name === 'NotFoundError') {
         errText = '利用可能なカメラが見つかりませんでした。';
+      } else if (err.name === 'NotReadableError') {
+        errText = 'カメラが他のアプリまたはプロセスで使用中です。他のカメラアプリを終了してください。';
       }
       setCameraError(errText);
       setIsCameraActive(false);
@@ -326,6 +363,77 @@ export default function QrScanner() {
           ctx.filter = 'none';
 
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+          // ⚡【リアルタイム輝度解析 ＆ 自動露出 (Auto Exposure) 最適化制御】
+          if (autoExposure && !scanResult) {
+            if (now - lastAutoTimeRef.current > 300) {
+              lastAutoTimeRef.current = now;
+
+              const data = imageData.data;
+              const w = imageData.width;
+              const h = imageData.height;
+
+              const startX = Math.floor(w * 0.25);
+              const endX = Math.floor(w * 0.75);
+              const startY = Math.floor(h * 0.25);
+              const endY = Math.floor(h * 0.75);
+
+              let totalLum = 0;
+              let count = 0;
+              let overexposedCount = 0;
+              let underexposedCount = 0;
+
+              for (let y = startY; y < endY; y += 4) {
+                for (let x = startX; x < endX; x += 4) {
+                  const idx = (y * w + x) * 4;
+                  const r = data[idx];
+                  const g = data[idx + 1];
+                  const b = data[idx + 2];
+                  const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                  totalLum += lum;
+                  count++;
+                  if (lum > 220) overexposedCount++;
+                  if (lum < 45) underexposedCount++;
+                }
+              }
+
+              if (count > 0) {
+                const avgLum = Math.round(totalLum / count);
+                const overexposedRatio = overexposedCount / count;
+                const underexposedRatio = underexposedCount / count;
+                setCurrentLuminance(avgLum);
+
+                if (overexposedRatio > 0.15 || avgLum > 185) {
+                  if (brightness !== 50 || contrast !== 140) {
+                    applyHardwareExposure(50, 140);
+                    setAutoStatus('glare');
+                    addLog(`⚡ [自動露出最適化] 白飛び過多を検出 (輝度: ${avgLum}) ➔ 暗調補正 (-2.0 EV) 自動適用`, 'info');
+                  }
+                } else if (underexposedRatio > 0.40 || avgLum < 55) {
+                  if (brightness !== 150 || contrast !== 120) {
+                    applyHardwareExposure(150, 120);
+                    setAutoStatus('dark');
+                    addLog(`⚡ [自動露出最適化] 暗所環境を検出 (輝度: ${avgLum}) ➔ 明暗補正 (+2.0 EV) 自動適用`, 'info');
+                  }
+                } else if (scanAttemptsCountRef.current > 0 && scanAttemptsCountRef.current % 25 === 0) {
+                  const presets = [
+                    { b: 100, c: 100 },
+                    { b: 85, c: 170 },
+                    { b: 50, c: 140 },
+                    { b: 150, c: 120 }
+                  ];
+                  autoPresetIndexRef.current = (autoPresetIndexRef.current + 1) % presets.length;
+                  const p = presets[autoPresetIndexRef.current];
+                  applyHardwareExposure(p.b, p.c);
+                  setAutoStatus('sweep');
+                } else if (avgLum >= 60 && avgLum <= 180 && (brightness !== 100 || contrast !== 100) && autoStatus !== 'sweep') {
+                  applyHardwareExposure(100, 100);
+                  setAutoStatus('optimal');
+                }
+              }
+            }
+          }
+
           const inversionOption = scanAttemptsCountRef.current % 5 === 0 ? 'attemptBoth' : 'dontInvert';
           let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: inversionOption });
 
@@ -436,7 +544,7 @@ export default function QrScanner() {
           </h4>
 
           {scanResult ? (
-            <ResultCard scanResult={scanResult} />
+            <ResultCard scanResult={scanResult} onRescan={handleScan} />
           ) : (
             <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '40px 20px', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.1)', textAlign: 'center', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
               <QrCode size={44} color="rgba(255, 255, 255, 0.2)" />
@@ -538,26 +646,87 @@ export default function QrScanner() {
             {/* ☀️ 白飛び防止・カメラ露光 & 二値化調整パネル */}
             <div style={{
               background: 'rgba(15, 23, 42, 0.95)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              border: autoExposure ? '1px solid rgba(0, 255, 102, 0.4)' : '1px solid rgba(245, 158, 11, 0.3)',
               borderRadius: '12px',
               padding: '12px 14px',
               display: 'flex',
               flexDirection: 'column',
               gap: '10px'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                 <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Sun size={15} color="#f59e0b" /> カメラ白飛び復元 ＆ 物理センサー露光補正
+                  <Sun size={15} color="#f59e0b" /> カメラ白飛び復元 ＆ 露出制御
                 </span>
-                {(brightness !== 100 || contrast !== 100) && (
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {/* 自動露出 (Auto Exposure) トグルスイッチ */}
                   <button
-                    onClick={() => applyHardwareExposure(100, 100)}
-                    style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    onClick={() => {
+                      const nextVal = !autoExposure;
+                      setAutoExposure(nextVal);
+                      if (nextVal) {
+                        addLog('⚡ 自動露出最適化 (Auto Exposure) をONにしました。リアルタイムで最適露出を自動調整します。', 'success');
+                      } else {
+                        addLog('🖐️ 手動露出モードに切り替えました。', 'info');
+                      }
+                    }}
+                    style={{
+                      background: autoExposure ? 'rgba(0, 255, 102, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                      color: autoExposure ? '#00FF66' : '#94a3b8',
+                      border: autoExposure ? '1px solid #00FF66' : '1px solid rgba(255, 255, 255, 0.2)',
+                      padding: '3px 10px',
+                      borderRadius: '20px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
                   >
-                    <RotateCcw size={12} /> リセット
+                    <Zap size={12} color={autoExposure ? '#00FF66' : '#94a3b8'} />
+                    {autoExposure ? '⚡ 自動露出 (Auto: ON)' : '⚪ 手動固定 (Manual)'}
                   </button>
-                )}
+
+                  {(brightness !== 100 || contrast !== 100) && (
+                    <button
+                      onClick={() => {
+                        setAutoExposure(false);
+                        applyHardwareExposure(100, 100);
+                      }}
+                      style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <RotateCcw size={12} /> リセット
+                    </button>
+                  )}
+                </div>
               </div>
+
+              {/* ⚡ リアルタイム自動露出補正ステータス */}
+              {autoExposure && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: 'rgba(0, 255, 102, 0.08)',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(0, 255, 102, 0.2)',
+                  fontSize: '11px'
+                }}>
+                  <span style={{ color: '#00FF66', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {autoStatus === 'glare' && '🟡 白飛び過多検出 ➔ 暗調補正自動適用 (-2.0 EV)'}
+                    {autoStatus === 'dark' && '🔵 暗所検出 ➔ 明暗補正自動適用 (+2.0 EV)'}
+                    {autoStatus === 'sweep' && '🔄 自動最適パラメータ探査中...'}
+                    {autoStatus === 'optimal' && '🟢 最適露出・リアルタイム自動調整中'}
+                  </span>
+                  {currentLuminance !== null && (
+                    <span style={{ color: '#94a3b8', fontSize: '10px' }}>
+                      輝度: {currentLuminance} / 255
+                    </span>
+                  )}
+                </div>
+              )}
 
               {hardwareEVSupported && (
                 <div style={{ fontSize: '11px', color: '#00FF66', background: 'rgba(0, 255, 102, 0.1)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(0, 255, 102, 0.2)' }}>
@@ -569,13 +738,17 @@ export default function QrScanner() {
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 <button
                   className="btn"
-                  onClick={() => applyHardwareExposure(100, 100)}
+                  onClick={() => {
+                    setAutoExposure(false);
+                    applyHardwareExposure(100, 100);
+                  }}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
-                    background: brightness === 100 && contrast === 100 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                    color: brightness === 100 && contrast === 100 ? '#000' : '#fff',
+                    background: !autoExposure && brightness === 100 && contrast === 100 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: !autoExposure && brightness === 100 && contrast === 100 ? '#000' : '#fff',
+                    fontWeight: !autoExposure && brightness === 100 && contrast === 100 ? 700 : 400,
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
@@ -583,73 +756,76 @@ export default function QrScanner() {
                 </button>
                 <button
                   className="btn"
-                  onClick={() => applyHardwareExposure(75, 120)}
+                  onClick={() => {
+                    setAutoExposure(false);
+                    applyHardwareExposure(50, 140);
+                  }}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
-                    background: brightness === 75 && contrast === 120 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                    color: brightness === 75 && contrast === 120 ? '#000' : '#fff',
+                    background: !autoExposure && brightness === 50 && contrast === 140 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: !autoExposure && brightness === 50 && contrast === 140 ? '#000' : '#fff',
+                    fontWeight: !autoExposure && brightness === 50 && contrast === 140 ? 700 : 400,
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
-                  🌗 少し暗く (-1.0 EV)
+                  🕶️ 暗く (-2.0 EV)
                 </button>
                 <button
                   className="btn"
-                  onClick={() => applyHardwareExposure(50, 140)}
+                  onClick={() => {
+                    setAutoExposure(false);
+                    applyHardwareExposure(150, 120);
+                  }}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
-                    background: brightness === 50 && contrast === 140 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                    color: brightness === 50 && contrast === 140 ? '#000' : '#fff',
+                    background: !autoExposure && brightness === 150 && contrast === 120 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: !autoExposure && brightness === 150 && contrast === 120 ? '#000' : '#fff',
+                    fontWeight: !autoExposure && brightness === 150 && contrast === 120 ? 700 : 400,
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
-                  🕶️ かなり暗く (-2.0 EV)
+                  ☀️ 明るく (+2.0 EV)
                 </button>
                 <button
                   className="btn"
-                  onClick={() => applyHardwareExposure(125, 110)}
-                  style={{
-                    padding: '4px 10px',
-                    fontSize: '11px',
-                    borderRadius: '6px',
-                    background: brightness === 125 && contrast === 110 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                    color: brightness === 125 && contrast === 110 ? '#000' : '#fff',
-                    border: '1px solid rgba(255,255,255,0.1)'
+                  onClick={() => {
+                    setAutoExposure(false);
+                    applyHardwareExposure(85, 170);
                   }}
-                >
-                  💡 少し明るく (+1.0 EV)
-                </button>
-                <button
-                  className="btn"
-                  onClick={() => applyHardwareExposure(150, 120)}
                   style={{
                     padding: '4px 10px',
                     fontSize: '11px',
                     borderRadius: '6px',
-                    background: brightness === 150 && contrast === 120 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                    color: brightness === 150 && contrast === 120 ? '#000' : '#fff',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}
-                >
-                  ☀️ かなり明るく (+2.0 EV)
-                </button>
-                <button
-                  className="btn"
-                  onClick={() => applyHardwareExposure(85, 170)}
-                  style={{
-                    padding: '4px 10px',
-                    fontSize: '11px',
-                    borderRadius: '6px',
-                    background: brightness === 85 && contrast === 170 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                    color: brightness === 85 && contrast === 170 ? '#000' : '#fff',
+                    background: !autoExposure && brightness === 85 && contrast === 170 ? '#f59e0b' : 'rgba(255,255,255,0.06)',
+                    color: !autoExposure && brightness === 85 && contrast === 170 ? '#000' : '#fff',
+                    fontWeight: !autoExposure && brightness === 85 && contrast === 170 ? 700 : 400,
                     border: '1px solid rgba(255,255,255,0.1)'
                   }}
                 >
                   ⚡ ハイコントラスト (-0.6 EV)
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => {
+                    setAutoExposure(true);
+                    addLog('⚡ 自動露出最適化 (Auto Exposure) を選択しました。リアルタイムで最適露出を自動調整します。', 'success');
+                  }}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: autoExposure ? '#00FF66' : 'rgba(255,255,255,0.06)',
+                    color: autoExposure ? '#000' : '#fff',
+                    fontWeight: autoExposure ? 800 : 400,
+                    border: autoExposure ? '1.5px solid #00FF66' : '1px solid rgba(255,255,255,0.1)',
+                    boxShadow: autoExposure ? '0 0 8px rgba(0, 255, 102, 0.4)' : 'none'
+                  }}
+                >
+                  ⚡ 自動露出 (Auto)
                 </button>
               </div>
 
@@ -666,7 +842,10 @@ export default function QrScanner() {
                     max="160"
                     step="5"
                     value={brightness}
-                    onChange={(e) => applyHardwareExposure(Number(e.target.value))}
+                    onChange={(e) => {
+                      setAutoExposure(false);
+                      applyHardwareExposure(Number(e.target.value));
+                    }}
                     style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                   />
                 </div>
@@ -682,7 +861,10 @@ export default function QrScanner() {
                     max="220"
                     step="10"
                     value={contrast}
-                    onChange={(e) => applyHardwareExposure(brightness, Number(e.target.value))}
+                    onChange={(e) => {
+                      setAutoExposure(false);
+                      applyHardwareExposure(brightness, Number(e.target.value));
+                    }}
                     style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                   />
                 </div>

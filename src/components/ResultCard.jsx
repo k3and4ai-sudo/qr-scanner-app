@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Copy, ExternalLink, FileText, Sparkles, Check } from 'lucide-react';
+import { CheckCircle2, Copy, ExternalLink, FileText, Sparkles, Check, RefreshCw } from 'lucide-react';
 
-export default function ResultCard({ scanResult }) {
+export default function ResultCard({ scanResult, onRescan, onClear }) {
   const [copied, setCopied] = useState(false);
 
   if (!scanResult) return null;
@@ -89,11 +89,11 @@ export default function ResultCard({ scanResult }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
         <button 
           className="btn btn-secondary"
           onClick={() => handleCopy(scanResult.rawValue || scanResult.value)}
-          style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          style={{ flex: 1, minWidth: '120px', padding: '12px', fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
         >
           {copied ? <Check size={16} color="#00FF66" /> : <Copy size={16} />}
           {copied ? 'コピー完了' : 'コードをコピー'}
@@ -105,10 +105,20 @@ export default function ResultCard({ scanResult }) {
             target="_blank" 
             rel="noreferrer"
             className="btn btn-primary"
-            style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#38bdf8' }}
+            style={{ flex: 1, minWidth: '120px', padding: '12px', fontSize: '14px', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#38bdf8' }}
           >
             <ExternalLink size={16} /> URL を開く
           </a>
+        )}
+
+        {onRescan && (
+          <button 
+            className="btn btn-success"
+            onClick={onRescan}
+            style={{ flex: 1, minWidth: '140px', padding: '12px', fontSize: '14px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          >
+            <RefreshCw size={16} /> もう一度スキャン
+          </button>
         )}
       </div>
 
