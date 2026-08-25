@@ -69,7 +69,6 @@ export function checkUrlSafety(urlStr) {
   try {
     parsedUrl = new URL(cleanUrl);
   } catch (e) {
-    // http/https が補完されていない相対URLの場合のフォールバック試行
     try {
       parsedUrl = new URL(`http://${cleanUrl}`);
     } catch (err) {
@@ -211,7 +210,7 @@ export function checkUrlSafety(urlStr) {
     summary = 'HTTP非暗号化通信または注意が必要な要素が含まれています。アクセス先をよく確認してください。';
   }
 
-  // 外部セキュリティデータベース参照用URLの生成
+  // 外部セキュリティデータベース参照用URLの修正（404および構文エラーの解消）
   const encodedUrl = encodeURIComponent(cleanUrl);
   const securityLinks = [
     {
@@ -220,14 +219,19 @@ export function checkUrlSafety(urlStr) {
       badge: 'Google Official'
     },
     {
-      name: 'VirusTotal (マルウェア・フィッシング解析)',
-      url: `https://www.virustotal.com/gui/search/${encodedUrl}`,
+      name: 'VirusTotal (マルチエンジン解析)',
+      url: `https://www.virustotal.com/gui/search?query=${encodedUrl}`,
       badge: 'Multi-AV Scan'
     },
     {
-      name: 'urlscan.io (URLスキャナー)',
-      url: `https://urlscan.io/search/#${encodedUrl}`,
+      name: 'urlscan.io (URL動作解析)',
+      url: `https://urlscan.io/search/#domain:${hostname}`,
       badge: 'Behavior Analysis'
+    },
+    {
+      name: 'Norton Safe Web (安全診断)',
+      url: `https://safeweb.norton.com/report/show?url=${encodedUrl}`,
+      badge: 'Norton Check'
     }
   ];
 
