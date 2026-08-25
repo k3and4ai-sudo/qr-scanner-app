@@ -636,15 +636,15 @@ export default function QrScanner() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-      {/* グリッドレイアウト: カメラコントロール & 結果表示 (メイン初期画面にはステータスランプ非表示) */}
-      <div className="responsive-main-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+      {/* グリッドレイアウト: カメラコントロール & 結果表示 */}
+      <div className="responsive-main-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
         
         {/* 左側: スキャンコントロール */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
           <h4 style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Camera size={20} color="#00FF66" /> スキャン実行
           </h4>
@@ -726,28 +726,20 @@ export default function QrScanner() {
               <QrCode size={22} /> {isLineApp ? 'Webカメラモーダルでスキャン' : 'QRスキャナーを起動'}
             </button>
           </div>
-
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', background: 'rgba(255, 255, 255, 0.03)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>⚡ 超高速デコード技術</div>
-            <ul style={{ paddingLeft: '18px', margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <li><strong>BarcodeDetector API:</strong> GPUアクセラレーションによるミリ秒単位検知</li>
-              <li><strong>白飛び復元エンジン:</strong> 物理EV露光制御 ＋ 適応二値化ガンマアルゴリズム</li>
-            </ul>
-          </div>
         </div>
 
         {/* 右側: 解読結果カード */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <h4 style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Zap size={20} color="#00FF66" /> スキャン結果
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+          <h4 style={{ fontSize: '15px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+            <Zap size={18} color="#00FF66" /> スキャン結果
           </h4>
 
           {scanResult ? (
             <ResultCard scanResult={scanResult} onRescan={handleScan} />
           ) : (
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '40px 20px', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.1)', textAlign: 'center', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <QrCode size={44} color="rgba(255, 255, 255, 0.2)" />
-              <div style={{ fontSize: '14px' }}>まだスキャンが実行されていません。<br />左側の「QRスキャナーを起動」ボタンからスキャンを開始してください。</div>
+            <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '24px 16px', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.1)', textAlign: 'center', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+              <QrCode size={36} color="rgba(255, 255, 255, 0.2)" />
+              <div style={{ fontSize: '13px' }}>まだスキャンが実行されていません。<br />左側の「QRスキャナーを起動」ボタンからスキャンを開始してください。</div>
             </div>
           )}
         </div>

@@ -128,6 +128,17 @@ export default function UserManual() {
             </ul>
           </div>
 
+          {/* 5. 超高速デコード技術 & 白飛び復元エンジン */}
+          <div className="card" style={{ background: 'rgba(236, 72, 153, 0.03)', border: '1px solid rgba(236, 72, 153, 0.2)' }}>
+            <h4 style={{ fontSize: '16px', color: '#ec4899', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Zap size={20} /> 5. ⚡ 超高速デコード技術 ＆ 白飛び復元エンジン
+            </h4>
+            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
+              <li><strong>BarcodeDetector API</strong>: ブラウザ標準の GPU アクセラレーションにより、ミリ秒単位で超高速なQRコード検知・解読を行います。</li>
+              <li><strong>白飛び復元エンジン</strong>: PC画面のギラつきや強光反射による露出オーバー（白飛び）が発生した際、物理EV露光制御 (`-2.0 EV` 〜 `+2.0 EV`) と適応二値化ガンマ補正アルゴリズムを組み合わせ、映像をリアルタイム復元して解読を完了させます。</li>
+            </ul>
+          </div>
+
         </div>
       )}
 
