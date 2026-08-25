@@ -1,5 +1,5 @@
 import React from 'react';
-import { QrCode, Sparkles, History, Github } from 'lucide-react';
+import { QrCode, Sparkles, History, BookOpen } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab }) {
   return (
@@ -36,7 +36,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
           </div>
         </div>
 
-        {/* タブナビゲーション */}
+        {/* タブナビゲーション (QRスキャナー / QRコード作成 / 履歴 / 取説) */}
         <div className="nav-tabs-wrapper" style={{ display: 'flex', gap: '6px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
           <button
             className="btn nav-tab-btn"
@@ -90,6 +90,24 @@ export default function Navbar({ activeTab, setActiveTab }) {
             }}
           >
             <History size={16} /> 履歴
+          </button>
+
+          <button
+            className="btn nav-tab-btn"
+            onClick={() => setActiveTab('manual')}
+            style={{
+              padding: '8px 14px',
+              fontSize: '13px',
+              fontWeight: 700,
+              background: activeTab === 'manual' ? '#fbbf24' : 'transparent',
+              color: activeTab === 'manual' ? '#000' : '#94a3b8',
+              boxShadow: activeTab === 'manual' ? '0 0 12px rgba(251,191,36,0.4)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <BookOpen size={16} /> 取説
           </button>
         </div>
 

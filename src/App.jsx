@@ -3,9 +3,10 @@ import Navbar from './components/Navbar';
 import QrScanner from './components/QrScanner';
 import QrGenerator from './components/QrGenerator';
 import ScanHistory from './components/ScanHistory';
+import UserManual from './components/UserManual';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('scan'); // 'scan', 'generate', 'history'
+  const [activeTab, setActiveTab] = useState('scan'); // 'scan' | 'generate' | 'history' | 'manual'
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -15,6 +16,7 @@ export default function App() {
         {activeTab === 'scan' && <QrScanner />}
         {activeTab === 'generate' && <QrGenerator />}
         {activeTab === 'history' && <ScanHistory />}
+        {activeTab === 'manual' && <UserManual />}
       </main>
 
       <footer style={{

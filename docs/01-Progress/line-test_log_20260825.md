@@ -10,8 +10,8 @@ type: session_log
 
 # QR Scanner App - 作業ログ (2026-08-25)
 
-**記録した日時**: 2026-08-25 15:51:00 JST
-**概要**: スキャンURL自動安全性診断・警告モーダル・即時カメラ起動の実装および取扱説明書 (MD/HTML/PDF) の全面更新
+**記録した日時**: 2026-08-25 16:00:00 JST
+**概要**: スキャンURL自動安全性診断・警告モーダル・即時カメラ起動の実装、および上部ナビへの「取説」ボタン追加
 
 ---
 
@@ -32,9 +32,9 @@ type: session_log
 4. **「QRスキャナーを起動」ボタン押下時の即時カメラ自動スキャン開始**:
    - ボタンをクリックした際、カメラモーダルへ即座に画面遷移すると同時に、**自動的に Web カメラを起動しリアルタイムQRコード解読がミリ秒単位で開始**されるよう改修。
 
-5. **取扱説明書ドキュメント (`USER_MANUAL.md` / `USER_MANUAL.html` / `USER_MANUAL.pdf`) の全面更新**:
-   - 新機能「ワンタップ即時スキャン開始」および「URL安全性自動診断・危険警告システム」を反映した取扱説明書 (`USER_MANUAL.md`) を更新。
-   - Python + LibreOffice を連携してスタンドアロン HTML (`USER_MANUAL.html`) および PDF (`USER_MANUAL.pdf`) を自動再生成し、`./dist` (GitHub Pages) 配下へ同期配置。
+5. **上部ナビゲーションバーへの「📖 取説」ボタン追加 ＆ `UserManual.jsx` 統合**:
+   - 起動画面ヘッダーの「QRスキャナー」「QRコード作成」「履歴」の並びへ **「📖 取説」** タブボタンを追加。
+   - アプリ内で直接操作マニュアルやトラブルシューティングを確認できる `UserManual.jsx` 画面を構築し、`USER_MANUAL.html` 閲覧や `USER_MANUAL.pdf` ダウンロードへのワンタップ導線を整備。
 
 ---
 
@@ -42,7 +42,7 @@ type: session_log
 
 ### 問題1: VirusTotal リンクをクリックすると "The page you navigated to does not exist (404)" になる
 - **問題点**: スキャン結果の VirusTotal リンクを開くとページが存在しない404エラーが発生。
-- **原因**: `/gui/search/https%3A%2F%2F...` のようにURLエンコード文字列を直接パスに結合していたため、VirusTotalのルーティング仕様に合致しなかった。
+- **原因**: `/gui/search/https%3A%2F%2F...` のようにURLエンコード文字列を直接パスに結合していたため。
 - **解決方法**: `https://www.virustotal.com/gui/search?query=${encodedUrl}` に修正。
 
 ### 問題2: urlscan.io リンクをクリックすると "Expected '\\' but '/' found" エラーが発生する
