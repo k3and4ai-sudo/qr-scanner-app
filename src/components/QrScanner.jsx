@@ -220,15 +220,23 @@ export default function QrScanner() {
     }
 
     if (!lineNativeSuccess) {
-      addLog('QRコードスキャナーモーダルを起動中...', 'info');
+      addLog('QRコードスキャナーモーダルを起動中... 即座にスキャンを開始します。', 'info');
       setShowMockModal(true);
       if (isLineApp) {
         setShowLineGuideModal(true);
       }
+      startWebcam();
     }
     setIsScanLaunching(false);
     updateCameraDevices();
   };
+
+  // モーダル切り替え時に自動でカメラ起動＆スキャン開始
+  useEffect(() => {
+    if (showMockModal && !isCameraActive) {
+      startWebcam();
+    }
+  }, [showMockModal]);
 
   // スキャン成功解析・データ構造化 & 履歴保存
   const processScanResult = (rawValue) => {
