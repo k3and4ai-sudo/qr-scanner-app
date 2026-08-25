@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Copy, ExternalLink, FileText, Sparkles, Check, RefreshCw } from 'lucide-react';
+import { 
+  CheckCircle2, Copy, ExternalLink, Check, RefreshCw, 
+  ShieldCheck, ShieldAlert, ShieldX, ChevronDown, ChevronUp, AlertTriangle, X
+} from 'lucide-react';
+import { checkUrlSafety } from '../utils/urlSafety';
 
 export default function ResultCard({ scanResult, onRescan, onClear }) {
   const [copied, setCopied] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   if (!scanResult) return null;
+
+  const rawText = scanResult.rawValue || scanResult.value || '';
+  const isUrl = scanResult.type === 'url' || rawText.startsWith('http://') || rawText.startsWith('https://');
+  const safetyReport = isUrl ? checkUrlSafety(rawText) : null;
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
@@ -12,19 +22,33 @@ export default function ResultCard({ scanResult, onRescan, onClear }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleOpenUrlClick = (e) => {
+    if (safetyReport && (safetyReport.status === 'warning' || safetyReport.status === 'danger')) {
+      e.preventDefault();
+      setShowWarningModal(true);
+    }
+  };
+
+  const confirmOpenUrl = () => {
+    setShowWarningModal(false);
+    window.open(rawText, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div style={{
       background: '#04140c',
       padding: '20px',
       borderRadius: '16px',
-      border: '2.5px solid #00FF66',
-      boxShadow: '0 0 30px rgba(0, 255, 102, 0.25)',
+      border: `2.5px solid ${safetyReport ? safetyReport.color : '#00FF66'}`,
+      boxShadow: `0 0 30px ${safetyReport ? `${safetyReport.color}40` : 'rgba(0, 255, 102, 0.25)'}`,
       display: 'flex',
       flexDirection: 'column',
       gap: '16px',
-      animation: 'fadeIn 0.3s ease-out'
+      animation: 'fadeIn 0.3s ease-out',
+      position: 'relative'
     }}>
       
+      {/* 画面上部ステータスバー */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <span style={{
           background: 'rgba(0, 255, 102, 0.18)',
@@ -44,7 +68,7 @@ export default function ResultCard({ scanResult, onRescan, onClear }) {
         <span style={{ fontSize: '12px', color: '#a7f3d0', fontWeight: 600 }}>⏱️ 読み込み時刻: {scanResult.timestamp}</span>
       </div>
 
-      {/* 超大文字フォント読み取り結果表示エリア */}
+      {/* 読み取りデータ表示エリア */}
       <div>
         <div style={{ fontSize: '13px', color: '#6ee7b7', fontWeight: 700, marginBottom: '6px' }}>▼ 読み込みデータ (デコード結果):</div>
         <div style={{
@@ -52,18 +76,146 @@ export default function ResultCard({ scanResult, onRescan, onClear }) {
           padding: '16px 18px',
           borderRadius: '12px',
           fontFamily: 'monospace',
-          fontSize: '22px', // 大文字フォント
-          fontWeight: 800,  // 超太字
-          color: '#00FF66', // 明るい緑
+          fontSize: '22px',
+          fontWeight: 800,
+          color: '#00FF66',
           wordBreak: 'break-all',
           lineHeight: '1.45',
           border: '1.5px solid rgba(0, 255, 102, 0.4)',
           boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.8), 0 0 12px rgba(0,255,102,0.15)'
         }}>
-          {scanResult.rawValue || scanResult.value}
+          {rawText}
         </div>
       </div>
 
+      {/* 🛡️ URL 安全性スコア・脅威診断エリア */}
+      {safetyReport && (
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.9)',
+          borderRadius: '12px',
+          border: `1.5px solid ${safetyReport.color}`,
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {safetyReport.status === 'safe' && <ShieldCheck size={22} color="#00FF66" />}
+              {safetyReport.status === 'warning' && <ShieldAlert size={22} color="#f59e0b" />}
+              {safetyReport.status === 'danger' && <ShieldX size={22} color="#ef4444" />}
+              <span style={{ fontSize: '15px', fontWeight: 800, color: safetyReport.color }}>
+                {safetyReport.label}
+              </span>
+            </div>
+            <div style={{
+              fontSize: '13px',
+              fontWeight: 800,
+              background: 'rgba(0,0,0,0.5)',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              color: safetyReport.color,
+              border: `1px solid ${safetyReport.color}`
+            }}>
+              安全スコア: {safetyReport.score} / 100
+            </div>
+          </div>
+
+          {/* スコアプログレスバー */}
+          <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{
+              width: `${safetyReport.score}%`,
+              height: '100%',
+              background: safetyReport.color,
+              transition: 'width 0.5s ease-out'
+            }} />
+          </div>
+
+          <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.5' }}>
+            {safetyReport.summary}
+          </div>
+
+          {/* 診断アコーディオン切り替えボタン */}
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#38bdf8',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: 0,
+              marginTop: '2px'
+            }}
+          >
+            {showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {showDetails ? 'セキュリティ診断項目を閉じる' : '詳細なセキュリティ診断項目を見る'}
+          </button>
+
+          {/* 詳細チェックアコーディオン */}
+          {showDetails && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px', paddingTop: '10px', borderTop: '1px dashed rgba(255,255,255,0.15)' }}>
+              {safetyReport.checks.map((chk, idx) => (
+                <div key={idx} style={{
+                  background: 'rgba(0,0,0,0.4)',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px'
+                }}>
+                  <span>{chk.safe ? '✅' : (chk.risk === 'high' ? '🔴' : '🟡')}</span>
+                  <div>
+                    <div style={{ fontWeight: 700, color: chk.safe ? '#00FF66' : (chk.risk === 'high' ? '#ef4444' : '#f59e0b') }}>
+                      {chk.title}
+                    </div>
+                    <div style={{ color: '#94a3b8', marginTop: '2px' }}>{chk.detail}</div>
+                  </div>
+                </div>
+              ))}
+
+              {/* 外部セキュリティ分析サービス連携 */}
+              <div style={{ marginTop: '10px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', marginBottom: '6px' }}>
+                  🔍 外部セキュリティデータベースでスキャン確認:
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {safetyReport.securityLinks.map((link, idx) => (
+                    <a
+                      key={idx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        background: 'rgba(56, 189, 248, 0.12)',
+                        color: '#38bdf8',
+                        border: '1px solid rgba(56, 189, 248, 0.3)',
+                        borderRadius: '6px',
+                        padding: '5px 10px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <ExternalLink size={12} /> {link.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* URL パラメータ構造 */}
       {scanResult.type === 'url' && scanResult.parsedData && (
         <div style={{ background: 'rgba(56, 189, 248, 0.08)', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.3)', fontSize: '13px' }}>
           <div style={{ fontWeight: 700, color: '#38bdf8', marginBottom: '4px' }}>🔗 URL パラメータ構造</div>
@@ -80,34 +232,40 @@ export default function ResultCard({ scanResult, onRescan, onClear }) {
         </div>
       )}
 
-      {scanResult.type === 'json' && scanResult.parsedData && (
-        <div style={{ background: 'rgba(168, 85, 247, 0.08)', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(168, 85, 247, 0.3)', fontSize: '13px' }}>
-          <div style={{ fontWeight: 700, color: '#a855f7', marginBottom: '4px' }}>🧱 解析済み JSON パイロード</div>
-          <pre style={{ margin: 0, color: '#a855f7', fontSize: '12px', overflowX: 'auto' }}>
-            {JSON.stringify(scanResult.parsedData, null, 2)}
-          </pre>
-        </div>
-      )}
-
+      {/* アクションボタン群 */}
       <div style={{ display: 'flex', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
         <button 
           className="btn btn-secondary"
-          onClick={() => handleCopy(scanResult.rawValue || scanResult.value)}
+          onClick={() => handleCopy(rawText)}
           style={{ flex: 1, minWidth: '120px', padding: '12px', fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
         >
           {copied ? <Check size={16} color="#00FF66" /> : <Copy size={16} />}
           {copied ? 'コピー完了' : 'コードをコピー'}
         </button>
 
-        {scanResult.type === 'url' && (
+        {isUrl && (
           <a 
-            href={scanResult.rawValue || scanResult.value} 
+            href={rawText} 
             target="_blank" 
             rel="noreferrer"
+            onClick={handleOpenUrlClick}
             className="btn btn-primary"
-            style={{ flex: 1, minWidth: '120px', padding: '12px', fontSize: '14px', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#38bdf8' }}
+            style={{ 
+              flex: 1, 
+              minWidth: '120px', 
+              padding: '12px', 
+              fontSize: '14px', 
+              fontWeight: 700, 
+              textDecoration: 'none', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '8px', 
+              background: safetyReport && safetyReport.status === 'danger' ? '#ef4444' : (safetyReport && safetyReport.status === 'warning' ? '#f59e0b' : '#38bdf8') 
+            }}
           >
-            <ExternalLink size={16} /> URL を開く
+            <ExternalLink size={16} /> 
+            {safetyReport && safetyReport.status === 'danger' ? '⚠️ 危険なURLを開く' : (safetyReport && safetyReport.status === 'warning' ? '⚠️ 注意してURLを開く' : 'URL を開く')}
           </a>
         )}
 
@@ -121,6 +279,90 @@ export default function ResultCard({ scanResult, onRescan, onClear }) {
           </button>
         )}
       </div>
+
+      {/* ⚠️ 安全警告インタラプトモーダル */}
+      {showWarningModal && safetyReport && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#0f172a',
+            border: `2px solid ${safetyReport.color}`,
+            borderRadius: '16px',
+            padding: '24px',
+            maxWidth: '480px',
+            width: '100%',
+            boxShadow: `0 0 40px ${safetyReport.color}50`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: safetyReport.color, fontSize: '18px', fontWeight: 800 }}>
+                <AlertTriangle size={24} /> 安全警告: URLの確認
+              </div>
+              <button 
+                onClick={() => setShowWarningModal(false)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ background: 'rgba(0,0,0,0.5)', padding: '12px', borderRadius: '8px', fontSize: '13px', color: '#f8fafc', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+              {rawText}
+            </div>
+
+            <div style={{ fontSize: '14px', color: '#cbd5e1', lineHeight: '1.6' }}>
+              このURLには不審な要素が含まれています:
+              <ul style={{ margin: '8px 0 0 20px', padding: 0, color: safetyReport.color }}>
+                {safetyReport.checks.filter(c => !c.safe).map((c, i) => (
+                  <li key={i}>{c.title}: {c.detail}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+              <a
+                href={safetyReport.securityLinks[0].url}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary"
+                style={{ textAlign: 'center', textDecoration: 'none', padding: '12px', fontSize: '13px', fontWeight: 700 }}
+              >
+                🔍 Google Safe Browsing で安全性を事前に調べる
+              </a>
+
+              <button
+                className="btn btn-danger"
+                onClick={confirmOpenUrl}
+                style={{ padding: '12px', fontSize: '13px', fontWeight: 700, background: safetyReport.color, borderColor: safetyReport.color }}
+              >
+                ⚠️ リスクを承知の上でアクセスする
+              </button>
+
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowWarningModal(false)}
+                style={{ padding: '10px', fontSize: '13px' }}
+              >
+                キャンセルして開かない
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

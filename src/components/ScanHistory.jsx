@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { History, Trash2, Copy, ExternalLink, Check, Search, FileText } from 'lucide-react';
+import { History, Trash2, Copy, ExternalLink, Check, Search, ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react';
 import { getScanHistory, clearScanHistory } from '../utils/storage';
+import { checkUrlSafety } from '../utils/urlSafety';
 
 export default function ScanHistory({ onSelectScan }) {
   const [history, setHistory] = useState([]);
@@ -80,59 +81,88 @@ export default function ScanHistory({ onSelectScan }) {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {filteredHistory.map((item) => (
-            <div key={item.id} className="card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(15, 23, 42, 0.85)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{
-                  background: item.type === 'url' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(0, 255, 102, 0.2)',
-                  color: item.type === 'url' ? '#38bdf8' : '#00FF66',
-                  border: `1px solid ${item.type === 'url' ? '#38bdf8' : '#00FF66'}`,
-                  fontSize: '11px',
+          {filteredHistory.map((item) => {
+            const isUrl = item.type === 'url' || item.value.startsWith('http://') || item.value.startsWith('https://');
+            const safety = isUrl ? checkUrlSafety(item.value) : null;
+
+            return (
+              <div key={item.id} className="card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(15, 23, 42, 0.85)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{
+                      background: item.type === 'url' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(0, 255, 102, 0.2)',
+                      color: item.type === 'url' ? '#38bdf8' : '#00FF66',
+                      border: `1px solid ${item.type === 'url' ? '#38bdf8' : '#00FF66'}`,
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '4px'
+                    }}>
+                      {item.type.toUpperCase()}
+                    </span>
+
+                    {/* URL の安全度バッジ */}
+                    {safety && (
+                      <span style={{
+                        background: `${safety.color}20`,
+                        color: safety.color,
+                        border: `1px solid ${safety.color}`,
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        {safety.status === 'safe' && <ShieldCheck size={12} />}
+                        {safety.status === 'warning' && <ShieldAlert size={12} />}
+                        {safety.status === 'danger' && <ShieldX size={12} />}
+                        スコア: {safety.score}
+                      </span>
+                    )}
+                  </div>
+
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>{item.timestamp}</span>
+                </div>
+
+                <div style={{
+                  fontFamily: 'monospace',
+                  fontSize: '14px',
                   fontWeight: 700,
-                  padding: '2px 8px',
-                  borderRadius: '4px'
+                  color: '#fff',
+                  wordBreak: 'break-all',
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  padding: '10px',
+                  borderRadius: '8px'
                 }}>
-                  {item.type.toUpperCase()}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>{item.timestamp}</span>
-              </div>
+                  {item.value}
+                </div>
 
-              <div style={{
-                fontFamily: 'monospace',
-                fontSize: '14px',
-                fontWeight: 700,
-                color: '#fff',
-                wordBreak: 'break-all',
-                background: 'rgba(0, 0, 0, 0.4)',
-                padding: '10px',
-                borderRadius: '8px'
-              }}>
-                {item.value}
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                <button 
-                  className="btn btn-secondary"
-                  onClick={() => handleCopy(item.id, item.value)}
-                  style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                >
-                  {copiedId === item.id ? <Check size={14} color="#00FF66" /> : <Copy size={14} />}
-                  {copiedId === item.id ? 'コピー完了' : 'コピー'}
-                </button>
-                {item.type === 'url' && (
-                  <a 
-                    href={item.value}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn btn-primary"
-                    style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', background: '#38bdf8' }}
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                  <button 
+                    className="btn btn-secondary"
+                    onClick={() => handleCopy(item.id, item.value)}
+                    style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
-                    <ExternalLink size={14} /> 開く
-                  </a>
-                )}
+                    {copiedId === item.id ? <Check size={14} color="#00FF66" /> : <Copy size={14} />}
+                    {copiedId === item.id ? 'コピー完了' : 'コピー'}
+                  </button>
+                  {item.type === 'url' && (
+                    <a 
+                      href={item.value}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-primary"
+                      style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', background: safety && safety.status === 'danger' ? '#ef4444' : '#38bdf8' }}
+                    >
+                      <ExternalLink size={14} /> 開く
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
