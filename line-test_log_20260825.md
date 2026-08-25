@@ -10,8 +10,8 @@ type: session_log
 
 # QR Scanner App - 作業ログ (2026-08-25)
 
-**記録した日時**: 2026-08-25 15:25:00 JST
-**概要**: スキャンURLの自動安全性診断・スコア判定・警告モーダルおよび外部DB検索リンクの不具合修正
+**記録した日時**: 2026-08-25 15:51:00 JST
+**概要**: スキャンURL自動安全性診断・警告モーダル・即時カメラ起動の実装および取扱説明書 (MD/HTML/PDF) の全面更新
 
 ---
 
@@ -29,6 +29,13 @@ type: session_log
    - urlscan.io の検索クエリをスラッシュ直書き形式から `domain:${hostname}` 形式へ修正し、Elasticsearch 構文エラー (`Expected "\\" but "/" found`) を解消。
    - 補完サービスとして **`Norton Safe Web (安全診断)`** リンクを新たに追加。
 
+4. **「QRスキャナーを起動」ボタン押下時の即時カメラ自動スキャン開始**:
+   - ボタンをクリックした際、カメラモーダルへ即座に画面遷移すると同時に、**自動的に Web カメラを起動しリアルタイムQRコード解読がミリ秒単位で開始**されるよう改修。
+
+5. **取扱説明書ドキュメント (`USER_MANUAL.md` / `USER_MANUAL.html` / `USER_MANUAL.pdf`) の全面更新**:
+   - 新機能「ワンタップ即時スキャン開始」および「URL安全性自動診断・危険警告システム」を反映した取扱説明書 (`USER_MANUAL.md`) を更新。
+   - Python + LibreOffice を連携してスタンドアロン HTML (`USER_MANUAL.html`) および PDF (`USER_MANUAL.pdf`) を自動再生成し、`./dist` (GitHub Pages) 配下へ同期配置。
+
 ---
 
 ## 2. トラブルシューティング（問題点・原因・解決方法）
@@ -36,17 +43,15 @@ type: session_log
 ### 問題1: VirusTotal リンクをクリックすると "The page you navigated to does not exist (404)" になる
 - **問題点**: スキャン結果の VirusTotal リンクを開くとページが存在しない404エラーが発生。
 - **原因**: `/gui/search/https%3A%2F%2F...` のようにURLエンコード文字列を直接パスに結合していたため、VirusTotalのルーティング仕様に合致しなかった。
-- **解決方法**:
-  - `https://www.virustotal.com/gui/search?query=${encodedUrl}` に修正し、検索エンドポイントへクエリ文字列として渡す構造に改善。
+- **解決方法**: `https://www.virustotal.com/gui/search?query=${encodedUrl}` に修正。
 
 ### 問題2: urlscan.io リンクをクリックすると "Expected '\\' but '/' found" エラーが発生する
 - **問題点**: urlscan.io の検索結果画面で構文解析エラーが発生し、検索が実行されない。
 - **原因**: urlscan.io のハッシュ検索 (`#https://...`) でURL内の `/` が正規表現のデリミタとして認識されたため。
-- **解決方法**:
-  - `https://urlscan.io/search/#domain:${hostname}` のドメイン指定形式に修正し、エラーなく該当ドメインの動作解析結果が表示されるよう改善。
+- **解決方法**: `https://urlscan.io/search/#domain:${hostname}` に修正。
 
 ---
 
 ## 3. 次回の作業予定
 
-- 最新コードの動作テストおよび Git リモートへのコミット・プッシュ。
+- 改修成果の検証および Git リモートリポジトリへのプッシュ。
