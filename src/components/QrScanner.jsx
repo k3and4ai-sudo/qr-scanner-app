@@ -794,6 +794,117 @@ export default function QrScanner() {
             {/* 🟢 モーダル内ステータスランプ */}
             <StatusLamp status={scanStatus} />
 
+            {/* 📷 リアルビデオプレビュー枠 (最上部に配置) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              
+              <div style={{
+                position: 'relative',
+                height: '240px',
+                background: '#020617',
+                borderRadius: '14px',
+                border: `2px solid ${isCameraActive ? (scanStatus === 'success' ? '#00FF66' : '#f59e0b') : 'rgba(255, 255, 255, 0.2)'}`,
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <video 
+                  ref={videoRef} 
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: isCameraActive ? 'block' : 'none',
+                    filter: `brightness(${brightness}%) contrast(${contrast}%)`
+                  }} 
+                />
+
+                {!isCameraActive && (
+                  <div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.7)', padding: '20px' }}>
+                    <Camera size={44} color="#00FF66" style={{ marginBottom: '8px', opacity: 0.8 }} />
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>
+                      カメラで QR コードをスキャン
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '14px' }}>
+                      手元にある本物の QR コードをカメラにかざすと即座に解読します
+                    </div>
+                    <button 
+                      className="btn btn-success"
+                      onClick={() => startWebcam()}
+                      style={{ padding: '10px 20px', fontSize: '14px', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <Video size={16} /> カメラを起動してスキャンを開始
+                    </button>
+                  </div>
+                )}
+
+                {isCameraActive && (
+                  <>
+                    <div style={{ position: 'absolute', top: 30, left: 30, width: 28, height: 28, borderTop: '3px solid #00FF66', borderLeft: '3px solid #00FF66' }}></div>
+                    <div style={{ position: 'absolute', top: 30, right: 30, width: 28, height: 28, borderTop: '3px solid #00FF66', borderRight: '3px solid #00FF66' }}></div>
+                    <div style={{ position: 'absolute', bottom: 30, left: 30, width: 28, height: 28, borderBottom: '3px solid #00FF66', borderLeft: '3px solid #00FF66' }}></div>
+                    <div style={{ position: 'absolute', bottom: 30, right: 30, width: 28, height: 28, borderBottom: '3px solid #00FF66', borderRight: '3px solid #00FF66' }}></div>
+
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '2px',
+                      background: 'linear-gradient(90deg, transparent, #00FF66, #4ade80, #00FF66, transparent)',
+                      boxShadow: '0 0 14px #00FF66',
+                      animation: 'scanLine 1.8s infinite ease-in-out'
+                    }}></div>
+                  </>
+                )}
+              </div>
+
+              {isCameraActive && (
+                <button
+                  className="btn btn-secondary"
+                  onClick={stopWebcam}
+                  style={{ padding: '8px', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)' }}
+                >
+                  <VideoOff size={14} /> カメラを停止する
+                </button>
+              )}
+
+              {cameraError && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1.5px solid rgba(239, 68, 68, 0.4)', padding: '14px', borderRadius: '12px', color: '#ef4444', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
+                    <AlertTriangle size={18} /> {cameraError}
+                  </div>
+
+                  {isLineApp && (
+                    <div style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.25)', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ color: '#fff', fontWeight: 800, fontSize: '12px' }}>💡 LINE内ブラウザでのカメラ解決手順:</div>
+                      <button
+                        className="btn"
+                        onClick={handleOpenExternalBrowser}
+                        style={{
+                          width: '100%',
+                          padding: '9px',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          background: 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <ExternalLink size={15} /> Safari / Chrome ブラウザで直接開く
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* 複数カメラ切り替えドロップダウンリスト */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(255, 255, 255, 0.03)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               <label style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1060,124 +1171,6 @@ export default function QrScanner() {
                   />
                 </div>
               </div>
-
-            </div>
-
-            {/* リアルビデオプレビュー枠 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              
-              <div style={{
-                position: 'relative',
-                height: '240px',
-                background: '#020617',
-                borderRadius: '14px',
-                border: `2px solid ${isCameraActive ? (scanStatus === 'success' ? '#00FF66' : '#f59e0b') : 'rgba(255, 255, 255, 0.2)'}`,
-                overflow: 'hidden',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <video 
-                  ref={videoRef} 
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: isCameraActive ? 'block' : 'none',
-                    filter: `brightness(${brightness}%) contrast(${contrast}%)`
-                  }} 
-                />
-
-                {!isCameraActive && (
-                  <div style={{ textAlign: 'center', color: 'rgba(255, 255, 255, 0.7)', padding: '20px' }}>
-                    <Camera size={44} color="#00FF66" style={{ marginBottom: '8px', opacity: 0.8 }} />
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>
-                      カメラで QR コードをスキャン
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '14px' }}>
-                      手元にある本物の QR コードをカメラにかざすと即座に解読します
-                    </div>
-                    <button 
-                      className="btn btn-success"
-                      onClick={() => startWebcam()}
-                      style={{ padding: '10px 20px', fontSize: '14px', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-                    >
-                      <Video size={16} /> カメラを起動してスキャンを開始
-                    </button>
-                  </div>
-                )}
-
-                {isCameraActive && (
-                  <>
-                    <div style={{ position: 'absolute', top: 30, left: 30, width: 28, height: 28, borderTop: '3px solid #00FF66', borderLeft: '3px solid #00FF66' }}></div>
-                    <div style={{ position: 'absolute', top: 30, right: 30, width: 28, height: 28, borderTop: '3px solid #00FF66', borderRight: '3px solid #00FF66' }}></div>
-                    <div style={{ position: 'absolute', bottom: 30, left: 30, width: 28, height: 28, borderBottom: '3px solid #00FF66', borderLeft: '3px solid #00FF66' }}></div>
-                    <div style={{ position: 'absolute', bottom: 30, right: 30, width: 28, height: 28, borderBottom: '3px solid #00FF66', borderRight: '3px solid #00FF66' }}></div>
-
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '2px',
-                      background: 'linear-gradient(90deg, transparent, #00FF66, #4ade80, #00FF66, transparent)',
-                      boxShadow: '0 0 14px #00FF66',
-                      animation: 'scanLine 1.8s infinite ease-in-out'
-                    }}></div>
-                  </>
-                )}
-              </div>
-
-              {isCameraActive && (
-                <button
-                  className="btn btn-secondary"
-                  onClick={stopWebcam}
-                  style={{ padding: '8px', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)' }}
-                >
-                  <VideoOff size={14} /> カメラを停止する
-                </button>
-              )}
-
-              {cameraError && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1.5px solid rgba(239, 68, 68, 0.4)', padding: '14px', borderRadius: '12px', color: '#ef4444', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
-                    <AlertTriangle size={18} /> {cameraError}
-                  </div>
-
-                  {isLineApp && (
-                    <div style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.25)', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ color: '#fff', fontWeight: 800, fontSize: '12px' }}>💡 LINE内ブラウザでのカメラ解決手順:</div>
-                      <button
-                        onClick={handleOpenExternalBrowser}
-                        style={{
-                          width: '100%',
-                          padding: '11px',
-                          background: 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontWeight: 800,
-                          fontSize: '13px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '8px',
-                          boxShadow: '0 4px 12px rgba(56, 189, 248, 0.35)'
-                        }}
-                      >
-                        <ExternalLink size={18} /> 他のブラウザ（Chrome / Safari）で開く
-                      </button>
-                      <button
-                        onClick={handleLineNativeScan}
-                        style={{ width: '100%', padding: '9px', background: 'rgba(6, 199, 85, 0.2)', color: '#06C755', border: '1px solid #06C755', borderRadius: '8px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                      >
-                        <QrCode size={16} /> LINE公式ネイティブカメラを試す (liff.scanCodeV2)
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
 
             </div>
 
