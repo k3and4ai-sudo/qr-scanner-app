@@ -37,56 +37,57 @@ export default function ResultCard({ scanResult, onRescan, onClear }) {
   return (
     <div style={{
       background: '#04140c',
-      padding: '20px',
-      borderRadius: '16px',
-      border: `2.5px solid ${safetyReport ? safetyReport.color : '#00FF66'}`,
-      boxShadow: `0 0 30px ${safetyReport ? `${safetyReport.color}40` : 'rgba(0, 255, 102, 0.25)'}`,
+      padding: '14px',
+      borderRadius: '14px',
+      border: `2px solid ${safetyReport ? safetyReport.color : '#00FF66'}`,
+      boxShadow: `0 0 24px ${safetyReport ? `${safetyReport.color}40` : 'rgba(0, 255, 102, 0.25)'}`,
       display: 'flex',
       flexDirection: 'column',
-      gap: '16px',
+      gap: '12px',
       animation: 'fadeIn 0.3s ease-out',
       position: 'relative'
     }}>
       
       {/* 画面上部ステータスバー */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
         <span style={{
           background: 'rgba(0, 255, 102, 0.18)',
           color: '#00FF66',
           border: '1.5px solid #00FF66',
-          fontSize: '14px',
+          fontSize: '12px',
           fontWeight: 800,
-          padding: '6px 14px',
+          padding: '4px 10px',
           borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',
           gap: '6px'
         }}>
-          <CheckCircle2 size={18} color="#00FF66" />
+          <CheckCircle2 size={16} color="#00FF66" />
           {scanResult.type.toUpperCase()} デコード成功
         </span>
-        <span style={{ fontSize: '12px', color: '#a7f3d0', fontWeight: 600 }}>⏱️ 読み込み時刻: {scanResult.timestamp}</span>
+        <span style={{ fontSize: '11px', color: '#a7f3d0', fontWeight: 600 }}>⏱️ {scanResult.timestamp}</span>
       </div>
 
       {/* 読み取りデータ表示エリア */}
       <div>
-        <div style={{ fontSize: '13px', color: '#6ee7b7', fontWeight: 700, marginBottom: '6px' }}>▼ 読み込みデータ (デコード結果):</div>
+        <div style={{ fontSize: '12px', color: '#6ee7b7', fontWeight: 700, marginBottom: '4px' }}>▼ 読み込みデータ (デコード結果):</div>
         <div style={{
           background: 'rgba(0, 0, 0, 0.65)',
-          padding: '16px 18px',
-          borderRadius: '12px',
+          padding: '12px 14px',
+          borderRadius: '10px',
           fontFamily: 'monospace',
-          fontSize: '22px',
+          fontSize: '16px',
           fontWeight: 800,
           color: '#00FF66',
           wordBreak: 'break-all',
-          lineHeight: '1.45',
+          lineHeight: '1.4',
           border: '1.5px solid rgba(0, 255, 102, 0.4)',
           boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.8), 0 0 12px rgba(0,255,102,0.15)'
         }}>
           {rawText}
         </div>
       </div>
+
 
       {/* 🛡️ URL 安全性スコア・脅威診断エリア */}
       {safetyReport && (

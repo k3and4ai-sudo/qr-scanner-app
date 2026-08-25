@@ -47,10 +47,67 @@ body {
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* 📱 スマートフォン表示専用シェル & スマホ実機枠（Aspect Ratio 9:19.5） */
+.mobile-app-shell {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 10px;
+  background-color: var(--bg-primary);
+}
+
+.mobile-phone-frame {
+  width: 100%;
+  max-width: 430px;
+  height: min(880px, 94vh);
+  background: var(--bg-primary);
+  border: 8px solid #1e293b;
+  border-radius: 36px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* スマホ上部 ノッチ / スピーカー シミュレーション (PC表示時) */
+.phone-notch {
+  height: 24px;
+  background: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.phone-speaker {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+.phone-camera {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+}
+
+.mobile-screen-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
 .container {
-  max-width: 1000px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 20px 16px 40px 16px;
+  padding: 14px 12px 24px 12px;
 }
 
 .card {
@@ -58,7 +115,7 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  padding: 20px;
+  padding: 16px 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -135,15 +192,31 @@ body {
   to { opacity: 1; transform: scale(1); }
 }
 
-/* 📱 スマートフォン実機に最適化したレスポンシブデザイン & 折り返しレイアウト調整 */
-@media (max-width: 640px) {
+/* 📱 スマホ実機表示時（画面幅 520px 以下）の全画面（Full Screen 100dvh）適用 */
+@media (max-width: 520px) {
+  .mobile-app-shell {
+    padding: 0 !important;
+  }
+
+  .mobile-phone-frame {
+    max-width: 100% !important;
+    height: 100dvh !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .phone-notch {
+    display: none !important;
+  }
+
   .container {
-    padding: 10px 8px 30px 8px !important;
+    padding: 10px 8px 24px 8px !important;
   }
   
   .card {
-    padding: 14px 12px !important;
-    border-radius: 14px !important;
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
   }
 
   body {
@@ -155,8 +228,8 @@ body {
   .nav-header-inner {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 10px !important;
-    padding: 8px 10px !important;
+    gap: 8px !important;
+    padding: 6px 8px !important;
   }
 
   .nav-title-sub {
@@ -196,7 +269,8 @@ body {
   /* スキャンカード / メインカードのレイアウト */
   .responsive-main-grid {
     grid-template-columns: 1fr !important;
-    gap: 14px !important;
+    gap: 12px !important;
   }
 }
+
 

@@ -38,3 +38,22 @@ export const clearScanHistory = () => {
   } catch (e) {}
   return [];
 };
+
+const CAMERA_PREF_KEY = 'qr_master_preferred_camera_id';
+
+export const getPreferredCameraId = () => {
+  try {
+    return localStorage.getItem(CAMERA_PREF_KEY) || '';
+  } catch (e) {
+    return '';
+  }
+};
+
+export const savePreferredCameraId = (deviceId) => {
+  try {
+    if (deviceId) {
+      localStorage.setItem(CAMERA_PREF_KEY, deviceId);
+    }
+  } catch (e) {}
+};
+

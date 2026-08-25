@@ -8,7 +8,7 @@ import {
 import StatusLamp from './StatusLamp';
 import ResultCard from './ResultCard';
 import { playSuccessSound } from '../utils/sound';
-import { saveScanToHistory } from '../utils/storage';
+import { saveScanToHistory, getPreferredCameraId, savePreferredCameraId } from '../utils/storage';
 
 export default function QrScanner() {
   const [scanResult, setScanResult] = useState(null);
@@ -18,6 +18,7 @@ export default function QrScanner() {
   const [cameraError, setCameraError] = useState(null);
   const [isScanLaunching, setIsScanLaunching] = useState(false);
   const [logs, setLogs] = useState([]);
+
   
   // LINE WebView 検出フラグ & ガイドモーダル
   const [isLineApp, setIsLineApp] = useState(false);
@@ -71,9 +72,10 @@ export default function QrScanner() {
     }
   };
 
-  // カメラ切り替え用デバイスリスト & 選択デバイス
+  // カメラ切り替え用デバイスリスト & 選択デバイス (前回選択カメラの保持)
   const [devices, setDevices] = useState([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState('');
+  const [selectedDeviceId, setSelectedDeviceId] = useState(() => getPreferredCameraId());
+  const isStartingWebcamRef = useRef(false);
 
   // 明るさ (Brightness) & コントラスト (Contrast) 調整 (白飛び対策)
   const [brightness, setBrightness] = useState(100); // 100% = 0 EV, 50% = -2.0 EV
@@ -94,6 +96,7 @@ export default function QrScanner() {
   const scanAttemptsCountRef = useRef(0);
   const autoPresetIndexRef = useRef(0);
   const lastAutoTimeRef = useRef(0);
+
 
   // BarcodeDetector API & カメラデバイス一覧の取得 ＆ LINE WebView 検出
   useEffect(() => {
@@ -126,14 +129,18 @@ export default function QrScanner() {
     return () => stopWebcam();
   }, []);
 
-  // 利用可能なカメラデバイスの一覧を取得
+  // 利用可能なカメラデバイスの一覧を取得 (前回選択カメラの自動復元)
   const updateCameraDevices = async () => {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
         const allDevices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = allDevices.filter(d => d.kind === 'videoinput');
         setDevices(videoDevices);
-        if (videoDevices.length > 0 && !selectedDeviceId) {
+        
+        const savedId = getPreferredCameraId();
+        if (savedId && videoDevices.some(d => d.deviceId === savedId)) {
+          setSelectedDeviceId(savedId);
+        } else if (videoDevices.length > 0 && !selectedDeviceId) {
           setSelectedDeviceId(videoDevices[0].deviceId);
         }
       }
@@ -225,7 +232,7 @@ export default function QrScanner() {
       if (isLineApp) {
         setShowLineGuideModal(true);
       }
-      startWebcam();
+      // モーダルオープン時 (showMockModal === true) の useEffect 側で startWebcam が自動実行されます
     }
     setIsScanLaunching(false);
     updateCameraDevices();
@@ -237,6 +244,7 @@ export default function QrScanner() {
       startWebcam();
     }
   }, [showMockModal]);
+
 
   // スキャン成功解析・データ構造化 & 履歴保存
   const processScanResult = (rawValue) => {
@@ -337,11 +345,14 @@ export default function QrScanner() {
     }
   };
 
-  // カメラ起動 (指定デバイスID対応 & フォールバック処理付き)
+  // カメラ起動 (指定デバイスID対応 & フォールバック処理付き & 同時起動ロック)
   const startWebcam = async (overrideDeviceId) => {
+    if (isStartingWebcamRef.current) return;
+    isStartingWebcamRef.current = true;
+
     setCameraError(null);
     setAutoExposure(true); // 起動時は自動露出を最優先選択
-    const targetDeviceId = overrideDeviceId || selectedDeviceId;
+    const targetDeviceId = overrideDeviceId || selectedDeviceId || getPreferredCameraId();
 
     // Secure Context (HTTPSまたはlocalhost) のチェック
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -354,6 +365,7 @@ export default function QrScanner() {
       setIsCameraActive(false);
       if (!scanResult) setScanStatus('idle');
       addLog(`❌ カメラ起動エラー: ${errText}`, 'error');
+      isStartingWebcamRef.current = false;
       return;
     }
 
@@ -411,6 +423,7 @@ export default function QrScanner() {
 
       setIsCameraActive(true);
       setScanStatus('scanning');
+      setCameraError(null); // カメラ起動成功によりエラー状態をクリア
 
       if (barcodeDetectorRef.current) {
         addLog('⚡【超高速モード】BarcodeDetector (GPUハードウェア加速) でデコードを開始します。', 'success');
@@ -440,10 +453,13 @@ export default function QrScanner() {
       setIsCameraActive(false);
       if (!scanResult) setScanStatus('idle');
       addLog(`❌ カメラ起動エラー: ${errText}`, 'error');
+    } finally {
+      isStartingWebcamRef.current = false;
     }
   };
 
   // カメラ停止
+
   const stopWebcam = () => {
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -905,16 +921,37 @@ export default function QrScanner() {
               )}
             </div>
 
-            {/* 複数カメラ切り替えドロップダウンリスト */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'rgba(255, 255, 255, 0.03)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-              <label style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Camera size={15} color="#00FF66" /> カメラデバイスの選択 (切り替え):
-              </label>
+            {/* 📷 複数カメラ切り替えドロップダウンリスト (選択カメラ保存対応) */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              background: 'rgba(255, 255, 255, 0.04)',
+              padding: '12px 14px',
+              borderRadius: '12px',
+              border: '1.5px solid rgba(0, 255, 102, 0.3)',
+              position: 'relative',
+              zIndex: 20,
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: '12px', color: '#00FF66', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Camera size={16} color="#00FF66" /> カメラデバイスの選択 (自動保存):
+                </label>
+                {devices.length > 0 && (
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    {devices.length}台のカメラを検出
+                  </span>
+                )}
+              </div>
+              
               <select
                 value={selectedDeviceId}
                 onChange={(e) => {
                   const newId = e.target.value;
                   setSelectedDeviceId(newId);
+                  savePreferredCameraId(newId);
+                  addLog(`📷 選択カメラを保存・変更しました (ID: ${newId.substring(0, 8)}...)`, 'info');
                   if (isCameraActive) {
                     stopWebcam();
                     startWebcam(newId);
@@ -924,7 +961,7 @@ export default function QrScanner() {
                   width: '100%',
                   background: '#090d16',
                   color: '#00FF66',
-                  border: '1.5px solid rgba(0, 255, 102, 0.4)',
+                  border: '1.5px solid rgba(0, 255, 102, 0.5)',
                   borderRadius: '8px',
                   padding: '10px 12px',
                   fontSize: '13px',
@@ -934,16 +971,27 @@ export default function QrScanner() {
                 }}
               >
                 {devices.length === 0 ? (
-                  <option value="">デフォルトカメラ (環境カメラ / インカメラ)</option>
+                  <option value="">デフォルトカメラ (自動検出)</option>
                 ) : (
-                  devices.map((device, idx) => (
-                    <option key={device.deviceId || idx} value={device.deviceId}>
-                      📷 {device.label || `カメラ ${idx + 1} (${device.deviceId.substring(0, 8)}...)`}
-                    </option>
-                  ))
+                  devices.map((device, idx) => {
+                    let labelStr = device.label || `カメラ ${idx + 1}`;
+                    if (/back|environment|rear|out/i.test(labelStr)) {
+                      labelStr = `📷 アウトカメラ (背面): ${labelStr}`;
+                    } else if (/front|user|in|face/i.test(labelStr)) {
+                      labelStr = `🤳 インカメラ (前面): ${labelStr}`;
+                    } else {
+                      labelStr = `📷 ${labelStr}`;
+                    }
+                    return (
+                      <option key={device.deviceId || idx} value={device.deviceId}>
+                        {labelStr}
+                      </option>
+                    );
+                  })
                 )}
               </select>
             </div>
+
 
             {/* ☀️ 白飛び防止・カメラ露光 & 二値化調整パネル */}
             <div style={{
