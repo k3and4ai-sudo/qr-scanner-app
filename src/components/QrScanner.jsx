@@ -1043,8 +1043,9 @@ export default function QrScanner() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <label style={{ fontSize: '12px', color: '#00FF66', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Camera size={16} color="#00FF66" /> カメラデバイスの選択 (自動保存):
+                  <Camera size={16} color="#00FF66" /> カメラデバイスの選択:
                 </label>
+
                 {devices.length > 0 && (
                   <span style={{ fontSize: '11px', color: '#94a3b8' }}>
                     {devices.length}台のカメラを検出
