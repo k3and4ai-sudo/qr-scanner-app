@@ -753,8 +753,7 @@ export default function QrScanner() {
                 onChange={(e) => {
                   const id = e.target.value;
                   setSelectedDeviceId(id);
-                  savePreferredCameraId(id);
-                  addLog(`📷 優先起動カメラを設定保存しました: ${id}`, 'info');
+                  addLog(`📷 カメラを選択しました: ${id}`, 'info');
                 }}
                 style={{
                   width: '100%',
@@ -789,7 +788,7 @@ export default function QrScanner() {
                 )}
               </select>
               <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '6px', lineHeight: '1.4' }}>
-                ※選択したカメラは自動設定保存され、次回起動時も優先使用されます。
+                ※選択したカメラでスキャンを起動します（自動保存は行われません）。
               </div>
             </div>
 
@@ -1058,13 +1057,13 @@ export default function QrScanner() {
                 onChange={(e) => {
                   const newId = e.target.value;
                   setSelectedDeviceId(newId);
-                  savePreferredCameraId(newId);
-                  addLog(`📷 選択カメラを保存・変更しました (ID: ${newId.substring(0, 8)}...)`, 'info');
+                  addLog(`📷 選択カメラを変更しました (ID: ${newId.substring(0, 8)}...)`, 'info');
                   if (isCameraActive) {
                     stopWebcam();
                     startWebcam(newId);
                   }
                 }}
+
                 style={{
                   width: '100%',
                   background: '#090d16',
