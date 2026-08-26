@@ -13,11 +13,13 @@ import { saveScanToHistory, getPreferredCameraId, savePreferredCameraId } from '
 export default function QrScanner() {
   const [scanResult, setScanResult] = useState(null);
   const [scanStatus, setScanStatus] = useState('idle'); // 'idle' | 'scanning' | 'success'
+  const [viewMode, setViewMode] = useState('scanner'); // 'scanner' | 'result' | 'logs'
   const [showMockModal, setShowMockModal] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const [isScanLaunching, setIsScanLaunching] = useState(false);
   const [logs, setLogs] = useState([]);
+
 
   
   // LINE WebView 検出フラグ & ガイドモーダル
@@ -295,7 +297,9 @@ export default function QrScanner() {
 
     setScanResult(resObj);
     saveScanToHistory(resObj);
+    setViewMode('result');
   };
+
 
   // 物理カメラセンサーのハードウェア露光制御 (EV補正) ＆ 画面ログ出力
   const applyHardwareExposure = async (bVal, cVal = contrast) => {
@@ -656,10 +660,67 @@ export default function QrScanner() {
       
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-      {/* グリッドレイアウト: カメラコントロール & 結果表示 */}
-      <div className="responsive-main-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
-        
-        {/* 左側: スキャンコントロール */}
+      {/* 1. スキャン結果画面 (デコード成功時に画面全体を切り替え) */}
+      {viewMode === 'result' && scanResult && (
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+          <h4 style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+            <Zap size={20} color="#00FF66" /> スキャン結果
+          </h4>
+          <ResultCard 
+            scanResult={scanResult} 
+            onRescan={() => {
+              setScanResult(null);
+              setScanStatus('idle');
+              setViewMode('scanner');
+              handleScan();
+            }} 
+            onShowLogs={() => setViewMode('logs')}
+          />
+        </div>
+      )}
+
+      {/* 2. Diagnostics Log Console 画面 */}
+      {viewMode === 'logs' && (
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h4 style={{ fontSize: '15px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+              <Layers size={16} color="#38bdf8" /> Diagnostics Log Console
+            </h4>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button 
+                className="btn btn-secondary" 
+                onClick={() => setLogs([])} 
+                style={{ padding: '4px 10px', fontSize: '11px' }}
+              >
+                クリア
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={() => setViewMode(scanResult ? 'result' : 'scanner')} 
+                style={{ padding: '4px 10px', fontSize: '11px', fontWeight: 800 }}
+              >
+                ◀ {scanResult ? 'スキャン結果に戻る' : 'スキャン画面に戻る'}
+              </button>
+            </div>
+          </div>
+
+          <div style={{ background: '#090d16', padding: '12px', borderRadius: '8px', maxHeight: '380px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {logs.length === 0 ? (
+              <span style={{ color: '#64748b' }}>ログはまだありません。スキャンを実行するとイベントが記録されます。</span>
+            ) : (
+              logs.map((log, index) => (
+                <div key={index} style={{ color: log.type === 'error' ? '#ef4444' : log.type === 'warning' ? '#f59e0b' : log.type === 'success' ? '#00FF66' : '#38bdf8' }}>
+                  <span style={{ color: '#64748b', marginRight: '8px' }}>[{log.time}]</span>
+                  {log.msg}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 3. スキャン実行画面 (初期画面・再スキャン時) */}
+      {(viewMode === 'scanner' || (!scanResult && viewMode !== 'logs')) && (
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
           <h4 style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Camera size={20} color="#00FF66" /> スキャン実行
@@ -743,24 +804,8 @@ export default function QrScanner() {
             </button>
           </div>
         </div>
+      )}
 
-        {/* 右側: 解読結果カード */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
-          <h4 style={{ fontSize: '15px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-            <Zap size={18} color="#00FF66" /> スキャン結果
-          </h4>
-
-          {scanResult ? (
-            <ResultCard scanResult={scanResult} onRescan={handleScan} />
-          ) : (
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '24px 16px', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.1)', textAlign: 'center', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-              <QrCode size={36} color="rgba(255, 255, 255, 0.2)" />
-              <div style={{ fontSize: '13px' }}>まだスキャンが実行されていません。<br />左側の「QRスキャナーを起動」ボタンからスキャンを開始してください。</div>
-            </div>
-          )}
-        </div>
-
-      </div>
 
       {/* カメラモーダル Overlay */}
       {showMockModal && (
@@ -1234,31 +1279,8 @@ export default function QrScanner() {
         </div>
       )}
 
-      {/* 診断ログ */}
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <h4 style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
-            <Layers size={16} color="#38bdf8" /> Diagnostics Log Console
-          </h4>
-          <button className="btn btn-secondary" onClick={() => setLogs([])} style={{ padding: '4px 10px', fontSize: '11px' }}>
-            クリア
-          </button>
-        </div>
-        <div style={{ background: '#090d16', padding: '12px', borderRadius: '8px', maxHeight: '140px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {logs.length === 0 ? (
-            <span style={{ color: '#64748b' }}>ログはまだありません。スキャンを実行するとイベントが記録されます。</span>
-          ) : (
-            logs.map((log, index) => (
-              <div key={index} style={{ color: log.type === 'error' ? '#ef4444' : log.type === 'warning' ? '#f59e0b' : log.type === 'success' ? '#00FF66' : '#38bdf8' }}>
-                <span style={{ color: '#64748b', marginRight: '8px' }}>[{log.time}]</span>
-                {log.msg}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
       {/* 📱 LINE内ブラウザ専用 解決ガイドモーダル */}
+
       {showLineGuideModal && (
         <div style={{
           position: 'fixed',
