@@ -743,6 +743,57 @@ export default function QrScanner() {
               「QRスキャナーを起動」をクリックすると、カメラモーダルが起動しリアルタイムQRコード解読を開始します。
             </div>
 
+            {/* 起動時に使用するカメラの設定 */}
+            <div style={{ marginBottom: '14px', background: 'rgba(0, 0, 0, 0.4)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(0, 255, 102, 0.25)' }}>
+              <label style={{ fontSize: '12px', fontWeight: 800, color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                <Camera size={15} color="#00FF66" /> 起動時に使用するカメラ:
+              </label>
+              <select
+                value={selectedDeviceId || ''}
+                onChange={(e) => {
+                  const id = e.target.value;
+                  setSelectedDeviceId(id);
+                  savePreferredCameraId(id);
+                  addLog(`📷 優先起動カメラを設定保存しました: ${id}`, 'info');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '9px 10px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  borderRadius: '8px',
+                  background: '#0f172a',
+                  color: '#00FF66',
+                  border: '1px solid rgba(0, 255, 102, 0.4)',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {devices.length === 0 ? (
+                  <option value="">標準カメラ (自動選択)</option>
+                ) : (
+                  devices.map((device, index) => {
+                    const label = device.label || `カメラ ${index + 1}`;
+                    let formattedLabel = label;
+                    if (label.toLowerCase().includes('back') || label.toLowerCase().includes('rear') || label.toLowerCase().includes('environment')) {
+                      formattedLabel = `アウトカメラ (背面) - ${label}`;
+                    } else if (label.toLowerCase().includes('front') || label.toLowerCase().includes('user') || label.toLowerCase().includes('facing')) {
+                      formattedLabel = `インカメラ (前面) - ${label}`;
+                    }
+                    return (
+                      <option key={device.deviceId || index} value={device.deviceId}>
+                        {formattedLabel}
+                      </option>
+                    );
+                  })
+                )}
+              </select>
+              <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '6px', lineHeight: '1.4' }}>
+                ※選択したカメラは自動設定保存され、次回起動時も優先使用されます。
+              </div>
+            </div>
+
+
             {isLineApp && (
               <div style={{ background: 'rgba(6, 199, 85, 0.12)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(6, 199, 85, 0.35)', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ fontSize: '12px', color: '#06C755', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
