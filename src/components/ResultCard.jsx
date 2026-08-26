@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { checkUrlSafety } from '../utils/urlSafety';
 
-export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs }) {
+export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs, onShowDetails }) {
   const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -172,26 +172,47 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs }
             {safetyReport.summary}
           </div>
 
-          {/* 診断アコーディオン切り替えボタン */}
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#38bdf8',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: 0,
-              marginTop: '2px'
-            }}
-          >
-            {showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            {showDetails ? 'セキュリティ診断項目を閉じる' : '詳細なセキュリティ診断項目を見る'}
-          </button>
+          {/* 詳細セキュリティ診断表示 リンク */}
+          {onShowDetails ? (
+            <button
+              onClick={onShowDetails}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#38bdf8',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: 0,
+                marginTop: '2px'
+              }}
+            >
+              <ChevronDown size={16} /> 詳細セキュリティ診断表示
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#38bdf8',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: 0,
+                marginTop: '2px'
+              }}
+            >
+              {showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {showDetails ? 'セキュリティ診断項目を閉じる' : '詳細セキュリティ診断表示'}
+            </button>
+          )}
 
           {/* Diagnostics Log Console リンク */}
           {onShowLogs && (
@@ -215,8 +236,8 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs }
             </button>
           )}
 
-          {/* 詳細チェックアコーディオン */}
-          {showDetails && (
+          {/* 詳細チェックアコーディオン (onShowDetails未設定時のインライン表示用) */}
+          {!onShowDetails && showDetails && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px', paddingTop: '10px', borderTop: '1px dashed rgba(255,255,255,0.15)' }}>
               {safetyReport.checks.map((chk, idx) => (
                 <div key={idx} style={{

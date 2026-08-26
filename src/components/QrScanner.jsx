@@ -7,13 +7,15 @@ import {
 } from 'lucide-react';
 import StatusLamp from './StatusLamp';
 import ResultCard from './ResultCard';
+import SecurityDetailsCard from './SecurityDetailsCard';
 import { playSuccessSound } from '../utils/sound';
 import { saveScanToHistory, getPreferredCameraId, savePreferredCameraId } from '../utils/storage';
 
 export default function QrScanner() {
   const [scanResult, setScanResult] = useState(null);
   const [scanStatus, setScanStatus] = useState('idle'); // 'idle' | 'scanning' | 'success'
-  const [viewMode, setViewMode] = useState('scanner'); // 'scanner' | 'result' | 'logs'
+  const [viewMode, setViewMode] = useState('scanner'); // 'scanner' | 'result' | 'logs' | 'details'
+
   const [showMockModal, setShowMockModal] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
@@ -675,11 +677,20 @@ export default function QrScanner() {
               handleScan();
             }} 
             onShowLogs={() => setViewMode('logs')}
+            onShowDetails={() => setViewMode('details')}
           />
         </div>
       )}
 
-      {/* 2. Diagnostics Log Console 画面 */}
+      {/* 2. 詳細セキュリティ診断 画面 (独立した専用ページ表示) */}
+      {viewMode === 'details' && scanResult && (
+        <SecurityDetailsCard 
+          scanResult={scanResult} 
+          onBack={() => setViewMode('result')} 
+        />
+      )}
+
+      {/* 3. Diagnostics Log Console 画面 */}
       {viewMode === 'logs' && (
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -719,8 +730,9 @@ export default function QrScanner() {
         </div>
       )}
 
-      {/* 3. スキャン実行画面 (初期画面・再スキャン時) */}
-      {(viewMode === 'scanner' || (!scanResult && viewMode !== 'logs')) && (
+      {/* 4. スキャン実行画面 (初期画面・再スキャン時) */}
+      {(viewMode === 'scanner' || (!scanResult && viewMode !== 'logs' && viewMode !== 'details')) && (
+
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
           <h4 style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Camera size={20} color="#00FF66" /> スキャン実行
