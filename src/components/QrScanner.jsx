@@ -12,7 +12,12 @@ import { playSuccessSound } from '../utils/sound';
 import { saveScanToHistory, getPreferredCameraId, savePreferredCameraId } from '../utils/storage';
 
 export default function QrScanner() {
-  const [scanResult, setScanResult] = useState(null);
+  const [scanResult, setScanResultState] = useState(null);
+  const scanResultRef = useRef(null);
+  const setScanResult = (res) => {
+    scanResultRef.current = res;
+    setScanResultState(res);
+  };
   const [scanStatus, setScanStatus] = useState('idle'); // 'idle' | 'scanning' | 'success'
   const [viewMode, setViewMode] = useState('scanner'); // 'scanner' | 'result' | 'logs' | 'details'
 
@@ -84,10 +89,17 @@ export default function QrScanner() {
   // 明るさ (Brightness) & コントラスト (Contrast) 調整 (白飛び対策)
   const [brightness, setBrightness] = useState(100); // 100% = 0 EV, 50% = -2.0 EV
   const [contrast, setContrast] = useState(100);   // 100% = 標準, 120%〜170% = エッジ強調
+  const brightnessRef = useRef(100);
+  const contrastRef = useRef(100);
   const [hardwareEVSupported, setHardwareEVSupported] = useState(false);
 
   // ⚡ QRコード自動露出最適化 (Auto Exposure System)
-  const [autoExposure, setAutoExposure] = useState(true);
+  const [autoExposure, setAutoExposureState] = useState(true);
+  const autoExposureRef = useRef(true);
+  const setAutoExposure = (val) => {
+    autoExposureRef.current = val;
+    setAutoExposureState(val);
+  };
   const [autoStatus, setAutoStatus] = useState('optimal'); // 'optimal' | 'glare' | 'dark' | 'sweep'
   const [currentLuminance, setCurrentLuminance] = useState(null);
 
@@ -304,9 +316,12 @@ export default function QrScanner() {
 
 
   // 物理カメラセンサーのハードウェア露光制御 (EV補正) ＆ 画面ログ出力
-  const applyHardwareExposure = async (bVal, cVal = contrast) => {
+  const applyHardwareExposure = async (bVal, cVal = contrastRef.current) => {
+    brightnessRef.current = bVal;
+    if (cVal !== undefined) contrastRef.current = cVal;
     setBrightness(bVal);
     if (cVal !== undefined) setContrast(cVal);
+
 
     // EV値の計算 (100% = 0.0 EV, 75% = -1.0 EV, 50% = -2.0 EV)
     const evNum = (bVal - 100) / 25;
@@ -525,14 +540,14 @@ export default function QrScanner() {
           canvas.height = targetHeight;
 
           // パス①: CSS フィルタによる標準描画
-          ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+          ctx.filter = `brightness(${brightnessRef.current}%) contrast(${contrastRef.current}%)`;
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           ctx.filter = 'none';
 
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
           // ⚡【リアルタイム輝度解析 ＆ 自動露出 (Auto Exposure) 最適化制御】
-          if (autoExposure && !scanResult) {
+          if (autoExposureRef.current && !scanResultRef.current) {
             if (now - lastAutoTimeRef.current > 300) {
               lastAutoTimeRef.current = now;
 
@@ -571,13 +586,13 @@ export default function QrScanner() {
                 setCurrentLuminance(avgLum);
 
                 if (overexposedRatio > 0.15 || avgLum > 185) {
-                  if (brightness !== 50 || contrast !== 140) {
+                  if (brightnessRef.current !== 50 || contrastRef.current !== 140) {
                     applyHardwareExposure(50, 140);
                     setAutoStatus('glare');
                     addLog(`⚡ [自動露出最適化] 白飛び過多を検出 (輝度: ${avgLum}) ➔ 暗調補正 (-2.0 EV) 自動適用`, 'info');
                   }
                 } else if (underexposedRatio > 0.40 || avgLum < 55) {
-                  if (brightness !== 150 || contrast !== 120) {
+                  if (brightnessRef.current !== 150 || contrastRef.current !== 120) {
                     applyHardwareExposure(150, 120);
                     setAutoStatus('dark');
                     addLog(`⚡ [自動露出最適化] 暗所環境を検出 (輝度: ${avgLum}) ➔ 明暗補正 (+2.0 EV) 自動適用`, 'info');
@@ -593,7 +608,7 @@ export default function QrScanner() {
                   const p = presets[autoPresetIndexRef.current];
                   applyHardwareExposure(p.b, p.c);
                   setAutoStatus('sweep');
-                } else if (avgLum >= 60 && avgLum <= 180 && (brightness !== 100 || contrast !== 100) && autoStatus !== 'sweep') {
+                } else if (avgLum >= 60 && avgLum <= 180 && (brightnessRef.current !== 100 || contrastRef.current !== 100) && autoStatus !== 'sweep') {
                   applyHardwareExposure(100, 100);
                   setAutoStatus('optimal');
                 }
@@ -601,11 +616,13 @@ export default function QrScanner() {
             }
           }
 
+
           const inversionOption = scanAttemptsCountRef.current % 5 === 0 ? 'attemptBoth' : 'dontInvert';
           let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: inversionOption });
 
           // パス②: 通常解析失敗 ＆ 白飛び時 ➔ 「非線形ガンマ暗調 ＋ ローカル二値化アルゴリズム」前処理 pass で再デコード！
-          if (!code && (brightness < 100 || scanAttemptsCountRef.current % 3 === 0)) {
+          if (!code && (brightnessRef.current < 100 || scanAttemptsCountRef.current % 3 === 0)) {
+
             const binarizedData = new Uint8ClampedArray(imageData.data);
             const factor = brightness / 100;
             const gamma = factor < 1.0 ? 0.38 : 1.0;
