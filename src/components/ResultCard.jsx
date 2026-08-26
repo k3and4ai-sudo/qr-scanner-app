@@ -88,6 +88,43 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs }
         </div>
       </div>
 
+      {/* ②「コードをコピー」と「URLを開く」ボタンを読み込みデータ直下に移動 */}
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button 
+          className="btn btn-secondary"
+          onClick={() => handleCopy(rawText)}
+          style={{ flex: 1, padding: '11px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+        >
+          {copied ? <Check size={16} color="#00FF66" /> : <Copy size={16} />}
+          {copied ? 'コピー完了' : 'コードをコピー'}
+        </button>
+
+        {isUrl && (
+          <a 
+            href={rawText} 
+            target="_blank" 
+            rel="noreferrer"
+            onClick={handleOpenUrlClick}
+            className="btn btn-primary"
+            style={{ 
+              flex: 1, 
+              padding: '11px', 
+              fontSize: '13px', 
+              fontWeight: 700, 
+              textDecoration: 'none', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '6px', 
+              background: safetyReport && safetyReport.status === 'danger' ? '#ef4444' : (safetyReport && safetyReport.status === 'warning' ? '#f59e0b' : '#38bdf8') 
+            }}
+          >
+            <ExternalLink size={16} /> 
+            {safetyReport && safetyReport.status === 'danger' ? '⚠️ 危険なURLを開く' : (safetyReport && safetyReport.status === 'warning' ? '⚠️ 注意してURLを開く' : 'URL を開く')}
+          </a>
+        )}
+      </div>
+
       {/* 🛡️ URL 安全性スコア・脅威診断エリア */}
       {safetyReport && (
         <div style={{
@@ -254,54 +291,17 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs }
         </div>
       )}
 
-      {/* アクションボタン群 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button 
-            className="btn btn-secondary"
-            onClick={() => handleCopy(rawText)}
-            style={{ flex: 1, padding: '11px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-          >
-            {copied ? <Check size={16} color="#00FF66" /> : <Copy size={16} />}
-            {copied ? 'コピー完了' : 'コードをコピー'}
-          </button>
+      {/* もう一度スキャンボタン (最下部) */}
+      {onRescan && (
+        <button 
+          className="btn btn-success"
+          onClick={onRescan}
+          style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px' }}
+        >
+          <RefreshCw size={18} /> もう一度スキャン
+        </button>
+      )}
 
-          {isUrl && (
-            <a 
-              href={rawText} 
-              target="_blank" 
-              rel="noreferrer"
-              onClick={handleOpenUrlClick}
-              className="btn btn-primary"
-              style={{ 
-                flex: 1, 
-                padding: '11px', 
-                fontSize: '13px', 
-                fontWeight: 700, 
-                textDecoration: 'none', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '6px', 
-                background: safetyReport && safetyReport.status === 'danger' ? '#ef4444' : (safetyReport && safetyReport.status === 'warning' ? '#f59e0b' : '#38bdf8') 
-              }}
-            >
-              <ExternalLink size={16} /> 
-              {safetyReport && safetyReport.status === 'danger' ? '⚠️ 危険なURLを開く' : (safetyReport && safetyReport.status === 'warning' ? '⚠️ 注意してURLを開く' : 'URL を開く')}
-            </a>
-          )}
-        </div>
-
-        {onRescan && (
-          <button 
-            className="btn btn-success"
-            onClick={onRescan}
-            style={{ width: '100%', padding: '13px', fontSize: '15px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px' }}
-          >
-            <RefreshCw size={18} /> もう一度スキャン
-          </button>
-        )}
-      </div>
 
       {/* ⚠️ 安全警告インタラプトモーダル */}
 

@@ -194,7 +194,8 @@ export function checkUrlSafety(urlStr) {
   let level = 'safe';
   let label = '🟢 安全度: 高 (Safe)';
   let color = '#00FF66';
-  let summary = '目立った脅威パターンは検出されませんでした。通常のWebページです。';
+  let summary = '脅威パターンなし';
+
 
   if (score < 60) {
     status = 'danger';
