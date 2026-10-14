@@ -1,16 +1,37 @@
 {
   "short_name": "QR Master",
-  "name": "QR Master Studio - 超高速 QRスキャナー",
+  "name": "QR Master Studio - 超高速 PWA QRスキャナー & 発行ツール",
+  "description": "GPUハードウェア加速 BarcodeDetector API 搭載。超高速・軽量な PWA 対応 Web QRコードスキャナー & ジェネレーター。",
   "icons": [
     {
-      "src": "favicon.svg",
-      "sizes": "192x192 512x512",
+      "src": "./icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
       "type": "image/svg+xml"
     }
   ],
-  "start_url": ".",
+  "start_url": "./",
+  "scope": "./",
   "background_color": "#090d16",
   "theme_color": "#00FF66",
   "display": "standalone",
-  "orientation": "portrait"
+  "orientation": "portrait",
+  "categories": ["utilities", "productivity"]
 }

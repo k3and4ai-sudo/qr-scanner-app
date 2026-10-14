@@ -1,5 +1,6 @@
 import React from 'react';
 import { QrCode, Sparkles, History, BookOpen, FolderOpen } from 'lucide-react';
+import { PwaInstallButton } from './PwaInstallButton';
 
 export default function Navbar({ activeTab, setActiveTab }) {
   return (
@@ -14,7 +15,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         
-        {/* 上部: アプリタイトル・ロゴ */}
+        {/* 上部: アプリタイトル・ロゴ & PWAインストールボタン */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{
@@ -36,6 +37,11 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 GPU 加速 Web QR ツール
               </div>
             </div>
+          </div>
+
+          {/* PWA インストールボタン */}
+          <div>
+            <PwaInstallButton />
           </div>
         </div>
 
