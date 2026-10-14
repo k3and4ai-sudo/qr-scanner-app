@@ -37,8 +37,9 @@ graph TD
 | **`ResultCard.jsx`** | スキャン結果表示、コピー、ブラウザオープン、LINE起動 | Lucide Icons, `window.open` |
 | **`SecurityDetailsCard.jsx`** | URL安全スコアの内訳、プロトコル、ドメイン、危険警告表示 | `urlSafety.js` |
 | **`QrGenerator.jsx`** | テキスト/URLからのQR画像生成、PNGダウンロード、カラー変更 | `qrcode.react` |
-| **`ScanHistory.jsx`** | 過去スキャン履歴の一覧表示、再表示、クリア | `localStorage` |
-| **`UserManual.jsx`** | 各機能の使い方、カメラ許可手順、トラブルシューティング解説 | Markdown風UI |
+| **`PwaInstallButton.jsx`** | ホーム画面追加プロンプトの発行、PWA起動ステータスバッジ | `usePwaInstall.js`, Lucide Icons |
+| **`usePwaInstall.js`** | `beforeinstallprompt` の捕捉、インストール可否状態管理 | Service Worker, Web App Manifest |
+| **`public/sw.js`** | オフラインキャッシュ（Stale-While-Revalidate）制御 | Service Worker Cache API |
 
 ---
 
