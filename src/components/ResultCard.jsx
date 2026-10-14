@@ -13,7 +13,8 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs, 
   if (!scanResult) return null;
 
   const rawText = scanResult.rawValue || scanResult.value || '';
-  const isUrl = scanResult.type === 'url' || rawText.startsWith('http://') || rawText.startsWith('https://');
+  const isUrl = scanResult.type === 'url' || rawText.startsWith('http://') || rawText.startsWith('https://') || rawText.startsWith('line://');
+  const isLineUrl = rawText.includes('line.me') || rawText.includes('line.naver.jp') || rawText.startsWith('line://');
   const safetyReport = isUrl ? checkUrlSafety(rawText) : null;
 
   const handleCopy = (text) => {
@@ -116,11 +117,15 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs, 
               alignItems: 'center', 
               justifyContent: 'center', 
               gap: '6px', 
-              background: safetyReport && safetyReport.status === 'danger' ? '#ef4444' : (safetyReport && safetyReport.status === 'warning' ? '#f59e0b' : '#38bdf8') 
+              background: isLineUrl
+                ? '#06C755'
+                : (safetyReport && safetyReport.status === 'danger' ? '#ef4444' : (safetyReport && safetyReport.status === 'warning' ? '#f59e0b' : '#38bdf8')) 
             }}
           >
             <ExternalLink size={16} /> 
-            {safetyReport && safetyReport.status === 'danger' ? '⚠️ 危険なURLを開く' : (safetyReport && safetyReport.status === 'warning' ? '⚠️ 注意してURLを開く' : 'URL を開く')}
+            {isLineUrl
+              ? '📱 LINEで開く'
+              : (safetyReport && safetyReport.status === 'danger' ? '⚠️ 危険なURLを開く' : (safetyReport && safetyReport.status === 'warning' ? '⚠️ 注意してURLを開く' : 'URL を開く'))}
           </a>
         )}
       </div>

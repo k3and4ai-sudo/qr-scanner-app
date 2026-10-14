@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   BookOpen, FileText, Download, ExternalLink, ShieldCheck, 
-  Camera, Sparkles, History, AlertTriangle, Check, Smartphone, Zap
+  Camera, Sparkles, History, AlertTriangle, Check, Smartphone, Zap, FolderOpen
 } from 'lucide-react';
 
 export default function UserManual() {
@@ -106,10 +106,22 @@ export default function UserManual() {
             </ul>
           </div>
 
-          {/* 3. 生成機能 */}
+          {/* 3. 画像ファイル読み込み機能 */}
+          <div className="card" style={{ background: 'rgba(6, 182, 212, 0.03)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
+            <h4 style={{ fontSize: '16px', color: '#06b6d4', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FolderOpen size={20} /> 3. 📁 画像ファイルからの QR 読み込み
+            </h4>
+            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
+              <li>スマートフォン内のフォルダー、アルバム、写真ライブラリ、スクリーンショットから画像を選んで直接 QR コードを解読します。</li>
+              <li>受信したメールや LINE のトーク画像、保存した電子チラシの QR コードも簡単にスキャンできます。</li>
+              <li>PC 環境では画像のドラッグ＆ドロップやクリップボード貼り付け (Ctrl+V) にも対応しています。</li>
+            </ul>
+          </div>
+
+          {/* 4. 生成機能 */}
           <div className="card" style={{ background: 'rgba(168, 85, 247, 0.03)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
             <h4 style={{ fontSize: '16px', color: '#a855f7', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={20} /> 3. 🎨 QRコード生成・作成ツール
+              <Sparkles size={20} /> 4. 🎨 QRコード生成・作成ツール
             </h4>
             <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
               <li>URL / テキスト / Wi-Fi自動接続情報 / vCard名刺データをワンタッチで高精度QRコードへ変換。</li>

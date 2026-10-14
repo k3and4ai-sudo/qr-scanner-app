@@ -142,7 +142,20 @@ export default function QrScanner() {
     }
 
     updateCameraDevices();
-    return () => stopWebcam();
+
+    const handleDeviceChange = () => {
+      updateCameraDevices();
+    };
+    if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+      navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
+    }
+
+    return () => {
+      stopWebcam();
+      if (navigator.mediaDevices && navigator.mediaDevices.removeEventListener) {
+        navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange);
+      }
+    };
   }, []);
 
   // 利用可能なカメラデバイスの一覧を取得 (前回選択カメラの自動復元)
@@ -154,10 +167,8 @@ export default function QrScanner() {
         setDevices(videoDevices);
         
         const savedId = getPreferredCameraId();
-        if (savedId && videoDevices.some(d => d.deviceId === savedId)) {
+        if (savedId && (savedId === 'user' || savedId === 'environment' || videoDevices.some(d => d.deviceId === savedId))) {
           setSelectedDeviceId(savedId);
-        } else if (videoDevices.length > 0 && !selectedDeviceId) {
-          setSelectedDeviceId(videoDevices[0].deviceId);
         }
       }
     } catch (e) {
@@ -276,7 +287,7 @@ export default function QrScanner() {
     let resultType = 'text';
     let parsedData = null;
 
-    if (rawValue.startsWith('http://') || rawValue.startsWith('https://')) {
+    if (rawValue.startsWith('http://') || rawValue.startsWith('https://') || rawValue.startsWith('line://')) {
       resultType = 'url';
       try {
         const urlObj = new URL(rawValue);
@@ -393,17 +404,29 @@ export default function QrScanner() {
     try {
       addLog('カメラへのアクセスを要求中 (getUserMedia)...', 'info');
       
-      const primaryConstraints = targetDeviceId ? {
-        deviceId: { exact: targetDeviceId },
-        width: { ideal: 1280, max: 1920 }, 
-        height: { ideal: 720, max: 1080 },
-        frameRate: { ideal: 30 }
-      } : {
-        facingMode: { ideal: 'environment' }, 
-        width: { ideal: 1280, max: 1920 }, 
-        height: { ideal: 720, max: 1080 },
-        frameRate: { ideal: 30 }
-      };
+      let primaryConstraints;
+      if (targetDeviceId === 'user') {
+        primaryConstraints = {
+          facingMode: { ideal: 'user' },
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30 }
+        };
+      } else if (targetDeviceId && targetDeviceId !== 'environment') {
+        primaryConstraints = {
+          deviceId: { exact: targetDeviceId },
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30 }
+        };
+      } else {
+        primaryConstraints = {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30 }
+        };
+      }
 
       let stream = null;
       try {
@@ -418,7 +441,8 @@ export default function QrScanner() {
         }
       }
 
-      updateCameraDevices();
+      // カメラ許可直後に全デバイス名と一覧を再取得
+      await updateCameraDevices();
 
       const track = stream.getVideoTracks()[0];
       if (track && typeof track.applyConstraints === 'function') {
@@ -770,7 +794,9 @@ export default function QrScanner() {
                 onChange={(e) => {
                   const id = e.target.value;
                   setSelectedDeviceId(id);
-                  addLog(`📷 カメラを選択しました: ${id}`, 'info');
+                  savePreferredCameraId(id);
+                  const name = id === 'user' ? '前面インカメラ' : (id ? id : '背面カメラ (自動選択)');
+                  addLog(`📷 起動カメラを設定しました: ${name}`, 'info');
                 }}
                 style={{
                   width: '100%',
@@ -785,27 +811,25 @@ export default function QrScanner() {
                   cursor: 'pointer'
                 }}
               >
-                {devices.length === 0 ? (
-                  <option value="">標準カメラ (自動選択)</option>
-                ) : (
-                  devices.map((device, index) => {
-                    const label = device.label || `カメラ ${index + 1}`;
-                    let formattedLabel = label;
-                    if (label.toLowerCase().includes('back') || label.toLowerCase().includes('rear') || label.toLowerCase().includes('environment')) {
-                      formattedLabel = `アウトカメラ (背面) - ${label}`;
-                    } else if (label.toLowerCase().includes('front') || label.toLowerCase().includes('user') || label.toLowerCase().includes('facing')) {
-                      formattedLabel = `インカメラ (前面) - ${label}`;
-                    }
-                    return (
-                      <option key={device.deviceId || index} value={device.deviceId}>
-                        {formattedLabel}
-                      </option>
-                    );
-                  })
-                )}
+                <option value="">📷 背面カメラ (標準・自動選択)</option>
+                <option value="user">🤳 インカメラ (前面)</option>
+                {devices.filter(d => d.deviceId && d.label).map((device, index) => {
+                  const label = device.label || `カメラ ${index + 1}`;
+                  let formattedLabel = label;
+                  if (label.toLowerCase().includes('back') || label.toLowerCase().includes('rear') || label.toLowerCase().includes('environment')) {
+                    formattedLabel = `アウトカメラ (背面) - ${label}`;
+                  } else if (label.toLowerCase().includes('front') || label.toLowerCase().includes('user') || label.toLowerCase().includes('facing')) {
+                    formattedLabel = `インカメラ (前面) - ${label}`;
+                  }
+                  return (
+                    <option key={device.deviceId || index} value={device.deviceId}>
+                      {formattedLabel}
+                    </option>
+                  );
+                })}
               </select>
               <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '6px', lineHeight: '1.4' }}>
-                ※選択したカメラでスキャンを起動します（自動保存は行われません）。
+                ※ブラウザの権限仕様により、初回スキャン起動時にカメラを許可すると、端末が搭載するすべてのカメラ（広角・超広角など）が一覧に自動追加されます。
               </div>
             </div>
 
@@ -1071,11 +1095,12 @@ export default function QrScanner() {
               </div>
               
               <select
-                value={selectedDeviceId}
+                value={selectedDeviceId || ''}
                 onChange={(e) => {
                   const newId = e.target.value;
                   setSelectedDeviceId(newId);
-                  addLog(`📷 選択カメラを変更しました (ID: ${newId.substring(0, 8)}...)`, 'info');
+                  savePreferredCameraId(newId);
+                  addLog(`📷 選択カメラを変更しました (ID: ${newId === 'user' ? '前面インカメラ' : (newId ? newId.substring(0, 8) + '...' : '背面カメラ')})`, 'info');
                   if (isCameraActive) {
                     stopWebcam();
                     startWebcam(newId);
@@ -1095,25 +1120,23 @@ export default function QrScanner() {
                   cursor: 'pointer'
                 }}
               >
-                {devices.length === 0 ? (
-                  <option value="">デフォルトカメラ (自動検出)</option>
-                ) : (
-                  devices.map((device, idx) => {
-                    let labelStr = device.label || `カメラ ${idx + 1}`;
-                    if (/back|environment|rear|out/i.test(labelStr)) {
-                      labelStr = `📷 アウトカメラ (背面): ${labelStr}`;
-                    } else if (/front|user|in|face/i.test(labelStr)) {
-                      labelStr = `🤳 インカメラ (前面): ${labelStr}`;
-                    } else {
-                      labelStr = `📷 ${labelStr}`;
-                    }
-                    return (
-                      <option key={device.deviceId || idx} value={device.deviceId}>
-                        {labelStr}
-                      </option>
-                    );
-                  })
-                )}
+                <option value="">📷 背面カメラ (標準・自動選択)</option>
+                <option value="user">🤳 インカメラ (前面)</option>
+                {devices.filter(d => d.deviceId && d.label).map((device, idx) => {
+                  let labelStr = device.label || `カメラ ${idx + 1}`;
+                  if (/back|environment|rear|out/i.test(labelStr)) {
+                    labelStr = `📷 アウトカメラ (背面): ${labelStr}`;
+                  } else if (/front|user|in|face/i.test(labelStr)) {
+                    labelStr = `🤳 インカメラ (前面): ${labelStr}`;
+                  } else {
+                    labelStr = `📷 ${labelStr}`;
+                  }
+                  return (
+                    <option key={device.deviceId || idx} value={device.deviceId}>
+                      {labelStr}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 

@@ -66,6 +66,25 @@ export function checkUrlSafety(urlStr) {
     };
   }
 
+  // LINE公式アプリディープリンク (line://) の特別判定
+  if (lowerUrl.startsWith('line://')) {
+    return {
+      isValid: true,
+      url: cleanUrl,
+      hostname: 'line-app',
+      score: 100,
+      status: 'safe',
+      level: 'safe',
+      label: '🟢 LINE 公式ディープリンク',
+      color: '#06C755',
+      summary: 'LINEアプリを直接開く正規のディープリンクです。',
+      checks: [
+        { title: 'LINE公式スキーム', safe: true, risk: 'none', detail: 'LINEアプリへの直接リンク (line://) です。' }
+      ],
+      securityLinks: []
+    };
+  }
+
   try {
     parsedUrl = new URL(cleanUrl);
   } catch (e) {

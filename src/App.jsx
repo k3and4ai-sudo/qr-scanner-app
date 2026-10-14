@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import QrScanner from './components/QrScanner';
+import FileScanner from './components/FileScanner';
 import QrGenerator from './components/QrGenerator';
 import ScanHistory from './components/ScanHistory';
 import UserManual from './components/UserManual';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('scan'); // 'scan' | 'generate' | 'history' | 'manual'
+  const [activeTab, setActiveTab] = useState('scan'); // 'scan' | 'file' | 'generate' | 'history' | 'manual'
 
   return (
     <div className="mobile-app-shell">
@@ -22,6 +23,7 @@ export default function App() {
 
           <main className="container" style={{ flex: 1 }}>
             {activeTab === 'scan' && <QrScanner />}
+            {activeTab === 'file' && <FileScanner />}
             {activeTab === 'generate' && <QrGenerator />}
             {activeTab === 'history' && <ScanHistory />}
             {activeTab === 'manual' && <UserManual />}
