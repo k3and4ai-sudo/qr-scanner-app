@@ -12,14 +12,40 @@ import { playSuccessSound } from '../utils/sound';
 import { saveScanToHistory, getPreferredCameraId, savePreferredCameraId } from '../utils/storage';
 
 export default function QrScanner() {
-  const [scanResult, setScanResultState] = useState(null);
-  const scanResultRef = useRef(null);
+  const getInitialDemoResult = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('demo_result') === '1') {
+        return {
+          rawValue: 'https://example.com/portal/welcome',
+          value: 'https://example.com/portal/welcome',
+          type: 'url',
+          parsedData: null,
+          safety: {
+            score: 100,
+            status: 'safe',
+            reasons: [
+              'HTTPS 暗号化通信が有効です',
+              '信頼された正規ドメイン (.com)',
+              '不審なリダイレクトや短縮URLは検出されませんでした'
+            ],
+            domain: 'example.com'
+          }
+        };
+      }
+    }
+    return null;
+  };
+
+  const initialDemo = getInitialDemoResult();
+  const [scanResult, setScanResultState] = useState(initialDemo);
+  const scanResultRef = useRef(initialDemo);
   const setScanResult = (res) => {
     scanResultRef.current = res;
     setScanResultState(res);
   };
-  const [scanStatus, setScanStatus] = useState('idle'); // 'idle' | 'scanning' | 'success'
-  const [viewMode, setViewMode] = useState('scanner'); // 'scanner' | 'result' | 'logs' | 'details'
+  const [scanStatus, setScanStatus] = useState(initialDemo ? 'success' : 'idle'); // 'idle' | 'scanning' | 'success'
+  const [viewMode, setViewMode] = useState(initialDemo ? 'result' : 'scanner'); // 'scanner' | 'result' | 'logs' | 'details'
 
   const [showMockModal, setShowMockModal] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
