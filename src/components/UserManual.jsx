@@ -2,11 +2,22 @@ import React, { useState } from 'react';
 import { 
   BookOpen, FileText, Download, ExternalLink, ShieldCheck, 
   Camera, Sparkles, History, AlertTriangle, Check, Smartphone, Zap, FolderOpen,
-  FileSpreadsheet, FileJson, Trash2, Edit3, HelpCircle, ArrowRight
+  FileSpreadsheet, FileJson, Trash2, Edit3, HelpCircle, ArrowRight, PlayCircle
 } from 'lucide-react';
 
 export default function UserManual() {
   const [activeSubTab, setActiveSubTab] = useState('guide'); // 'guide' | 'trouble'
+
+  // ナビゲーション項目へのスムーズスクロール関数
+  const scrollToSection = (id) => {
+    setActiveSubTab('guide');
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease-out' }}>
@@ -19,7 +30,7 @@ export default function UserManual() {
               <BookOpen size={24} color="#fbbf24" /> QR Master Studio 取扱説明書 (ユーザーマニュアル)
             </h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '6px', marginBottom: 0 }}>
-              画面上部に並ぶ 5つのナビゲーションボタン（および PWA 機能）の配置順に、ジャンプ先画面と各関連機能を詳しく解説します。
+              画面上部に並ぶナビゲーションボタンの配置順に、ジャンプ先画面と各関連機能を詳しく解説します。
             </p>
           </div>
 
@@ -46,32 +57,161 @@ export default function UserManual() {
         </div>
       </div>
 
-      {/* 上部ナビゲーションボタン対応クイックリファレンス */}
+      {/* 上部ナビゲーションボタン対応クイックリファレンス (クリックで該当記述へジャンプ) */}
       <div className="card" style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '14px 16px' }}>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', marginBottom: '8px' }}>
-          ▼ 上部ナビゲーションボタンの構成一覧（ボタン名順）:
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '4px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8' }}>
+            ▼ 上部ナビゲーションボタンの構成一覧（クリックすると該当説明にジャンプします）:
+          </div>
+          <span style={{ fontSize: '11px', color: '#38bdf8' }}>👆 各ボタンを押すと該当箇所へ移動</span>
         </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
-          <div style={{ background: 'rgba(0, 255, 102, 0.08)', border: '1px solid rgba(0, 255, 102, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
-            <div style={{ color: '#00FF66', fontWeight: 800, fontSize: '13px' }}>1. [上段左] QRスキャナー</div>
-            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>カメラ自動起動・高速解読・安全診断</div>
-          </div>
-          <div style={{ background: 'rgba(6, 182, 212, 0.08)', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
-            <div style={{ color: '#06b6d4', fontWeight: 800, fontSize: '13px' }}>2. [上段右] ファイル読み込み</div>
-            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>写真・スクショ・D&D・クリップボード貼付</div>
-          </div>
-          <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
-            <div style={{ color: '#a855f7', fontWeight: 800, fontSize: '13px' }}>3. [下段左] QR作成</div>
-            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>URL/Wi-Fi/名刺生成・構文解説モーダル</div>
-          </div>
-          <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
-            <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '13px' }}>4. [下段中央] 履歴</div>
-            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>メモ記録・CSV/JSON出力・ゴミ箱</div>
-          </div>
-          <div style={{ background: 'rgba(251, 191, 36, 0.08)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
-            <div style={{ color: '#fbbf24', fontWeight: 800, fontSize: '13px' }}>5. [下段右] 取説</div>
-            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>本画面・操作手引・トラブルFAQ</div>
-          </div>
+          
+          {/* 1. QRスキャナー */}
+          <button
+            onClick={() => scrollToSection('section-scan')}
+            style={{
+              background: 'rgba(0, 255, 102, 0.08)',
+              border: '1.5px solid rgba(0, 255, 102, 0.35)',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px'
+            }}
+            className="hover-card-btn"
+          >
+            <div style={{ color: '#00FF66', fontWeight: 800, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>1. [上段左] QRスキャナー</span>
+              <ArrowRight size={13} />
+            </div>
+            <div style={{ color: '#94a3b8', fontSize: '11px' }}>起動時の初期画面・カメラ解読・安全診断</div>
+          </button>
+
+          {/* 2. ファイル読み込み */}
+          <button
+            onClick={() => scrollToSection('section-file')}
+            style={{
+              background: 'rgba(6, 182, 212, 0.08)',
+              border: '1.5px solid rgba(6, 182, 212, 0.35)',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px'
+            }}
+            className="hover-card-btn"
+          >
+            <div style={{ color: '#06b6d4', fontWeight: 800, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>2. [上段右] ファイル読み込み</span>
+              <ArrowRight size={13} />
+            </div>
+            <div style={{ color: '#94a3b8', fontSize: '11px' }}>写真・スクショ・D&amp;D・クリップボード貼付</div>
+          </button>
+
+          {/* 3. QR作成 */}
+          <button
+            onClick={() => scrollToSection('section-generate')}
+            style={{
+              background: 'rgba(168, 85, 247, 0.08)',
+              border: '1.5px solid rgba(168, 85, 247, 0.35)',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px'
+            }}
+            className="hover-card-btn"
+          >
+            <div style={{ color: '#a855f7', fontWeight: 800, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>3. [下段左] QR作成</span>
+              <ArrowRight size={13} />
+            </div>
+            <div style={{ color: '#94a3b8', fontSize: '11px' }}>URL/Wi-Fi/名刺生成・構文解説モーダル</div>
+          </button>
+
+          {/* 4. 履歴 */}
+          <button
+            onClick={() => scrollToSection('section-history')}
+            style={{
+              background: 'rgba(56, 189, 248, 0.08)',
+              border: '1.5px solid rgba(56, 189, 248, 0.35)',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px'
+            }}
+            className="hover-card-btn"
+          >
+            <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>4. [下段中央] 履歴</span>
+              <ArrowRight size={13} />
+            </div>
+            <div style={{ color: '#94a3b8', fontSize: '11px' }}>メモ記録・CSV/JSON出力・ゴミ箱</div>
+          </button>
+
+          {/* 5. 取説 */}
+          <button
+            onClick={() => scrollToSection('section-manual')}
+            style={{
+              background: 'rgba(251, 191, 36, 0.08)',
+              border: '1.5px solid rgba(251, 191, 36, 0.35)',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px'
+            }}
+            className="hover-card-btn"
+          >
+            <div style={{ color: '#fbbf24', fontWeight: 800, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>5. [下段右] 取説</span>
+              <ArrowRight size={13} />
+            </div>
+            <div style={{ color: '#94a3b8', fontSize: '11px' }}>本マニュアル・HTML/PDF閲覧・FAQ</div>
+          </button>
+
+          {/* 6. ホーム画面に追加 */}
+          <button
+            onClick={() => scrollToSection('section-pwa')}
+            style={{
+              background: 'rgba(59, 130, 246, 0.08)',
+              border: '1.5px solid rgba(59, 130, 246, 0.35)',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px'
+            }}
+            className="hover-card-btn"
+          >
+            <div style={{ color: '#60a5fa', fontWeight: 800, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>📲 ホーム画面に追加</span>
+              <ArrowRight size={13} />
+            </div>
+            <div style={{ color: '#94a3b8', fontSize: '11px' }}>PWAインストール・完全オフライン起動</div>
+          </button>
+
         </div>
       </div>
 
@@ -109,10 +249,10 @@ export default function UserManual() {
 
       {/* サブタブ 1: 機能ガイド */}
       {activeSubTab === 'guide' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* ① QRスキャナー */}
-          <div className="card" style={{ background: 'rgba(0, 255, 102, 0.03)', border: '1.5px solid rgba(0, 255, 102, 0.3)' }}>
+          <div id="section-scan" className="card" style={{ background: 'rgba(0, 255, 102, 0.03)', border: '1.5px solid rgba(0, 255, 102, 0.3)', scrollMarginTop: '80px' }}>
             <h4 style={{ fontSize: '17px', color: '#00FF66', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Camera size={22} /> 1. QRスキャナー (上段左ボタン)
             </h4>
@@ -120,22 +260,36 @@ export default function UserManual() {
               上部ナビゲーションの <strong>「QRスキャナー」</strong> ボタンをクリックすると、カメラ映像によるリアルタイムQR解読画面へジャンプします。
             </div>
 
-            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #00FF66' }}>
-                <div style={{ fontWeight: 800, color: '#00FF66', fontSize: '13.5px', marginBottom: '4px' }}>
-                  🔹 カメラ自動起動 ＆ ミリ秒単位の超高速デコード
-                </div>
-                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                  ボタンを押した瞬間に Web カメラが自動的に起動し、連続フレーム解析がスタートします。QRコードをカメラ枠内に収めるだけで、ミリ秒単位で瞬時に自動解読されます。
-                </div>
+            {/* 💡 起動時の基本動作ハイライト */}
+            <div style={{
+              marginTop: '12px',
+              background: 'linear-gradient(135deg, rgba(0, 255, 102, 0.12) 0%, rgba(56, 189, 248, 0.12) 100%)',
+              border: '1.5px solid #00FF66',
+              borderRadius: '10px',
+              padding: '14px 16px'
+            }}>
+              <div style={{ color: '#00FF66', fontWeight: 800, fontSize: '14.5px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <PlayCircle size={18} color="#00FF66" /> 🌟 アプリ起動時の基本動作フロー（スキャンからリンク先を開くまで）
               </div>
+              <ol style={{ paddingLeft: '20px', color: '#f8fafc', fontSize: '13.5px', lineHeight: '1.8', margin: 0 }}>
+                <li><strong>起動時の初期状態</strong>: アプリ起動時は、初期状態で<strong>「QRスキャナー (上段左ボタン)」</strong>が選択された状態でスタートします。</li>
+                <li><strong>スキャンの開始</strong>: 画面中央にある大きな緑色の <strong>「QRスキャナーを起動」</strong> ボタンを押すと、カメラモーダルが開き、リアルタイムでQRコードのスキャンが即座に開始されます。</li>
+                <li><strong>結果のデコード表示</strong>: QRコードがカメラ枠内に入るとミリ秒単位で解読され、スキャン結果カードが表示されます。</li>
+                <li><strong>URLリンクを開く</strong>: スキャンした内容が Web サイトのリンクの場合、水色の <strong>「URLを開く」</strong> ボタンが表示されます。このボタンを押すと、目的のリンク先ページが別タブで開きます。<br />
+                  <span style={{ color: '#f59e0b', fontSize: '12.5px' }}>
+                    ※ 安全スコアが100点満点以外のURLの場合、誤アクセス防止のため直前に確認ダイアログが表示されます。
+                  </span>
+                </li>
+              </ol>
+            </div>
 
+            <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #00FF66' }}>
                 <div style={{ fontWeight: 800, color: '#00FF66', fontSize: '13.5px', marginBottom: '4px' }}>
-                  🔹 ⚡ 自動露出最適化 (Auto Exposure) ＆ 白飛び復元
+                  🔹 ⚡ 自動露出最適化 (Auto Exposure) ＆ 白飛び復元エンジン
                 </div>
                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                  PC画面のギラつきや直射光による白飛び、暗所環境に対し、デフォルトで選択されている <strong>`⚡ 自動露出 (Auto)`</strong> が環境光の輝度をリアルタイム測定し、物理露光補正 (`-2.0 EV` 〜 `+2.0 EV`) を動的に適用して確実に解読します。
+                  PC画面のギラつきや直射日光による白飛び、暗所環境に対し、デフォルトで選択されている <strong>`⚡ 自動露出 (Auto)`</strong> が環境光の輝度をリアルタイム測定し、物理露光補正 (`-2.0 EV` 〜 `+2.0 EV`) を動的に適用して確実に解読します。
                   手動で「標準」「暗く」「明るく」「ハイコントラスト」に切り替えることも可能です。
                 </div>
               </div>
@@ -154,7 +308,7 @@ export default function UserManual() {
           </div>
 
           {/* ② ファイル読み込み */}
-          <div className="card" style={{ background: 'rgba(6, 182, 212, 0.03)', border: '1.5px solid rgba(6, 182, 212, 0.3)' }}>
+          <div id="section-file" className="card" style={{ background: 'rgba(6, 182, 212, 0.03)', border: '1.5px solid rgba(6, 182, 212, 0.3)', scrollMarginTop: '80px' }}>
             <h4 style={{ fontSize: '17px', color: '#06b6d4', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <FolderOpen size={22} /> 2. ファイル読み込み (上段右ボタン)
             </h4>
@@ -184,17 +338,17 @@ export default function UserManual() {
 
               <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #06b6d4' }}>
                 <div style={{ fontWeight: 800, color: '#06b6d4', fontSize: '13.5px', marginBottom: '4px' }}>
-                  🔹 共通の結果カード ＆ URL安全性診断
+                  🔹 共通の結果カード ＆ 水色の「URLを開く」ボタン
                 </div>
                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                  ファイル読み込み後も「QRスキャナー」と同一の洗練された結果カードが表示され、1クリックコピーやURL構造解析、100点未満ジャンプ警告確認ゲートが作動します。
+                  ファイル解読後も「QRスキャナー」と同一の洗練された結果カードが表示され、1クリックコピーや水色の「URLを開く」ボタン、100点未満ジャンプ警告確認ゲートが作動します。
                 </div>
               </div>
             </div>
           </div>
 
           {/* ③ QR作成 */}
-          <div className="card" style={{ background: 'rgba(168, 85, 247, 0.03)', border: '1.5px solid rgba(168, 85, 247, 0.3)' }}>
+          <div id="section-generate" className="card" style={{ background: 'rgba(168, 85, 247, 0.03)', border: '1.5px solid rgba(168, 85, 247, 0.3)', scrollMarginTop: '80px' }}>
             <h4 style={{ fontSize: '17px', color: '#a855f7', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles size={22} /> 3. QR作成 (下段左ボタン)
             </h4>
@@ -234,7 +388,7 @@ export default function UserManual() {
           </div>
 
           {/* ④ 履歴 */}
-          <div className="card" style={{ background: 'rgba(56, 189, 248, 0.03)', border: '1.5px solid rgba(56, 189, 248, 0.3)' }}>
+          <div id="section-history" className="card" style={{ background: 'rgba(56, 189, 248, 0.03)', border: '1.5px solid rgba(56, 189, 248, 0.3)', scrollMarginTop: '80px' }}>
             <h4 style={{ fontSize: '17px', color: '#38bdf8', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <History size={22} /> 4. 履歴 (下段中央ボタン)
             </h4>
@@ -270,7 +424,7 @@ export default function UserManual() {
                   🔹 ⚠️ 100点未満URLのジャンプ確認ゲート（履歴内でも作動）
                 </div>
                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                  履歴一覧の「開く」ボタンを押した際も、安全スコアが100点満点以外のURLには警告確認ダイアログが表示されます。過去のスキャンであっても安全確認を行ってからアクセスできます。
+                  履歴一覧の水色「開く」ボタンを押した際も、安全スコアが100点満点以外のURLには警告確認ダイアログが表示されます。過去のスキャンであっても安全確認を行ってからアクセスできます。
                 </div>
               </div>
 
@@ -287,7 +441,7 @@ export default function UserManual() {
           </div>
 
           {/* ⑤ 取説 */}
-          <div className="card" style={{ background: 'rgba(251, 191, 36, 0.03)', border: '1.5px solid rgba(251, 191, 36, 0.3)' }}>
+          <div id="section-manual" className="card" style={{ background: 'rgba(251, 191, 36, 0.03)', border: '1.5px solid rgba(251, 191, 36, 0.3)', scrollMarginTop: '80px' }}>
             <h4 style={{ fontSize: '17px', color: '#fbbf24', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <BookOpen size={22} /> 5. 取説 (下段右ボタン - 本画面)
             </h4>
@@ -316,32 +470,51 @@ export default function UserManual() {
             </div>
           </div>
 
-          {/* ⑥ PWA機能 (ヘッダー連動) */}
-          <div className="card" style={{ background: 'rgba(59, 130, 246, 0.03)', border: '1.5px solid rgba(59, 130, 246, 0.3)' }}>
-            <h4 style={{ fontSize: '17px', color: '#38bdf8', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Smartphone size={22} /> 📲 ホーム画面に追加 / PWA機能 (ヘッダー右上ボタン)
+          {/* ⑥ PWA機能 (ホーム画面に追加) */}
+          <div id="section-pwa" className="card" style={{ background: 'rgba(59, 130, 246, 0.03)', border: '1.5px solid rgba(59, 130, 246, 0.3)', scrollMarginTop: '80px' }}>
+            <h4 style={{ fontSize: '17px', color: '#60a5fa', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Smartphone size={22} /> 📲 ホーム画面に追加 (ヘッダー右上ボタン - PWA機能)
             </h4>
             <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: '1.7' }}>
-              ヘッダー右上の <strong>「📲 ホーム画面に追加」</strong> ボタンをクリックすると、端末への PWA インストールを実行できます。
+              画面最上部・ヘッダー右上の <strong>「📲 ホーム画面に追加」</strong> ボタンをクリックすると、お使いの端末（スマートフォン・PC）へ本アプリをネイティブアプリのようにインストールできます。
             </div>
 
             <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
-                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '13.5px', marginBottom: '4px' }}>
-                  🔹 ネイティブアプリ化 ＆ 完全オフライン動作 (0秒起動)
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #60a5fa' }}>
+                <div style={{ fontWeight: 800, color: '#60a5fa', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 「📲 ホーム画面に追加」ボタンの操作方法
                 </div>
                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                  ホーム画面に追加すると、アドレスバーのない全画面ネイティブアプリとして起動します。
-                  Service Worker（<code>sw.js</code>）によるオフラインキャッシュにより、地下街や飛行機内（機内モード）など電波の届かないオフライン環境でも0秒で起動・動作します。
+                  ・<strong>Android (Chrome) / PC (Chrome, Edge)</strong>: ヘッダーのボタンを押すと「アプリをインストールしますか？」という公式ダイアログが出ます。「インストール」を選ぶとホーム画面に専用アイコンが配置されます。<br />
+                  ・<strong>iPhone / iPad (Safari)</strong>: Safari 画面下部の「共有 (四角から矢印)」ボタンを押し、「ホーム画面に追加」をタップすることで同様にインストールされます。<br />
+                  ・<strong>インストール済みの場合</strong>: ヘッダーのボタンが「✅ PWA起動中」バッジに変化します。
                 </div>
               </div>
 
-              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
-                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '13.5px', marginBottom: '4px' }}>
-                  🔹 新バージョン自動検知トーストバナー
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #60a5fa' }}>
+                <div style={{ fontWeight: 800, color: '#60a5fa', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 メリット 1: アドレスバーのない快適な全画面ネイティブ動作
                 </div>
                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
-                  アプリの新機能が配信されると、画面下部に「🔔 新バージョンがあります [今すぐ更新]」トーストバナーがスライド表示され、ワンタップで即時更新できます。
+                  ブラウザのURL欄やタブバーが非表示になり、App Store / Google Play で入手した公式アプリとまったく同じフルスクリーン環境でスキャナーを操作できます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #60a5fa' }}>
+                <div style={{ fontWeight: 800, color: '#60a5fa', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 メリット 2: 完全オフライン動作 (地下や機内モードでも0秒起動)
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  Service Worker（<code>sw.js</code>）によるオフラインキャッシュ技術により、地下街、山間部、通信障害時、あるいは機内モード中であっても、電波を一切消費することなく瞬時に0秒起動して利用できます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #60a5fa' }}>
+                <div style={{ fontWeight: 800, color: '#60a5fa', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 メリット 3: 新バージョン自動検知トーストバナー
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  アプリの新機能が本番サーバーに公開されると、画面下部に「🔔 新バージョンがあります [今すぐ更新]」トーストバナーがスライドイン表示され、ワンタップで即時更新できます。
                 </div>
               </div>
             </div>
