@@ -37,9 +37,11 @@ graph TD
 | **`ResultCard.jsx`** | スキャン結果表示、コピー、ブラウザオープン、LINE起動 | Lucide Icons, `window.open` |
 | **`SecurityDetailsCard.jsx`** | URL安全スコアの内訳、プロトコル、ドメイン、危険警告表示 | `urlSafety.js` |
 | **`QrGenerator.jsx`** | テキスト/URLからのQR画像生成、PNGダウンロード、カラー変更 | `qrcode.react` |
+| **`TemplateGuideModal.jsx`** | Wi-Fi / vCard のキーワード解説と入力支援モーダル | Lucide Icons |
+| **`ScanHistory.jsx`** | スキャン履歴一覧、タイトル/コメント編集、ゴミ箱・復元管理 | `localStorage` |
 | **`PwaInstallButton.jsx`** | ホーム画面追加プロンプトの発行、PWA起動ステータスバッジ | `usePwaInstall.js`, Lucide Icons |
 | **`usePwaInstall.js`** | `beforeinstallprompt` の捕捉、インストール可否状態管理 | Service Worker, Web App Manifest |
-| **`public/sw.js`** | オフラインキャッシュ（Stale-While-Revalidate）制御 | Service Worker Cache API |
+| **`public/sw.js`** | オフラインキャッシュ（Stale-While-Revalidate & 自動更新）制御 | Service Worker Cache API |
 
 ---
 
