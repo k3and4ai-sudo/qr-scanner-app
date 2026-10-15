@@ -897,6 +897,28 @@ export default function QrScanner() {
           </h4>
 
           <div style={{ background: 'rgba(0, 255, 102, 0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(0, 255, 102, 0.2)' }}>
+            
+            {/* 🟢 QRスキャナーを起動ボタン（最上部に配置） */}
+            <button 
+              className="btn btn-success" 
+              onClick={handleScan}
+              disabled={isScanLaunching}
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '16px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                marginBottom: '14px',
+                boxShadow: '0 4px 16px rgba(0, 255, 102, 0.35)'
+              }}
+            >
+              <QrCode size={22} /> {isLineApp ? 'Webカメラモーダルでスキャン' : 'QRスキャナーを起動'}
+            </button>
+
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', lineHeight: '1.6' }}>
               「QRスキャナーを起動」をクリックすると、カメラモーダルが起動しリアルタイムQRコード解読を開始します。
             </div>
@@ -952,7 +974,7 @@ export default function QrScanner() {
 
             {/* 💡 バックライト自動点灯 (コンパクト設定) */}
             <div style={{
-              marginBottom: '14px',
+              marginBottom: isLineApp ? '12px' : '0',
               background: 'rgba(0, 0, 0, 0.3)',
               padding: '8px 12px',
               borderRadius: '8px',
@@ -1041,24 +1063,6 @@ export default function QrScanner() {
                 </button>
               </div>
             )}
-
-            <button 
-              className="btn btn-success" 
-              onClick={handleScan}
-              disabled={isScanLaunching}
-              style={{
-                width: '100%',
-                padding: '14px',
-                fontSize: '16px',
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px'
-              }}
-            >
-              <QrCode size={22} /> {isLineApp ? 'Webカメラモーダルでスキャン' : 'QRスキャナーを起動'}
-            </button>
           </div>
         </div>
       )}
