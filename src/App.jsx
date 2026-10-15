@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import QrScanner from './components/QrScanner';
 import FileScanner from './components/FileScanner';
 import QrGenerator from './components/QrGenerator';
 import ScanHistory from './components/ScanHistory';
 import UserManual from './components/UserManual';
+import { UpdateNotificationToast } from './components/UpdateNotificationToast';
+import { registerServiceWorker } from './registerServiceWorker';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('scan'); // 'scan' | 'file' | 'generate' | 'history' | 'manual'
+  const [waitingWorker, setWaitingWorker] = useState(null);
+
+  useEffect(() => {
+    // Register service worker and listen for new updates
+    registerServiceWorker({
+      onUpdate: (worker) => {
+        console.log('[App] New update available, displaying update banner');
+        setWaitingWorker(worker);
+      }
+    });
+  }, []);
 
   return (
     <div className="mobile-app-shell">
@@ -44,9 +57,11 @@ export default function App() {
               Web BarcodeDetector &amp; jsQR Engine
             </div>
           </footer>
+
+          {/* 新バージョン検知時の通知バナー */}
+          <UpdateNotificationToast waitingWorker={waitingWorker} />
         </div>
       </div>
     </div>
   );
 }
-

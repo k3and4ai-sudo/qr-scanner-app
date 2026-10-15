@@ -1,5 +1,5 @@
 // QR Master Studio - Service Worker
-const CACHE_NAME = 'qr-master-cache-v1';
+const CACHE_NAME = 'qr-master-cache-v2';
 
 // Pre-cached assets for offline usage
 const PRECACHE_ASSETS = [
@@ -19,9 +19,9 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Pre-caching offline assets');
       return cache.addAll(PRECACHE_ASSETS).catch((err) => {
-        console.warn('[SW] Pre-cache partial fail (some files may not exist yet):', err);
+        console.warn('[SW] Pre-cache partial fail:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -39,6 +39,14 @@ self.addEventListener('activate', (event) => {
       );
     }).then(() => self.clients.claim())
   );
+});
+
+// Message listener for manual update trigger (SKIP_WAITING)
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] SKIP_WAITING received, activating new service worker');
+    self.skipWaiting();
+  }
 });
 
 // Fetch: Stale-While-Revalidate for local assets, Network-First for external
@@ -64,7 +72,6 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         }).catch(() => {
-          // If network fails and no cachedResponse, fallback to index.html for navigation
           if (event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
