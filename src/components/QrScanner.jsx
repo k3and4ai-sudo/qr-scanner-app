@@ -950,26 +950,20 @@ export default function QrScanner() {
               </div>
             </div>
 
-            {/* 💡 暗所自動バックライト機能の事前設定 */}
+            {/* 💡 バックライト自動点灯 (コンパクト設定) */}
             <div style={{
               marginBottom: '14px',
-              background: 'rgba(0, 0, 0, 0.4)',
-              padding: '12px',
-              borderRadius: '10px',
+              background: 'rgba(0, 0, 0, 0.3)',
+              padding: '8px 12px',
+              borderRadius: '8px',
               border: autoTorchEnabled ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '12px'
+              justifyContent: 'space-between'
             }}>
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 800, color: autoTorchEnabled ? '#f59e0b' : '#e2e8f0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Lightbulb size={15} color={autoTorchEnabled ? '#f59e0b' : '#94a3b8'} />
-                  暗所でのバックライト自動点灯:
-                </div>
-                <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '3px', lineHeight: '1.4' }}>
-                  露光調整で暗すぎる場合にスマホのライト（トーチ）を自動点灯して読み取りを補助します。
-                </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: autoTorchEnabled ? '#f59e0b' : '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Lightbulb size={14} color={autoTorchEnabled ? '#f59e0b' : '#94a3b8'} />
+                バックライト自動点灯
               </div>
               <button
                 type="button"
@@ -979,15 +973,14 @@ export default function QrScanner() {
                   autoTorchEnabledRef.current = next;
                 }}
                 style={{
-                  background: autoTorchEnabled ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                  background: autoTorchEnabled ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255, 255, 255, 0.08)',
                   color: autoTorchEnabled ? '#f59e0b' : '#94a3b8',
                   border: autoTorchEnabled ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '20px',
-                  padding: '5px 12px',
+                  borderRadius: '16px',
+                  padding: '3px 10px',
                   fontSize: '11px',
                   fontWeight: 800,
-                  cursor: 'pointer',
-                  flexShrink: 0
+                  cursor: 'pointer'
                 }}
               >
                 {autoTorchEnabled ? 'ON' : 'OFF'}
