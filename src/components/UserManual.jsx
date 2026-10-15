@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   BookOpen, FileText, Download, ExternalLink, ShieldCheck, 
   Camera, Sparkles, History, AlertTriangle, Check, Smartphone, Zap, FolderOpen,
-  FileSpreadsheet, FileJson, Trash2, Edit3, HelpCircle
+  FileSpreadsheet, FileJson, Trash2, Edit3, HelpCircle, ArrowRight
 } from 'lucide-react';
 
 export default function UserManual() {
@@ -16,10 +16,10 @@ export default function UserManual() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h3 style={{ fontSize: '20px', color: '#fbbf24', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <BookOpen size={24} color="#fbbf24" /> QR Master Studio 取扱説明書 (ユーザーマニュアル)
+              <BookOpen size={24} color="#fbbf24" /> 取扱説明書 (ユーザーマニュアル)
             </h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '6px', marginBottom: 0 }}>
-              Web API ハードウェア加速 (`BarcodeDetector`) ＆ URL安全性自動判定機能を備えた超高速 PWA QRツールの操作ガイドです。
+              画面上部に並ぶ 5つのナビゲーションボタン（および PWA 機能）の配置順に、ジャンプ先画面と各関連機能を詳しく解説します。
             </p>
           </div>
 
@@ -46,6 +46,35 @@ export default function UserManual() {
         </div>
       </div>
 
+      {/* 上部ナビゲーションボタン対応クイックリファレンス */}
+      <div className="card" style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '14px 16px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', marginBottom: '8px' }}>
+          ▼ 上部ナビゲーションボタンの構成一覧（ボタン名順）:
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
+          <div style={{ background: 'rgba(0, 255, 102, 0.08)', border: '1px solid rgba(0, 255, 102, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
+            <div style={{ color: '#00FF66', fontWeight: 800, fontSize: '13px' }}>1. [上段左] QRスキャナー</div>
+            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>カメラ自動起動・高速解読・安全診断</div>
+          </div>
+          <div style={{ background: 'rgba(6, 182, 212, 0.08)', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
+            <div style={{ color: '#06b6d4', fontWeight: 800, fontSize: '13px' }}>2. [上段右] ファイル読み込み</div>
+            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>写真・スクショ・D&D・クリップボード貼付</div>
+          </div>
+          <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
+            <div style={{ color: '#a855f7', fontWeight: 800, fontSize: '13px' }}>3. [下段左] QR作成</div>
+            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>URL/Wi-Fi/名刺生成・構文解説モーダル</div>
+          </div>
+          <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
+            <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '13px' }}>4. [下段中央] 履歴</div>
+            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>メモ記録・CSV/JSON出力・ゴミ箱</div>
+          </div>
+          <div style={{ background: 'rgba(251, 191, 36, 0.08)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '8px', padding: '8px 12px' }}>
+            <div style={{ color: '#fbbf24', fontWeight: 800, fontSize: '13px' }}>5. [下段右] 取説</div>
+            <div style={{ color: '#94a3b8', fontSize: '11.5px', marginTop: '2px' }}>本画面・操作手引・トラブルFAQ</div>
+          </div>
+        </div>
+      </div>
+
       {/* セクションナビゲーション */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <button
@@ -60,7 +89,7 @@ export default function UserManual() {
             border: '1px solid rgba(255, 255, 255, 0.1)'
           }}
         >
-          🚀 主な機能と使い方ガイド
+          🚀 ボタン別 使い方・関連機能ガイド
         </button>
         <button
           onClick={() => setActiveSubTab('trouble')}
@@ -80,106 +109,242 @@ export default function UserManual() {
 
       {/* サブタブ 1: 機能ガイド */}
       {activeSubTab === 'guide' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           
-          {/* 1. スキャン機能 */}
-          <div className="card" style={{ background: 'rgba(0, 255, 102, 0.03)', border: '1px solid rgba(0, 255, 102, 0.2)' }}>
-            <h4 style={{ fontSize: '16px', color: '#00FF66', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Camera size={20} /> 1. 📷 QRコードスキャン ＆ ワンタップ即時起動
+          {/* ① QRスキャナー */}
+          <div className="card" style={{ background: 'rgba(0, 255, 102, 0.03)', border: '1.5px solid rgba(0, 255, 102, 0.3)' }}>
+            <h4 style={{ fontSize: '17px', color: '#00FF66', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Camera size={22} /> 1. QRスキャナー (上段左ボタン)
             </h4>
-            <ol style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
-              <li>上部ナビゲーションの <strong>「QRスキャナー」</strong> ボタンをクリックします。</li>
-              <li>画面がスキャナーに切り替わり、<strong>Webカメラが自動起動してミリ秒単位のスキャンが即座に開始</strong>されます。</li>
-              <li>PC画面のギラつきや直射光による白飛び、あるいは暗所では、<strong>`⚡ 自動露出 (Auto)`</strong> が環境光を自動識別し、最適な露出補正 (`-2.0 EV` 〜 `+2.0 EV`) をリアルタイムに動的適用します。</li>
-              <li>手動で露出を変更したい場合は、露出コントロールボタン（「標準」「暗く」「明るく」「ハイコントラスト」）で自由に切り替えられます。</li>
-            </ol>
+            <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: '1.7' }}>
+              上部ナビゲーションの <strong>「QRスキャナー」</strong> ボタンをクリックすると、カメラ映像によるリアルタイムQR解読画面へジャンプします。
+            </div>
+
+            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #00FF66' }}>
+                <div style={{ fontWeight: 800, color: '#00FF66', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 カメラ自動起動 ＆ ミリ秒単位の超高速デコード
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  ボタンを押した瞬間に Web カメラが自動的に起動し、連続フレーム解析がスタートします。QRコードをカメラ枠内に収めるだけで、ミリ秒単位で瞬時に自動解読されます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #00FF66' }}>
+                <div style={{ fontWeight: 800, color: '#00FF66', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 ⚡ 自動露出最適化 (Auto Exposure) ＆ 白飛び復元
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  PC画面のギラつきや直射光による白飛び、暗所環境に対し、デフォルトで選択されている <strong>`⚡ 自動露出 (Auto)`</strong> が環境光の輝度をリアルタイム測定し、物理露光補正 (`-2.0 EV` 〜 `+2.0 EV`) を動的に適用して確実に解読します。
+                  手動で「標準」「暗く」「明るく」「ハイコントラスト」に切り替えることも可能です。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
+                <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 🛡️ URL安全性自動判定 ＆ 100点未満ジャンプ警告確認ゲート
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  スキャンした内容が URL の場合、8項目の脅威検知アルゴリズム（HTTPS暗号化、数値IP接続、Punycode文字偽装、高リスクTLD、危険拡張子、フィッシングキーワード、多重サブドメイン、正規ドメイン検証）により <strong>0〜100点の安全スコア</strong> を自動算出します。<br />
+                  <strong style={{ color: '#f59e0b' }}>⚠️ 安全確認ゲート:</strong> 
+                  安全スコアが<strong>完全満点（100点）以外のすべてのURL</strong>に対して、画面遷移する直前に<strong>警告確認モーダルが自動起動</strong>します。検出理由とスコアを確認した上で、「Google Safe Browsing で事前調査」「リスクを承知の上でアクセス」「キャンセル」を判断できます。
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 2. 画像ファイル読み込み機能 */}
-          <div className="card" style={{ background: 'rgba(6, 182, 212, 0.03)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
-            <h4 style={{ fontSize: '16px', color: '#06b6d4', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FolderOpen size={20} /> 2. 📁 画像ファイルからの QR 読み込み
+          {/* ② ファイル読み込み */}
+          <div className="card" style={{ background: 'rgba(6, 182, 212, 0.03)', border: '1.5px solid rgba(6, 182, 212, 0.3)' }}>
+            <h4 style={{ fontSize: '17px', color: '#06b6d4', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FolderOpen size={22} /> 2. ファイル読み込み (上段右ボタン)
             </h4>
-            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
-              <li>スマートフォン内のアルバム・写真ライブラリ・スクリーンショットから画像ファイルを選んで直接 QR コードを高速解読します。</li>
-              <li>受信したメールや LINE のトーク画像、保存した電子チラシ・クーポンの QR コードも簡単にスキャンできます。</li>
-              <li>PC 環境では画像のドラッグ＆ドロップや、クリップボードからの画像貼り付け (Ctrl+V) にも完全対応しています。</li>
-            </ul>
+            <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: '1.7' }}>
+              上部ナビゲーションの <strong>「ファイル読み込み」</strong> ボタンをクリックすると、画像ファイルからのQRコード解読画面へジャンプします。
+            </div>
+
+            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #06b6d4' }}>
+                <div style={{ fontWeight: 800, color: '#06b6d4', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 スマホのアルバム・スクリーンショットから直接解読
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  スマートフォン内の写真アルバム、フォルダー、保存したスクリーンショットから画像ファイルを選択するだけで、瞬時にQRコードを解読します。
+                  メールの添付画像や LINE のトーク画面で受信した画像、電子チラシに印字されたQRコードも手軽にスキャンできます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #06b6d4' }}>
+                <div style={{ fontWeight: 800, color: '#06b6d4', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 PCでのドラッグ＆ドロップ ＆ クリップボード貼り付け (Ctrl + V)
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  パソコン画面では、破線枠内へ画像ファイルを直接ドラッグ＆ドロップするか、Webページ上の画像をコピーして <code>Ctrl + V</code>（Mac は <code>Cmd + V</code>）を押すだけで、ファイルを保存することなく即座に解読されます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #06b6d4' }}>
+                <div style={{ fontWeight: 800, color: '#06b6d4', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 共通の結果カード ＆ URL安全性診断
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  ファイル読み込み後も「QRスキャナー」と同一の洗練された結果カードが表示され、1クリックコピーやURL構造解析、100点未満ジャンプ警告確認ゲートが作動します。
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 3. URL安全性診断機能 & 警告確認ゲート */}
-          <div className="card" style={{ background: 'rgba(56, 189, 248, 0.03)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-            <h4 style={{ fontSize: '16px', color: '#38bdf8', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldCheck size={20} /> 3. 🛡️ URL 安全性自動判定 ＆ 100点未満ジャンプ警告確認ゲート
+          {/* ③ QR作成 */}
+          <div className="card" style={{ background: 'rgba(168, 85, 247, 0.03)', border: '1.5px solid rgba(168, 85, 247, 0.3)' }}>
+            <h4 style={{ fontSize: '17px', color: '#a855f7', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={22} /> 3. QR作成 (下段左ボタン)
             </h4>
-            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
-              <li><strong>8項目の包括的セキュリティ診断</strong>: HTTPS暗号化・数値IP接続・Punycode文字偽装・高リスクTLD・危険拡張子・フィッシング語句・多重サブドメイン等を自動判定。</li>
-              <li><strong>厳格な安全スコア分類</strong>:
-                <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
-                  <li>🟢 <strong>安全 (100点満点)</strong>: 不審な脅威パターンが一切なく、信頼性が確認された正規リンク。</li>
-                  <li>🟡 <strong>要確認・注意 (60〜99点)</strong>: HTTP通信や不審TLD、クエリパラメータ等が含まれるURL。</li>
-                  <li>🔴 <strong>危険・高リスク (0〜59点)</strong>: 不審なパターンや実行可能スクリプト、フィッシング疑いが検出されたURL。</li>
-                </ul>
-              </li>
-              <li><strong>⚠️ 100点満点以外のアクセス警告確認ゲート</strong>:
-                安全スコアが100点満点以外のURLを開く場合、結果画面・履歴一覧のいずれにおいても<strong>直前の警告確認モーダルが自動起動</strong>します。検出された理由やスコアを確認し、「Google Safe Browsing で事前調査」「リスクを承知でアクセス」「キャンセル」を明示的に選択できます。
-              </li>
-              <li><strong>外部調査ツール連携</strong>: Google Safe Browsing / VirusTotal / urlscan.io / Norton Safe Web でワンタップ詳細照会が可能です。</li>
-            </ul>
+            <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: '1.7' }}>
+              上部ナビゲーションの <strong>「QR作成」</strong> ボタンをクリックすると、独自のQRコードを自由に生成・保存できるツール画面へジャンプします。
+            </div>
+
+            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7' }}>
+                <div style={{ fontWeight: 800, color: '#a855f7', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 4つのデータ種別に対応（URL / テキスト / Wi-Fi / 名刺）
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  Webサイトの URL、任意のメモ・メッセージ、店舗や自宅の Wi-Fi 接続設定、vCard 名刺連絡先データの4種類から選んで、高精度QRコードをリアルタイム生成します。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7' }}>
+                <div style={{ fontWeight: 800, color: '#a855f7', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 💡 Wi-Fi ＆ vCard テンプレート構文解説 ＆ 自動入力支援モーダル
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  Wi-Fi または 名刺（vCard）を選択すると、<strong>「💡 入力方法・キーワード解説」</strong> ボタンが表示されます。
+                  ポップアップ内で <code>WIFI:S:SSID;T:WPA;P:password;;</code> や <code>BEGIN:VCARD...</code> などの構文キーワードの意味を詳細に解説。専用入力フォームに項目を入力して「反映する」を押すだけで、正しい規格準拠の文字列がワンクリックで自動作成されます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7' }}>
+                <div style={{ fontWeight: 800, color: '#a855f7', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 カラーカスタマイズ ＆ 高解像度 PNG ダウンロード
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  QRコードの前景色と背景色をカラーピッカーから自由にカスタマイズ可能。印刷物やPOP、Web素材に最適な高画質 PNG 画像としてワンクリック保存できます。
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 4. 生成機能 & テンプレート解説 */}
-          <div className="card" style={{ background: 'rgba(168, 85, 247, 0.03)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-            <h4 style={{ fontSize: '16px', color: '#a855f7', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={20} /> 4. 🎨 QRコード作成ツール ＆ テンプレート解説モーダル
+          {/* ④ 履歴 */}
+          <div className="card" style={{ background: 'rgba(56, 189, 248, 0.03)', border: '1.5px solid rgba(56, 189, 248, 0.3)' }}>
+            <h4 style={{ fontSize: '17px', color: '#38bdf8', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <History size={22} /> 4. 履歴 (下段中央ボタン)
             </h4>
-            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
-              <li>URL / 自由テキスト / Wi-Fi自動接続情報 / vCard名刺連絡先データをワンタッチで高精度QRコードへ変換。</li>
-              <li><strong>💡 Wi-Fi ＆ vCard 入力支援・構文解説モーダル</strong>:
-                Wi-Fi (`WIFI:S:...`) や 名刺 (`BEGIN:VCARD...`) 選択時に「解説・入力支援」ボタンを押すと、各パラメータの意味をわかりやすく解説したポップアップを表示。専用フォームに入力するだけで正しいQRコード文字列をワンクリックで自動生成して反映できます。
-              </li>
-              <li>コード色・背景色の自由カスタマイズおよび高画質 PNG 画像ダウンロードに対応。</li>
-            </ul>
+            <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: '1.7' }}>
+              上部ナビゲーションの <strong>「履歴」</strong> ボタンをクリックすると、過去にスキャンしたQRコードの一覧管理・メモ編集・エクスポート画面へジャンプします。
+            </div>
+
+            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
+                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 タイトル＆コメント（メモ）のインライン編集・保存
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  各スキャン結果に、用途や補足事項を「タイトル」「コメント（メモ）」として記録できます。
+                  スマートフォンでも文字がキーボードに隠れないよう、上下幅の広いテキストエリア（<code>minHeight: 100px</code>）と見やすいフォントを採用しています。
+                  スキャンした日時も秒単位（<code>YYYY/MM/DD HH:mm:ss</code>）で正確に記録されます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #00FF66' }}>
+                <div style={{ fontWeight: 800, color: '#00FF66', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 📥 CSV出力（UTF-8 BOM付き・Excel文字化け完全防止）＆ JSON出力
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  ツールバーの <strong>「CSV出力」</strong> ボタンを押すと、スキャン履歴一覧がワンクリックで CSV ダウンロードされます。
+                  <strong>UTF-8 BOM (`\uFEFF`)</strong> を自動付与しているため、Windows 版および Mac 版の Microsoft Excel、Google スプレッドシートなどでダブルクリックして開くだけで日本語が一切文字化けしません。
+                  システム連携向けには構造化メタデータを保持した <strong>「JSON出力」</strong> も利用可能です。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
+                <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 ⚠️ 100点未満URLのジャンプ確認ゲート（履歴内でも作動）
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  履歴一覧の「開く」ボタンを押した際も、安全スコアが100点満点以外のURLには警告確認ダイアログが表示されます。過去のスキャンであっても安全確認を行ってからアクセスできます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #ef4444' }}>
+                <div style={{ fontWeight: 800, color: '#ef4444', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 🗑️ ゴミ箱機能（一時退避・復元・完全削除・一括クリア）
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  不要になったスキャン記録は「ゴミ箱」へ安全に一時退避されます。
+                  「ゴミ箱」サブタブに切り替えることで、個別の「元に戻す（復元）」「完全に削除」や、「ゴミ箱を空にする」一括消去が可能です。
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 5. 履歴機能 & エクスポート & ゴミ箱 */}
-          <div className="card" style={{ background: 'rgba(251, 191, 36, 0.03)', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
-            <h4 style={{ fontSize: '16px', color: '#fbbf24', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <History size={20} /> 5. 📜 スキャン履歴管理・メモ・CSV/JSON出力・ゴミ箱
+          {/* ⑤ 取説 */}
+          <div className="card" style={{ background: 'rgba(251, 191, 36, 0.03)', border: '1.5px solid rgba(251, 191, 36, 0.3)' }}>
+            <h4 style={{ fontSize: '17px', color: '#fbbf24', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <BookOpen size={22} /> 5. 取説 (下段右ボタン - 本画面)
             </h4>
-            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
-              <li><strong>タイトル＆メモのインライン記録</strong>: 各スキャンデータに任意のタイトルとメモ・コメントを追記・編集・保存可能（スマホでも入力しやすい広幅テキストエリア搭載）。</li>
-              <li><strong>秒単位の詳細日時記録</strong>: いつスキャンしたかを `YYYY/MM/DD HH:mm:ss` で正確に記録。</li>
-              <li><strong>📥 CSV出力（Excel文字化け完全防止）</strong>:
-                <strong>UTF-8 BOM付き (`\uFEFF`)</strong> で出力するため、Microsoft Excel（Windows/Mac）や各種表計算ソフトでそのまま開いても日本語が絶対に文字化けしません。
-              </li>
-              <li><strong>📥 JSON出力</strong>: 解析メタデータや安全診断結果を含む構造化データをそのままファイル保存可能。</li>
-              <li><strong>🗑️ ゴミ箱機能</strong>: 不要になったスキャン結果を一時退避。ゴミ箱タブから「元に戻す」「完全に削除」「ゴミ箱を空にする」が行えます。</li>
-            </ul>
+            <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: '1.7' }}>
+              上部ナビゲーションの <strong>「取説」</strong> ボタンをクリックすると、本取扱説明書（ユーザーマニュアル）画面へジャンプします。
+            </div>
+
+            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #fbbf24' }}>
+                <div style={{ fontWeight: 800, color: '#fbbf24', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 操作手引 ＆ トラブルシューティングの閲覧
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  本アプリの全機能の使い方ガイドと、カメラ許可・LINE WebView 動作・Excel文字化け防止・安全スコア確認などのよくある質問（FAQ）をいつでも参照できます。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #fbbf24' }}>
+                <div style={{ fontWeight: 800, color: '#fbbf24', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 HTML別枠表示 ＆ PDF版ダウンロード
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  上部の「HTMLで別枠表示」から独立したブラウザタブでマニュアル全容を表示でき、「PDF版ダウンロード」から印刷・配布に適した PDF ドキュメントを端末に保存できます。
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 6. PWA機能 & オフライン対応 */}
-          <div className="card" style={{ background: 'rgba(59, 130, 246, 0.03)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-            <h4 style={{ fontSize: '16px', color: '#38bdf8', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Smartphone size={20} /> 6. 📲 PWA（ホーム画面追加）＆ 完全オフライン動作
+          {/* ⑥ PWA機能 (ヘッダー連動) */}
+          <div className="card" style={{ background: 'rgba(59, 130, 246, 0.03)', border: '1.5px solid rgba(59, 130, 246, 0.3)' }}>
+            <h4 style={{ fontSize: '17px', color: '#38bdf8', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Smartphone size={22} /> 📲 ホーム画面に追加 / PWA機能 (ヘッダー右上ボタン)
             </h4>
-            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
-              <li><strong>ホーム画面への追加</strong>: ヘッダーの「📲 ホーム画面に追加」ボタンから、ネイティブアプリのように端末のホーム画面へインストール可能。</li>
-              <li><strong>完全オフライン動作 (0秒起動)</strong>: Service Worker により、地下や飛行機内などの電波が届かない場所でもアプリが即座に起動します。</li>
-              <li><strong>新バージョン自動検知トースト</strong>: アプリの新機能が配信されると、画面下部に「🔔 新バージョンがあります [今すぐ更新]」トーストバナーがスライド表示され、ワンタップで即時更新できます。</li>
-            </ul>
-          </div>
+            <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: '1.7' }}>
+              ヘッダー右上の <strong>「📲 ホーム画面に追加」</strong> ボタンをクリックすると、端末への PWA インストールを実行できます。
+            </div>
 
-          {/* 7. 超高速デコード技術 & 白飛び復元エンジン */}
-          <div className="card" style={{ background: 'rgba(236, 72, 153, 0.03)', border: '1px solid rgba(236, 72, 153, 0.2)' }}>
-            <h4 style={{ fontSize: '16px', color: '#ec4899', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Zap size={20} /> 7. ⚡ 超高速デコード技術 ＆ 白飛び復元エンジン
-            </h4>
-            <ul style={{ paddingLeft: '20px', color: '#e2e8f0', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
-              <li><strong>BarcodeDetector API (GPU加速)</strong>: ブラウザ標準のハードウェアアクセラレーションを活用し、ミリ秒単位で超高速なQRコード検知・解読を行います。</li>
-              <li><strong>大津適応二値化フォールバック</strong>: `BarcodeDetector` 非対応端末でも、最適化済み `jsQR` と独自画像処理により高精度に解読を完遂します。</li>
-              <li><strong>白飛び復元エンジン</strong>: PC画面のギラつきや直射光による露出オーバー（白飛び）に対し、物理EV露光制御 (`-2.0 EV` 〜 `+2.0 EV`) と階調補正を組み合わせてリアルタイム復元します。</li>
-            </ul>
+            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
+                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 ネイティブアプリ化 ＆ 完全オフライン動作 (0秒起動)
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  ホーム画面に追加すると、アドレスバーのない全画面ネイティブアプリとして起動します。
+                  Service Worker（<code>sw.js</code>）によるオフラインキャッシュにより、地下街や飛行機内（機内モード）など電波の届かないオフライン環境でも0秒で起動・動作します。
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
+                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 新バージョン自動検知トーストバナー
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  アプリの新機能が配信されると、画面下部に「🔔 新バージョンがあります [今すぐ更新]」トーストバナーがスライド表示され、ワンタップで即時更新できます。
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -194,7 +359,7 @@ export default function UserManual() {
               <AlertTriangle size={18} /> Q. 「カメラの起動に失敗しました」または「HTTPS接続が必要です」と表示される場合
             </h4>
             <div style={{ color: '#cbd5e1', fontSize: '14px', lineHeight: '1.6' }}>
-              <strong>原因</strong>: スマホ等のブラウザではセキュリティ制限（Secure Context）により、`http://192.168.x.x` のような IP アドレス直接接続でのカメラ利用がブロックされます。<br />
+              <strong>原因</strong>: スマホ等のブラウザではセキュリティ制限（Secure Context）により、<code>http://192.168.x.x</code> のような IP アドレス直接接続でのカメラ利用がブロックされます。<br />
               <strong>解決方法</strong>: 
               本アプリの公式本番 HTTPS URL (<code>https://k3and4ai-sudo.github.io/qr-scanner-app/</code>) またはローカル開発の HTTPS URL (<code>https://localhost:3000/</code>) からアクセスしてください。
             </div>

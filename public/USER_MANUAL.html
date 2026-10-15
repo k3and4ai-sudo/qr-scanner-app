@@ -33,8 +33,10 @@
     }
     h3 {
       color: #0f172a;
-      margin-top: 1.5em;
-      font-size: 16px;
+      margin-top: 1.6em;
+      font-size: 17px;
+      border-left: 4px solid #38bdf8;
+      padding-left: 10px;
     }
     h4 {
       color: #334155;
@@ -101,28 +103,20 @@
 <body>
 <h1>⚡ QR Master Studio - 取扱説明書 (ユーザーマニュアル)</h1>
 <hr />
-<h2>📖 概要</h2>
+<h2>📖 1. 概要</h2>
 <p><strong>QR Master Studio</strong> は、Web API ハードウェア加速 (<code>window.BarcodeDetector</code>) と最適化済み <code>jsQR</code> デュアルエンジンを搭載した、超高速 <strong>PWA (Progressive Web App)</strong> QRコードスキャン＆発行アプリケーションです。</p>
 <p>スマホ・PCのブラウザからカメラをかざすだけで、数ミリ秒の超高速デコードとリアルタイム環境光補正（自動露出最適化）、ならびに<strong>URL自動安全性診断・フィッシング詐欺防止機能</strong>を提供します。</p>
-<p>さらに、<strong>ホーム画面インストール（PWA）による完全オフライン動作（0秒起動）</strong>、スキャン履歴の<strong>Excel文字化け防止 CSV/JSON 出力</strong>、<strong>Wi-Fi・名刺QR作成の構文解説モーダル</strong>、<strong>安全スコア100点満点以外のURLジャンプ警告確認ゲート</strong>など、実用性とセキュリティを兼ね備えた最新鋭のツールです。</p>
+<p>画面上部に並ぶ<strong>ナビゲーションボタン（ボタン名）の順序に沿って、各ボタンを押したときのジャンプ先画面と、それに関連する全機能</strong>をわかりやすく説明します。</p>
 <hr />
-<h2>📱 画面レイアウトとナビゲーション</h2>
-<p>画面最上部には、ヘッダーに「📲 ホーム画面に追加 / PWA起動中」バッジが配置され、ナビゲーションには操作性に優れた<strong>2段グリッドのボタン構成</strong>が採用されています：</p>
-<h3>🔹 ヘッダーエリア</h3>
-<ul>
-<li><strong>アプリタイトル・ロゴ</strong>: <code>QR Master Studio</code> (GPU 加速 Web QR ツール)</li>
-<li><strong>📲 ホーム画面に追加 / ✅ PWA起動中 バッジ</strong>:</li>
-<li>ブラウザアクセス時はワンタップでホーム画面追加プロンプトを発行。</li>
-<li>PWA インストール起動時は「✅ PWA起動中」バッジに変化します。</li>
-</ul>
-<h3>🔹 2段グリッドナビゲーション</h3>
+<h2>📱 2. 画面レイアウトと上部ナビゲーションボタン一覧</h2>
+<p>画面最上部には、操作性に優れた<strong>2段グリッドの特大ナビゲーションボタン</strong>と、ヘッダー右上の PWA インストールバッジが配置されています：</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">段 / 位置</th>
-<th style="text-align: left;">タブ名</th>
+<th style="text-align: left;">ナビゲーションボタン名</th>
 <th style="text-align: left;">アイコン</th>
-<th style="text-align: left;">機能説明</th>
+<th style="text-align: left;">ジャンプ先と主な役割</th>
 </tr>
 </thead>
 <tbody>
@@ -130,178 +124,152 @@
 <td style="text-align: left;"><strong>[上段左]</strong></td>
 <td style="text-align: left;"><strong><code>QRスキャナー</code></strong></td>
 <td style="text-align: left;"><code>&lt;QrCode /&gt;</code></td>
-<td style="text-align: left;">ネオングリーン（カメラ自動起動・ミリ秒単位リアルタイム解読）</td>
+<td style="text-align: left;">カメラリアルタイム読取画面（カメラ自動起動・高速解読・安全診断・露出補正）</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>[上段右]</strong></td>
 <td style="text-align: left;"><strong><code>ファイル読み込み</code></strong></td>
 <td style="text-align: left;"><code>&lt;FolderOpen /&gt;</code></td>
-<td style="text-align: left;">シアン（端末内アルバム・写真・スクショ・D&amp;D・クリップボード貼付）</td>
+<td style="text-align: left;">画像ファイル解読画面（アルバム・写真・スクショ・D&amp;D・クリップボード貼付）</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>[下段左]</strong></td>
 <td style="text-align: left;"><strong><code>QR作成</code></strong></td>
 <td style="text-align: left;"><code>&lt;Sparkles /&gt;</code></td>
-<td style="text-align: left;">パープル（URL・テキスト・Wi-Fi・名刺生成 ＆ 構文解説モーダル）</td>
+<td style="text-align: left;">QRコード生成画面（URL/テキスト/Wi-Fi/名刺作成・構文解説モーダル）</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>[下段中央]</strong></td>
 <td style="text-align: left;"><strong><code>履歴</code></strong></td>
 <td style="text-align: left;"><code>&lt;History /&gt;</code></td>
-<td style="text-align: left;">スカイブルー（履歴一覧・メモ編集・CSV/JSON出力・ゴミ箱管理）</td>
+<td style="text-align: left;">履歴管理画面（メモ編集・CSV/JSON出力・100点未満警告ゲート・ゴミ箱）</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>[下段右]</strong></td>
 <td style="text-align: left;"><strong><code>取説</code></strong></td>
 <td style="text-align: left;"><code>&lt;BookOpen /&gt;</code></td>
-<td style="text-align: left;">アンバーゴールド（取扱説明書・HTML/PDF閲覧・FAQ）</td>
+<td style="text-align: left;">取扱説明書画面（本操作手引・HTML別枠表示・PDFダウンロード・FAQ）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>[ヘッダー右上]</strong></td>
+<td style="text-align: left;"><strong><code>📲 ホーム画面に追加</code></strong></td>
+<td style="text-align: left;"><code>&lt;Smartphone /&gt;</code></td>
+<td style="text-align: left;">PWAインストール（全画面起動・完全オフライン0秒起動・自動更新）</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2>🚀 主な機能と使い方</h2>
-<h3>1. 📷 QRコードスキャン &amp; ⚡ ワンタップ即時スキャン開始</h3>
-<h4>🔹 基本的なスキャン手順</h4>
-<ol>
-<li>上部ナビゲーションの <strong>「QRスキャナー」</strong> ボタンをクリックします。</li>
-<li>クリックした瞬間にカメラモーダルへ即座に切り替わり、<strong>自動的に Web カメラが起動してリアルタイム解読がスタート</strong>します。</li>
-<li>QRコードをカメラ枠内に収めると、<strong>ミリ秒単位で瞬時に自動解読</strong>されます。</li>
-</ol>
-<blockquote>
-<p>💡 <strong>[TIP]</strong><br />
-<strong>⚡ 自動露出最適化 (Auto Exposure System) について</strong><br />
-- カメラ起動時、デフォルトで <code>⚡ 自動露出 (Auto)</code> が選択されています。<br />
-- 周囲の明るさ（輝度 0〜255）をリアルタイム計算し、強い照明・直射光による白飛び時には自動で <code>-2.0 EV</code> (暗調補正)、暗所では <code>+2.0 EV</code> (明暗補正) を動的適用します。<br />
-- 読み込みが滞留した場合は、システムが最適な露出設定を自律探索（オートスワイプ）します。</p>
-</blockquote>
-<h4>🔹 露出補正のボタン構成</h4>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">ボタン名</th>
-<th style="text-align: left;">設定値</th>
-<th style="text-align: left;">利用シーン</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong><code>🔆 標準 (0.0 EV)</code></strong></td>
-<td style="text-align: left;">明るさ 100% / コントラスト 100%</td>
-<td style="text-align: left;">通常の室内・適切な光量環境</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong><code>🕶️ 暗く (-2.0 EV)</code></strong></td>
-<td style="text-align: left;">明るさ 50% / コントラスト 140%</td>
-<td style="text-align: left;">パソコン画面の反射・PCモニターの白飛び</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong><code>☀️ 明るく (+2.0 EV)</code></strong></td>
-<td style="text-align: left;">明るさ 150% / コントラスト 120%</td>
-<td style="text-align: left;">暗い室内・影でQRコードが暗い場合</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong><code>⚡ ハイコントラスト (-0.6 EV)</code></strong></td>
-<td style="text-align: left;">明るさ 85% / コントラスト 170%</td>
-<td style="text-align: left;">印字がかすれている紙媒体・シール</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong><code>⚡ 自動露出 (Auto)</code></strong> <em>(デフォルト)</em></td>
-<td style="text-align: left;">リアルタイム動的最適化</td>
-<td style="text-align: left;">あらゆる環境（最も推奨されるモード）</td>
-</tr>
-</tbody>
-</table>
+<h2>🚀 3. ボタン別 使い方・関連機能ガイド</h2>
 <hr />
-<h3>2. 📁 画像ファイルからの QR 読み込み (File Scanner)</h3>
-<ol>
-<li>上部ナビゲーションの <strong>「ファイル読み込み」</strong> ボタンを選択します。</li>
-<li>スマートフォン内の<strong>写真アルバム、フォルダー、スクリーンショット</strong>から画像ファイルを選択するだけで、瞬時にQRコードを解読します。</li>
-<li>メールの添付画像、LINE のトーク画面で受信した画像、保存した電子チラシのQRコードも端末内で手軽にスキャン可能。</li>
-<li>PC ブラウザでは、<strong>画像のドラッグ＆ドロップ</strong>や、<strong>クリップボードからの画像貼り付け (<code>Ctrl + V</code>)</strong> にも対応しています。</li>
-</ol>
-<hr />
-<h3>3. 🛡️ URL 安全性自動診断 &amp; 100点未満ジャンプ警告確認ゲート</h3>
-<p>QRコードに含まれるURLの安全性を<strong>8項目の包括的セキュリティアルゴリズム</strong>で自動診断・スコアリング（0〜100点）します。</p>
-<h4>🔹 8つの自動セキュリティ検証項目</h4>
-<ol>
-<li><strong>🔒 通信暗号化 (HTTPS)</strong>: HTTPS（SSL/TLS暗号化）通信であるか判定。</li>
-<li><strong>💻 数値IPアドレス接続検出</strong>: 正規ドメインではなく <code>http://192.168.1.1</code> などの数値IP直接接続（フィッシング詐欺で多用）を検出。</li>
-<li><strong>🌐 Punycode (文字偽装) 検出</strong>: <code>xn--...</code> などの国際化ドメイン（大手ブランドの類似文字を用いた偽装サイト）を自動識別。</li>
-<li><strong>⚠️ 高リスク TLD チェック</strong>: <code>.zip</code>, <code>.mov</code>, <code>.tk</code>, <code>.top</code>, <code>.work</code>, <code>.click</code> など不審なWebサイトで多用されるトップレベルドメインを警戒。</li>
-<li><strong>📦 危険なファイル拡張子検出</strong>: <code>.exe</code>, <code>.apk</code>, <code>.bat</code>, <code>.vbs</code>, <code>.zip</code> など不正なダウンロード直リンクを検出。</li>
-<li><strong>🚨 フィッシングキーワード検出</strong>: <code>login-verify</code>, <code>verify-account</code>, <code>crypto-claim</code> 等の詐欺キーワードを検出。</li>
-<li><strong>🌲 多重サブドメイン構成チェック</strong>: 偽装目的の多重ネストされた怪しいサブドメインを識別。</li>
-<li><strong>🏛️ 信頼ドメイン検証 ＆ 外部DB連携</strong>: メジャーな正規ドメインの構造検証に加え、<strong>Google Safe Browsing</strong>, <strong>VirusTotal</strong>, <strong>urlscan.io</strong>, <strong>Norton Safe Web</strong> で1タップ照会が可能。</li>
-</ol>
-<h4>🔹 安全スコア判定分類</h4>
+<h3>① QRスキャナー (上段左ボタン)</h3>
+<p>上部ナビゲーションの <strong>「QRスキャナー」</strong> ボタンをクリックすると、カメラ映像によるリアルタイムQRコード解読画面へジャンプします。</p>
+<h4>🔹 1. カメラ自動起動 ＆ ミリ秒単位の超高速デコード</h4>
 <ul>
-<li>🟢 <strong>安全 (100点満点)</strong>: 脅威パターンなし。ダイレクトにアクセス可能。</li>
+<li>ボタンを押した瞬間に Web カメラが自動的に起動し、連続フレーム解析がスタートします。</li>
+<li>QRコードをカメラ枠内に収めるだけで、ミリ秒単位で瞬時に自動解読されます。</li>
+<li>ブラウザ組み込みの <code>window.BarcodeDetector</code>（GPUハードウェア加速）を最優先活用し、非対応端末でも大津適応二値化 <code>jsQR</code> フォールバックにより高精度に解読を完遂します。</li>
+</ul>
+<h4>🔹 2. ⚡ 自動露出最適化 (Auto Exposure System) ＆ 白飛び復元</h4>
+<ul>
+<li>PC画面のギラつきや直射日光による白飛び、暗所環境に対し、デフォルトで選択されている <strong><code>⚡ 自動露出 (Auto)</code></strong> が環境光の輝度（0〜255）をリアルタイム測定し、物理露光補正 (<code>-2.0 EV</code> 〜 <code>+2.0 EV</code>) を動的に適用して確実に解読します。</li>
+<li>画面下のボタンから手動で露出設定（<code>標準</code> / <code>暗く</code> / <code>明るく</code> / <code>ハイコントラスト</code>）を切り替えることも可能です。</li>
+</ul>
+<h4>🔹 3. 🛡️ URL安全性自動診断 ＆ 100点未満ジャンプ警告確認ゲート</h4>
+<ul>
+<li>スキャンした内容が URL の場合、<strong>8項目のセキュリティチェックアルゴリズム</strong>（HTTPS暗号化、数値IP接続、Punycode文字偽装、高リスクTLD、危険拡張子、フィッシングキーワード、多重サブドメイン、メジャードメイン検証）により <strong>0〜100点の安全スコア</strong> を自動算出します。</li>
+<li><strong>安全スコア分類</strong>:</li>
+<li>🟢 <strong>安全 (100点満点)</strong>: 脅威パターンなし。直接URLを開くことができます。</li>
 <li>🟡 <strong>要確認・注意 (60〜99点)</strong>: HTTP通信、不審TLD、クエリパラメータ等が含まれるURL。</li>
 <li>🔴 <strong>危険・高リスク (0〜59点)</strong>: 不審なパターンやスクリプト、フィッシング疑いが検出されたURL。</li>
+<li><strong>⚠️ 100点満点以外のアクセス警告確認ゲート</strong>:<br />
+  安全スコアが<strong>完全満点（100点）以外のすべてのURL</strong>を開こうとした場合、誤アクセスを防止する<strong>安全警告ポップアップ画面が自動起動</strong>します。検出理由とスコアを確認した上で、「Google Safe Browsing で事前調査」「リスクを承知の上でアクセス」「キャンセル」を安全に選択できます。</li>
 </ul>
-<blockquote>
-<p>⚠️ <strong>[WARNING]</strong><br />
-<strong>⚠️ 安全スコア100点満点以外のアクセス警告確認ゲート</strong></p>
-<p>安全スコアが<strong>完全満点（100点）以外のすべてのURL</strong>を開こうとした場合、スキャン直後の結果画面および履歴画面の双方で、誤アクセスを未然に防止する<strong>安全警告ポップアップ画面</strong>が自動起動します。<br />
-画面上でスコア数値や検出理由を確認した上で、「Google Safe Browsing で事前確認」「リスクを承知の上でアクセス」「キャンセル」を安全に選択できます。</p>
-</blockquote>
 <hr />
-<h3>4. 🎨 QRコード作成ツール ＆ テンプレート構文解説モーダル</h3>
-<ol>
-<li>ナビゲーションの <strong>「QR作成」</strong> を選択します。</li>
-<li>発行したい種別（<strong>URL / 自由テキスト / Wi-Fi自動接続情報 / vCard名刺連絡先</strong>）を選択し、内容を入力します。</li>
-<li><strong>💡 テンプレート解説・自動入力支援</strong>:</li>
-<li>Wi-Fi や 名刺（vCard）を選択すると、<strong>「💡 入力方法・キーワード解説」</strong> ボタンが表示されます。</li>
-<li>クリックすると、<code>WIFI:T:WPA;S:MySSID;P:password;;</code> や <code>BEGIN:VCARD...</code> などの各キーワードの意味や書式ルールを分かりやすく解説したモーダルが起動。</li>
-<li>フォームに入力して「反映する」を押すだけで、正しい構文規則に準拠したQRコード文字列がワンクリックで自動入力されます。</li>
-<li>前景色（コード色）や背景色を自由にカラーパレットから選べます。</li>
-<li><strong>「PNG ダウンロード」</strong> ボタンを押して、高解像度画像を端末に保存します。</li>
-</ol>
+<h3>② ファイル読み込み (上段右ボタン)</h3>
+<p>上部ナビゲーションの <strong>「ファイル読み込み」</strong> ボタンをクリックすると、画像ファイルからのQRコード解読画面へジャンプします。</p>
+<h4>🔹 1. スマートフォンのアルバム・スクリーンショットから直接解読</h4>
+<ul>
+<li>スマートフォン内の写真アルバム、フォルダー、保存したスクリーンショットから画像ファイルを選択するだけで、瞬時にQRコードを解読します。</li>
+<li>メールの添付画像、LINE のトーク画面で受信した画像、電子チラシやクーポンのQRコードも端末内で手軽にスキャンできます。</li>
+</ul>
+<h4>🔹 2. PCでのドラッグ＆ドロップ ＆ クリップボード貼り付け (<code>Ctrl + V</code>)</h4>
+<ul>
+<li>パソコン環境では、破線エリアへ画像ファイルを直接ドラッグ＆ドロップするか、Webページ上の画像をコピーして <code>Ctrl + V</code>（Mac は <code>Cmd + V</code>）を押すだけで、ファイルを保存することなく即座に解読されます。</li>
+</ul>
+<h4>🔹 3. 共通の結果カード ＆ URL安全性診断</h4>
+<ul>
+<li>ファイル解読後も「QRスキャナー」と同一の結果カードが表示され、ワンクリックコピーやURLパラメータ構造解析、100点未満ジャンプ警告確認ゲートが同様に作動します。</li>
+</ul>
 <hr />
-<h3>5. 📜 スキャン履歴の管理・メモ機能・CSV/JSON出力・ゴミ箱</h3>
-<h4>🔹 タイトル＆コメント（メモ）のインライン記録</h4>
+<h3>③ QR作成 (下段左ボタン)</h3>
+<p>上部ナビゲーションの <strong>「QR作成」</strong> ボタンをクリックすると、独自のQRコードを自由に生成・保存できるツール画面へジャンプします。</p>
+<h4>🔹 1. 4つのデータ種別に対応（URL / テキスト / Wi-Fi / 名刺）</h4>
 <ul>
-<li>スキャンした内容はブラウザ内 (<code>LocalStorage</code>) に安全に自動保存されます。</li>
-<li>各スキャンの「編集」ボタンから、<strong>任意のタイトルやコメント・メモを自由に追記・保存</strong>できます。</li>
-<li>スマホでも文字が隠れずスムーズに入力できるよう、広幅・適正フォントサイズの入力欄を採用しています。</li>
-<li>秒単位の完全スキャン日時（<code>YYYY/MM/DD HH:mm:ss</code>）も同時に記録されます。</li>
+<li>Webサイトの URL、自由なテキストメモ、店舗や自宅の Wi-Fi 接続設定、vCard 名刺連絡先データの4種類から選んで、高精度QRコードをリアルタイム生成します。</li>
 </ul>
-<h4>🔹 📥 CSV エクスポート（UTF-8 BOM付き・Excel文字化け完全防止）</h4>
+<h4>🔹 2. 💡 Wi-Fi ＆ vCard テンプレート構文解説 ＆ 自動入力支援モーダル</h4>
 <ul>
-<li>履歴画面上部の <strong>「CSV出力」</strong> ボタンを押すと、表示中のスキャン履歴一覧がワンクリックで CSV ファイルとしてダウンロードされます。</li>
-<li><strong>UTF-8 BOM (<code>\uFEFF</code>)</strong> を付与して生成しているため、<strong>Windows / Mac の Microsoft Excel や各種スプレッドシートでそのまま開いても、日本語が一切文字化けしません</strong>。</li>
+<li>Wi-Fi または 名刺（vCard）を選択すると、<strong>「💡 入力方法・キーワード解説」</strong> ボタンが表示されます。</li>
+<li>ポップアップ内で <code>WIFI:S:SSID;T:WPA;P:password;;</code> や <code>BEGIN:VCARD...</code> などの構文キーワード（SSID, 暗号化, パスワード / 氏名, TEL, メール等）の意味を詳細に解説。</li>
+<li>専用入力フォームに項目を入力して「反映する」を押すだけで、正しい規格準拠の文字列がワンクリックで自動作成されます。</li>
 </ul>
-<h4>🔹 📥 JSON エクスポート</h4>
+<h4>🔹 3. カラーカスタマイズ ＆ 高解像度 PNG ダウンロード</h4>
+<ul>
+<li>QRコードの前景色と背景色をカラーピッカーから自由にカスタマイズ可能。</li>
+<li>「PNG ダウンロード」ボタンを押すことで、印刷物やPOP、Web素材に最適な高画質 PNG 画像として端末にワンクリック保存できます。</li>
+</ul>
+<hr />
+<h3>④ 履歴 (下段中央ボタン)</h3>
+<p>上部ナビゲーションの <strong>「履歴」</strong> ボタンをクリックすると、過去にスキャンしたQRコードの一覧管理・メモ編集・エクスポート画面へジャンプします。</p>
+<h4>🔹 1. タイトル＆コメント（メモ）のインライン編集・保存</h4>
+<ul>
+<li>各スキャン結果に、任意の「タイトル」や「コメント（メモ）」を追記・編集・保存できます。</li>
+<li>スマートフォンでも文字がキーボードに隠れないよう、上下幅の広いテキストエリア（<code>minHeight: 100px</code>）と見やすいフォントを採用しています。</li>
+<li>スキャンした日時も秒単位（<code>YYYY/MM/DD HH:mm:ss</code>）で正確に記録されます。</li>
+</ul>
+<h4>🔹 2. 📥 CSV エクスポート（UTF-8 BOM付き・Excel文字化け完全防止）</h4>
+<ul>
+<li>ツールバーの <strong>「CSV出力」</strong> ボタンを押すと、スキャン履歴一覧がワンクリックで CSV ファイルとしてダウンロードされます。</li>
+<li><strong>UTF-8 BOM (<code>\uFEFF</code>)</strong> を自動付与しているため、<strong>Windows 版および Mac 版の Microsoft Excel、Google スプレッドシートなどでダブルクリックして開くだけで、日本語が一切文字化けしません</strong>。</li>
+</ul>
+<h4>🔹 3. 📥 JSON エクスポート</h4>
 <ul>
 <li>解析メタデータ（<code>parsedData</code>）、安全診断スコア、判定理由を含む構造化データを <strong>JSON 形式</strong> で丸ごとエクスポートできます。</li>
 </ul>
-<h4>🔹 🗑️ ゴミ箱機能</h4>
+<h4>🔹 4. ⚠️ 100点未満URLのジャンプ確認ゲート（履歴内でも作動）</h4>
+<ul>
+<li>履歴一覧の「開く」ボタンを押した際も、安全スコアが100点満点以外のURLには警告確認ダイアログが表示されます。過去のスキャンであっても安全確認を行ってからアクセスできます。</li>
+</ul>
+<h4>🔹 5. 🗑️ ゴミ箱機能（一時退避・復元・完全削除・一括クリア）</h4>
 <ul>
 <li>不要になった履歴アイテムは「ゴミ箱」へ安全に一時退避できます。</li>
-<li>「ゴミ箱」タブに切り替えることで、<strong>「元に戻す」「完全に削除」「ゴミ箱を空にする」</strong> の操作が可能です。</li>
+<li>「ゴミ箱」タブに切り替えることで、個別の「元に戻す（復元）」「完全に削除」や、「ゴミ箱を空にする」一括消去が可能です。</li>
 </ul>
 <hr />
-<h3>6. 📲 PWA（Progressive Web App）機能 &amp; 完全オフライン動作</h3>
+<h3>⑤ 取説 (下段右ボタン - 本画面)</h3>
+<p>上部ナビゲーションの <strong>「取説」</strong> ボタンをクリックすると、本取扱説明書（ユーザーマニュアル）画面へジャンプします。</p>
+<h4>🔹 1. 操作手引 ＆ トラブルシューティングの閲覧</h4>
 <ul>
-<li><strong>ホーム画面インストール</strong>:<br />
-  ヘッダーの「📲 ホーム画面に追加」ボタンから端末へ直接インストール可能。アドレスバーのないネイティブアプリ全画面として起動できます。</li>
-<li><strong>完全オフライン動作（0秒起動）</strong>:<br />
-  Service Worker（<code>sw.js</code>）により静的アセットが高精度キャッシュされているため、<strong>地下街や山間部、飛行機内（機内モード）など、電波の届かないオフライン環境下でもアプリが即座に起動・動作</strong>します。</li>
-<li><strong>新バージョン自動検知トースト</strong>:<br />
-  新バージョンが GitHub Pages にデプロイされると、画面下部に <strong>「🔔 新バージョンがあります [今すぐ更新]」</strong> トーストバナーがスライドインし、タップするだけで最新版へ安全に切り替わります。</li>
+<li>本アプリの全機能の使い方ガイドと、カメラ許可・LINE WebView 動作・Excel文字化け防止・安全スコア確認などのよくある質問（FAQ）をいつでも参照できます。</li>
 </ul>
-<hr />
-<h3>7. ⚡ 超高速デコード技術 &amp; 白飛び復元エンジン</h3>
+<h4>🔹 2. HTML別枠表示 ＆ PDF版ダウンロード</h4>
 <ul>
-<li><strong><code>BarcodeDetector API</code> (GPUハードウェア加速)</strong>:<br />
-  ブラウザ標準の組み込み API を最優先活用。GPU を駆使してミリ秒単位で超高速な検出・認識を行います。</li>
-<li><strong>白飛び復元エンジン (適応二値化ガンマアルゴリズム &amp; 物理EV制御)</strong>:<br />
-  PC画面の強い反射や露出オーバーに対しても、物理露光 (<code>-2.0 EV</code> 〜 <code>+2.0 EV</code>) を補正し、階調差を強調して高精度解読を完遂させます。</li>
-<li><strong>大津適応二値化フォールバック</strong>:<br />
-  非対応端末でも、最適化済み <code>jsQR</code> と独自画像処理により高精度に解読を継続します。</li>
+<li>上部の「HTMLで別枠表示」から独立したブラウザタブでマニュアル全容を表示でき、「PDF版ダウンロード」から印刷・配布に適した PDF ドキュメントを端末に保存できます。</li>
 </ul>
 <hr />
-<h2>🛠️ トラブルシューティング &amp; FAQ</h2>
+<h3>📲 ホーム画面に追加 / PWA機能 (ヘッダー右上ボタン)</h3>
+<p>ヘッダー右上の <strong>「📲 ホーム画面に追加」</strong> ボタンをクリックすると、端末への PWA インストールを実行できます。</p>
+<h4>🔹 1. ネイティブアプリ化 ＆ 完全オフライン動作 (0秒起動)</h4>
+<ul>
+<li>ホーム画面に追加すると、アドレスバーのない全画面ネイティブアプリとして起動します。</li>
+<li>Service Worker（<code>sw.js</code>）によるオフラインキャッシュにより、地下街や飛行機内（機内モード）など電波の届かないオフライン環境でも0秒で起動・動作します。</li>
+</ul>
+<h4>🔹 2. 新バージョン自動検知トーストバナー</h4>
+<ul>
+<li>アプリの新機能が配信されると、画面下部に「🔔 新バージョンがあります [今すぐ更新]」トーストバナーがスライド表示され、ワンタップで最新版へ即時更新できます。</li>
+</ul>
+<hr />
+<h2>🛠️ 4. トラブルシューティング &amp; FAQ</h2>
 <blockquote>
 <p>⚠️ <strong>[WARNING]</strong><br />
 <strong>Q. 「カメラの起動に失敗しました」または「HTTPS接続が必要です」と表示される場合</strong></p>
@@ -320,7 +288,7 @@
 <p><strong>回答</strong>: 悪質なフィッシング詐欺サイトや不正スクリプトへのアクセス事故を防止するため、<strong>安全スコアが完全満点（100点）以外のすべてのURL</strong>について、事前に警告確認モーダルを割り込ませて表示しています。安全スコアと検出項目を確認した上で、リスクを承知の上でアクセスするかキャンセルかをご自身で判断できます。</p>
 </blockquote>
 <hr />
-<h2>📱 対応環境・動作要件</h2>
+<h2>📱 5. 対応環境・動作要件</h2>
 <ul>
 <li><strong>推奨ブラウザ</strong>: Android Chrome, Google Chrome, Microsoft Edge, Safari</li>
 <li><strong>推奨接続</strong>: HTTPS 通信環境（Secure Context）</li>
