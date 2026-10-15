@@ -1,5 +1,5 @@
 // QR Master Studio - Service Worker
-const CACHE_NAME = 'qr-master-cache-v2';
+const CACHE_NAME = 'qr-master-cache-v3';
 
 // Pre-cached assets for offline usage
 const PRECACHE_ASSETS = [
@@ -13,7 +13,7 @@ const PRECACHE_ASSETS = [
   './USER_MANUAL.html'
 ];
 
-// Install: Pre-cache static shell
+// Install: Pre-cache static shell and activate for reboot updates
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -21,6 +21,9 @@ self.addEventListener('install', (event) => {
       return cache.addAll(PRECACHE_ASSETS).catch((err) => {
         console.warn('[SW] Pre-cache partial fail:', err);
       });
+    }).then(() => {
+      // 待機させず自動昇格させることで、アプリ再起動時に確実に最新版がロードされる
+      return self.skipWaiting();
     })
   );
 });

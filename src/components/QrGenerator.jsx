@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
-import { Sparkles, Download, Copy, Check, RefreshCw, Palette } from 'lucide-react';
+import { Sparkles, Download, Copy, Check, RefreshCw, Palette, HelpCircle, Info } from 'lucide-react';
+import { TemplateGuideModal } from './TemplateGuideModal';
 
 export default function QrGenerator() {
   const [text, setText] = useState('https://github.com');
   const [fgColor, setFgColor] = useState('#00FF66');
   const [bgColor, setBgColor] = useState('#090d16');
   const [copied, setCopied] = useState(false);
+  const [guideType, setGuideType] = useState(null); // 'wifi' | 'vcard' | null
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -47,9 +49,16 @@ export default function QrGenerator() {
   const presets = [
     { label: '🌐 GitHub', value: 'https://github.com' },
     { label: '📱 LINE 公式', value: 'https://line.me' },
-    { label: '📶 Wi-Fi 接続', value: 'WIFI:T:WPA;S:MyHomeWiFi;P:SecretPassword;;' },
-    { label: '👤 vCard 名刺', value: 'BEGIN:VCARD\nVERSION:3.0\nN:山田;太郎\nTEL:090-1234-5678\nEND:VCARD' }
+    { label: '📶 Wi-Fi 接続', value: 'WIFI:T:WPA;S:MyHomeWiFi;P:SecretPassword;;', type: 'wifi' },
+    { label: '👤 vCard 名刺', value: 'BEGIN:VCARD\nVERSION:3.0\nN:山田;太郎\nFN:山田 太郎\nORG:株式会社サンプル\nTITLE:マネージャー\nTEL:090-1234-5678\nEMAIL:yamada@example.com\nEND:VCARD', type: 'vcard' }
   ];
+
+  const handleSelectPreset = (p) => {
+    setText(p.value);
+    if (p.type) {
+      setGuideType(p.type);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -96,16 +105,39 @@ export default function QrGenerator() {
 
           {/* サンプルプリセット */}
           <div>
-            <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 600 }}>ワンタップ テンプレート:</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>ワンタップ テンプレート:</div>
+              <div style={{ fontSize: '11px', color: '#a855f7' }}>※Wi-Fi/名刺選択で書き方ガイドを表示</div>
+            </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {presets.map((p, idx) => (
                 <button
                   key={idx}
                   className="btn btn-secondary"
-                  onClick={() => setText(p.value)}
-                  style={{ padding: '6px 10px', fontSize: '11px' }}
+                  onClick={() => handleSelectPreset(p)}
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: '11px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    border: p.type ? '1px solid rgba(168, 85, 247, 0.4)' : '1px solid rgba(255, 255, 255, 0.15)'
+                  }}
+                  title={p.type ? `${p.label} の書き方ガイドと入力サポートを開きます` : p.label}
                 >
-                  {p.label}
+                  <span>{p.label}</span>
+                  {p.type && (
+                    <span style={{
+                      fontSize: '9px',
+                      background: 'rgba(168, 85, 247, 0.25)',
+                      color: '#d8b4fe',
+                      padding: '1px 4px',
+                      borderRadius: '4px',
+                      fontWeight: 700
+                    }}>
+                      解説💡
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -175,6 +207,13 @@ export default function QrGenerator() {
         </div>
 
       </div>
+
+      {/* Wi-Fi / vCard のキーワード解説 ＆ 入力サポートモーダル */}
+      <TemplateGuideModal
+        templateType={guideType}
+        onClose={() => setGuideType(null)}
+        onApplyCustomText={(newText) => setText(newText)}
+      />
     </div>
   );
 }
