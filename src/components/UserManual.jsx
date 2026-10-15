@@ -16,7 +16,7 @@ export default function UserManual() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h3 style={{ fontSize: '20px', color: '#fbbf24', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <BookOpen size={24} color="#fbbf24" /> 取扱説明書 (ユーザーマニュアル)
+              <BookOpen size={24} color="#fbbf24" /> QR Master Studio 取扱説明書 (ユーザーマニュアル)
             </h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '6px', marginBottom: 0 }}>
               画面上部に並ぶ 5つのナビゲーションボタン（および PWA 機能）の配置順に、ジャンプ先画面と各関連機能を詳しく解説します。
