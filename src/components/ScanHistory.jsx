@@ -255,13 +255,15 @@ export default function ScanHistory() {
                         placeholder="タイトルを入力..."
                         style={{
                           width: '100%',
-                          background: 'rgba(0, 0, 0, 0.5)',
-                          border: '1px solid #38bdf8',
-                          borderRadius: '6px',
-                          padding: '6px 10px',
+                          background: 'rgba(0, 0, 0, 0.6)',
+                          border: '1.5px solid #38bdf8',
+                          borderRadius: '8px',
+                          padding: '9px 12px',
                           color: '#fff',
-                          fontSize: '13px',
-                          outline: 'none'
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          outline: 'none',
+                          boxSizing: 'border-box'
                         }}
                         autoFocus
                       />
@@ -379,25 +381,29 @@ export default function ScanHistory() {
 
                 {/* 3行目: コメントエリア */}
                 {isEditing ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '11px', color: '#94a3b8' }}>コメント / メモ:</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '11.5px', color: '#94a3b8', fontWeight: 600 }}>コメント / メモ:</label>
                     <textarea
-                      rows={2}
+                      rows={4}
                       value={editComment}
                       onChange={(e) => setEditComment(e.target.value)}
-                      placeholder="メモや備考を入力..."
+                      placeholder="メモや備考を自由に入力..."
                       style={{
                         width: '100%',
-                        background: 'rgba(0, 0, 0, 0.5)',
-                        border: '1px solid #38bdf8',
-                        borderRadius: '6px',
-                        padding: '6px 10px',
+                        minHeight: '100px',
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        border: '1.5px solid #38bdf8',
+                        borderRadius: '8px',
+                        padding: '10px 12px',
                         color: '#fff',
-                        fontSize: '12.5px',
+                        fontSize: '14px',
+                        lineHeight: '1.6',
                         outline: 'none',
-                        resize: 'vertical'
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
                       }}
                     />
+
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginTop: '4px' }}>
                       <button
                         onClick={cancelEditing}
