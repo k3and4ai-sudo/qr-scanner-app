@@ -211,23 +211,22 @@ export function checkUrlSafety(urlStr) {
   // スコアに基づく総合レベル決定
   let status = 'safe';
   let level = 'safe';
-  let label = '🟢 安全度: 高 (Safe)';
+  let label = '🟢 安全度: 満点 (100点)';
   let color = '#00FF66';
-  let summary = '脅威パターンなし';
-
+  let summary = '脅威パターンなし (安全スコア 100点)';
 
   if (score < 60) {
     status = 'danger';
     level = 'danger';
-    label = '🔴 危険・警告 (High Risk)';
+    label = `🔴 危険・高リスク (${score}点)`;
     color = '#ef4444';
     summary = '不審なパターンが検出されました！不用意にアクセスしないよう注意してください。';
-  } else if (score < 90) {
+  } else if (score < 100) {
     status = 'warning';
     level = 'warning';
-    label = '🟡 注意 (Caution)';
+    label = `🟡 要確認・注意 (${score}点)`;
     color = '#f59e0b';
-    summary = 'HTTP非暗号化通信または注意が必要な要素が含まれています。アクセス先をよく確認してください。';
+    summary = '一部注意が必要な要素が含まれています。アクセス先をよく確認してください。';
   }
 
   // 外部セキュリティデータベース参照用URLの修正（404および構文エラーの解消）

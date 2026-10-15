@@ -38,7 +38,8 @@ graph TD
 | **`SecurityDetailsCard.jsx`** | URL安全スコアの内訳、プロトコル、ドメイン、危険警告表示 | `urlSafety.js` |
 | **`QrGenerator.jsx`** | テキスト/URLからのQR画像生成、PNGダウンロード、カラー変更 | `qrcode.react` |
 | **`TemplateGuideModal.jsx`** | Wi-Fi / vCard のキーワード解説と入力支援モーダル | Lucide Icons |
-| **`ScanHistory.jsx`** | スキャン履歴一覧、タイトル/コメント編集、ゴミ箱・復元管理 | `localStorage` |
+| **`ScanHistory.jsx`** | スキャン履歴一覧、タイトル/コメント編集、CSV/JSON出力、ゴミ箱・復元管理 | `localStorage`, `exportHistory.js`, Lucide Icons |
+| **`exportHistory.js`** | UTF-8 BOM付きCSVおよび整形JSONのファイル生成・ダウンロード処理 | Blob API, File API |
 | **`PwaInstallButton.jsx`** | ホーム画面追加プロンプトの発行、PWA起動ステータスバッジ | `usePwaInstall.js`, Lucide Icons |
 | **`usePwaInstall.js`** | `beforeinstallprompt` の捕捉、インストール可否状態管理 | Service Worker, Web App Manifest |
 | **`public/sw.js`** | オフラインキャッシュ（Stale-While-Revalidate & 自動更新）制御 | Service Worker Cache API |
@@ -49,7 +50,9 @@ graph TD
 
 1. **スキャンフロー**:
    - カメラ映像 or 画像ファイル $\to$ `BarcodeDetector` (最優先) / `jsQR` (大津二値化フォールバック) $\to$ 生テキスト取得
-2. **安全診断フロー**:
+2. **安全診断 & 遷移ゲートフロー**:
    - 生テキスト $\to$ `analyzeUrlSafety()` $\to$ URL構造解析・正規表現チェック（フィッシング・短縮URL・危険拡張子・LINE公式判定） $\to$ 安全スコア（0〜100点）と警告項目配列を生成
-3. **履歴永続化フロー**:
-   - スキャン成功 $\to$ 日時・種別・安全スコアを付与 $\to$ `localStorage` の `qr_scan_history` キーにJSON保存
+   - **URLジャンプ確認ゲート**: 安全スコアが100点満点以外の場合、直接のページ遷移を遮断し、確認モーダル（スコア数値・危険項目・Safe Browsing照会）を表示して明示的同意を要求
+3. **履歴永続化 & エクスポートフロー**:
+   - スキャン成功 $\to$ 日時・種別・安全スコア・タイトル・コメントを付与 $\to$ `localStorage` の `qr_master_scan_history` キーに保存
+   - ワンクリックで UTF-8 BOM 付き CSV（Excel文字化け防止）または完全メタデータ JSON としてダウンロード可能

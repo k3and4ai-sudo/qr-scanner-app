@@ -24,7 +24,8 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs, 
   };
 
   const handleOpenUrlClick = (e) => {
-    if (safetyReport && (safetyReport.status === 'warning' || safetyReport.status === 'danger')) {
+    // 安全スコアが100点以外のときはURLにジャンプする前に警告メッセージを表示してジャンプの実施を確認
+    if (isUrl && (!safetyReport || safetyReport.score !== 100)) {
       e.preventDefault();
       setShowWarningModal(true);
     }
@@ -359,8 +360,8 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs, 
             gap: '16px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: safetyReport.color, fontSize: '18px', fontWeight: 800 }}>
-                <AlertTriangle size={24} /> 安全警告: URLの確認
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: safetyReport.color || '#f59e0b', fontSize: '18px', fontWeight: 800 }}>
+                <AlertTriangle size={24} /> ⚠️ 安全確認: URLへのアクセス
               </div>
               <button 
                 onClick={() => setShowWarningModal(false)}
@@ -370,29 +371,55 @@ export default function ResultCard({ scanResult, onRescan, onClear, onShowLogs, 
               </button>
             </div>
 
-            <div style={{ background: 'rgba(0,0,0,0.5)', padding: '12px', borderRadius: '8px', fontSize: '13px', color: '#f8fafc', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+            <div style={{ background: 'rgba(0,0,0,0.5)', padding: '12px', borderRadius: '8px', fontSize: '13px', color: '#f8fafc', wordBreak: 'break-all', fontFamily: 'monospace', border: '1px solid rgba(255,255,255,0.1)' }}>
               {rawText}
             </div>
 
             <div style={{ fontSize: '14px', color: '#cbd5e1', lineHeight: '1.6' }}>
-              このURLには不審な要素が含まれています:
-              <ul style={{ margin: '8px 0 0 20px', padding: 0, color: safetyReport.color }}>
-                {safetyReport.checks.filter(c => !c.safe).map((c, i) => (
-                  <li key={i}>{c.title}: {c.detail}</li>
-                ))}
-              </ul>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '13px', color: '#94a3b8' }}>安全スコア:</span>
+                <span style={{
+                  background: `${safetyReport.color || '#f59e0b'}22`,
+                  color: safetyReport.color || '#f59e0b',
+                  border: `1.5px solid ${safetyReport.color || '#f59e0b'}`,
+                  borderRadius: '6px',
+                  padding: '3px 10px',
+                  fontWeight: 800,
+                  fontSize: '13.5px'
+                }}>
+                  {safetyReport.score} / 100点
+                </span>
+                <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 600 }}>（100点満点以外の警告）</span>
+              </div>
+
+              {safetyReport.checks && safetyReport.checks.filter(c => !c.safe).length > 0 ? (
+                <div>
+                  <div style={{ fontSize: '12.5px', color: '#94a3b8', marginBottom: '4px' }}>検出された注意項目:</div>
+                  <ul style={{ margin: '4px 0 0 18px', padding: 0, color: safetyReport.color || '#f59e0b', fontSize: '13px' }}>
+                    {safetyReport.checks.filter(c => !c.safe).map((c, i) => (
+                      <li key={i} style={{ marginTop: '2px' }}><strong>{c.title}:</strong> {c.detail}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <div style={{ color: '#cbd5e1', fontSize: '13px' }}>
+                  このURLは完全な100点満点の検証基準を満たしていません。リンク先が信頼できるかご確認の上アクセスしてください。
+                </div>
+              )}
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
-              <a
-                href={safetyReport.securityLinks[0].url}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-secondary"
-                style={{ textAlign: 'center', textDecoration: 'none', padding: '12px', fontSize: '13px', fontWeight: 700 }}
-              >
-                🔍 Google Safe Browsing で安全性を事前に調べる
-              </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
+              {safetyReport.securityLinks && safetyReport.securityLinks[0] && (
+                <a
+                  href={safetyReport.securityLinks[0].url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-secondary"
+                  style={{ textAlign: 'center', textDecoration: 'none', padding: '10px', fontSize: '12.5px', fontWeight: 700 }}
+                >
+                  🔍 Google Safe Browsing で安全性を事前確認
+                </a>
+              )}
 
               <button
                 className="btn btn-danger"
