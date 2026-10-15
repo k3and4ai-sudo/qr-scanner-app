@@ -3,7 +3,8 @@ import jsQR from 'jsqr';
 import liff from '@line/liff';
 import { 
   QrCode, Camera, AlertTriangle, RefreshCw, Upload, Zap, X, 
-  FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw, ShieldAlert, Copy, ExternalLink
+  FileText, Smartphone, Check, Video, VideoOff, Layers, Sun, Sliders, RotateCcw, ShieldAlert, Copy, ExternalLink,
+  Flashlight, FlashlightOff, Lightbulb
 } from 'lucide-react';
 import StatusLamp from './StatusLamp';
 import ResultCard from './ResultCard';
@@ -128,6 +129,15 @@ export default function QrScanner() {
   };
   const [autoStatus, setAutoStatus] = useState('optimal'); // 'optimal' | 'glare' | 'dark' | 'sweep'
   const [currentLuminance, setCurrentLuminance] = useState(null);
+
+  // 💡 スマホのバックライト / カメラトーチ（Torch）制御
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [isTorchOn, setIsTorchOn] = useState(false);
+  const torchStateRef = useRef(false);
+  const [autoTorchEnabled, setAutoTorchEnabled] = useState(true); // 暗所での自動バックライト点灯
+  const autoTorchEnabledRef = useRef(true);
+  const darkConsecutiveFramesRef = useRef(0); // 暗所連続フレームカウンター
+  const brightConsecutiveFramesRef = useRef(0); // 明所連続フレームカウンター
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -403,6 +413,53 @@ export default function QrScanner() {
     }
   };
 
+  // 💡 スマホのバックライト / カメラトーチ（Torch）点灯・消灯制御
+  const applyTorch = async (desiredState) => {
+    const nextState = Boolean(desiredState);
+    if (!streamRef.current) {
+      setIsTorchOn(nextState);
+      torchStateRef.current = nextState;
+      return false;
+    }
+
+    const track = streamRef.current.getVideoTracks()[0];
+    let hwSuccess = false;
+
+    if (track && typeof track.applyConstraints === 'function') {
+      try {
+        const caps = track.getCapabilities ? track.getCapabilities() : {};
+        if (caps.torch) {
+          await track.applyConstraints({
+            advanced: [{ torch: nextState }]
+          });
+          hwSuccess = true;
+          setTorchSupported(true);
+        }
+      } catch (e) {
+        console.warn("Hardware torch applyConstraints error:", e);
+      }
+    }
+
+    setIsTorchOn(nextState);
+    torchStateRef.current = nextState;
+
+    if (hwSuccess) {
+      addLog(nextState 
+        ? '💡 [カメラバックライト] スマホの物理ライト（トーチ）を点灯しました。' 
+        : '💡 [カメラバックライト] スマホの物理ライト（トーチ）を消灯しました。', 'success');
+    } else {
+      addLog(nextState 
+        ? '💡 [画面バックライト] トーチ非対応/前面カメラのため、画面発光バックライトで照らします。' 
+        : '💡 [画面バックライト] 消灯しました。', 'info');
+    }
+    return hwSuccess;
+  };
+
+  const toggleTorch = () => {
+    const next = !torchStateRef.current;
+    applyTorch(next);
+  };
+
   // カメラ起動 (指定デバイスID対応 & フォールバック処理付き & 同時起動ロック)
   const startWebcam = async (overrideDeviceId) => {
     if (isStartingWebcamRef.current) return;
@@ -482,6 +539,12 @@ export default function QrScanner() {
             setHardwareEVSupported(true);
             addLog('⚡ 物理カメラセンサーのハードウェア露光制御 (EV) が利用可能です。', 'success');
           }
+          if (caps.torch) {
+            setTorchSupported(true);
+            addLog('💡 スマホのカメラバックライト（物理トーチ）が利用可能です。', 'success');
+          } else {
+            setTorchSupported(false);
+          }
         } catch (e) {}
       }
 
@@ -532,6 +595,14 @@ export default function QrScanner() {
   // カメラ停止
 
   const stopWebcam = () => {
+    if (torchStateRef.current) {
+      applyTorch(false);
+    }
+    setIsTorchOn(false);
+    torchStateRef.current = false;
+    darkConsecutiveFramesRef.current = 0;
+    brightConsecutiveFramesRef.current = 0;
+
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
@@ -636,12 +707,25 @@ export default function QrScanner() {
                 setCurrentLuminance(avgLum);
 
                 if (overexposedRatio > 0.15 || avgLum > 185) {
+                  darkConsecutiveFramesRef.current = 0;
+                  brightConsecutiveFramesRef.current += 1;
+                  // 白飛び・明所環境検出時: バックライト点灯中なら自動消灯
+                  if (autoTorchEnabledRef.current && torchStateRef.current && brightConsecutiveFramesRef.current >= 3) {
+                    applyTorch(false);
+                  }
                   if (brightnessRef.current !== 50 || contrastRef.current !== 140) {
                     applyHardwareExposure(50, 140);
                     setAutoStatus('glare');
                     addLog(`⚡ [自動露出最適化] 白飛び過多を検出 (輝度: ${avgLum}) ➔ 暗調補正 (-2.0 EV) 自動適用`, 'info');
                   }
                 } else if (underexposedRatio > 0.40 || avgLum < 55) {
+                  brightConsecutiveFramesRef.current = 0;
+                  darkConsecutiveFramesRef.current += 1;
+                  // 💡 露光調整で暗すぎる環境を検出: 連続判定でスマホのバックライト（トーチ）を自動点灯！
+                  if (autoTorchEnabledRef.current && !torchStateRef.current && darkConsecutiveFramesRef.current >= 2) {
+                    applyTorch(true);
+                    addLog(`💡 [暗所自動バックライト] 露光判定で暗所を検出 (輝度: ${avgLum}) ➔ スマホのライトを自動点灯しました`, 'success');
+                  }
                   if (brightnessRef.current !== 150 || contrastRef.current !== 120) {
                     applyHardwareExposure(150, 120);
                     setAutoStatus('dark');
@@ -659,6 +743,13 @@ export default function QrScanner() {
                   applyHardwareExposure(p.b, p.c);
                   setAutoStatus('sweep');
                 } else if (avgLum >= 60 && avgLum <= 180 && (brightnessRef.current !== 100 || contrastRef.current !== 100) && autoStatus !== 'sweep') {
+                  darkConsecutiveFramesRef.current = 0;
+                  brightConsecutiveFramesRef.current += 1;
+                  // 良好な光量が確保された場合、十分な明るさ（avgLum >= 85）で自動消灯
+                  if (autoTorchEnabledRef.current && torchStateRef.current && avgLum >= 85 && brightConsecutiveFramesRef.current >= 5) {
+                    applyTorch(false);
+                    addLog(`💡 [自動バックライト消灯] 良好な光量を確保したためライトを消灯しました (輝度: ${avgLum})`, 'info');
+                  }
                   applyHardwareExposure(100, 100);
                   setAutoStatus('optimal');
                 }
@@ -859,6 +950,50 @@ export default function QrScanner() {
               </div>
             </div>
 
+            {/* 💡 暗所自動バックライト機能の事前設定 */}
+            <div style={{
+              marginBottom: '14px',
+              background: 'rgba(0, 0, 0, 0.4)',
+              padding: '12px',
+              borderRadius: '10px',
+              border: autoTorchEnabled ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: autoTorchEnabled ? '#f59e0b' : '#e2e8f0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Lightbulb size={15} color={autoTorchEnabled ? '#f59e0b' : '#94a3b8'} />
+                  暗所でのバックライト自動点灯:
+                </div>
+                <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '3px', lineHeight: '1.4' }}>
+                  露光調整で暗すぎる場合にスマホのライト（トーチ）を自動点灯して読み取りを補助します。
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !autoTorchEnabled;
+                  setAutoTorchEnabled(next);
+                  autoTorchEnabledRef.current = next;
+                }}
+                style={{
+                  background: autoTorchEnabled ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                  color: autoTorchEnabled ? '#f59e0b' : '#94a3b8',
+                  border: autoTorchEnabled ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '20px',
+                  padding: '5px 12px',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+              >
+                {autoTorchEnabled ? 'ON' : 'OFF'}
+              </button>
+            </div>
+
 
             {isLineApp && (
               <div style={{ background: 'rgba(6, 199, 85, 0.12)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(6, 199, 85, 0.35)', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1030,6 +1165,48 @@ export default function QrScanner() {
 
                 {isCameraActive && (
                   <>
+                    {/* 💡 右上フローティング バックライト（トーチ）トグルボタン */}
+                    <button
+                      type="button"
+                      onClick={toggleTorch}
+                      title={isTorchOn ? "バックライト（ライト）を消灯" : "バックライト（ライト）を点灯"}
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '12px',
+                        background: isTorchOn ? 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' : 'rgba(0, 0, 0, 0.65)',
+                        color: isTorchOn ? '#000' : '#fff',
+                        border: isTorchOn ? '2px solid #fbbf24' : '1px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: isTorchOn ? '0 0 18px rgba(245, 158, 11, 0.85)' : '0 2px 8px rgba(0,0,0,0.5)',
+                        borderRadius: '24px',
+                        padding: '6px 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        zIndex: 30,
+                        transition: 'all 0.2s ease-in-out'
+                      }}
+                    >
+                      {isTorchOn ? <Flashlight size={14} color="#000" /> : <FlashlightOff size={14} color="#fff" />}
+                      <span>{isTorchOn ? '💡 ライト点灯中' : '🔦 ライト点灯'}</span>
+                    </button>
+
+                    {/* 画面バックライト（ホワイト発光）オーバーレイ */}
+                    {isTorchOn && (
+                      <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(255, 255, 255, 0.22)',
+                        mixBlendMode: 'screen',
+                        pointerEvents: 'none',
+                        zIndex: 10,
+                        boxShadow: 'inset 0 0 40px rgba(255, 255, 255, 0.6)'
+                      }} />
+                    )}
+
                     <div style={{ position: 'absolute', top: 30, left: 30, width: 28, height: 28, borderTop: '3px solid #00FF66', borderLeft: '3px solid #00FF66' }}></div>
                     <div style={{ position: 'absolute', top: 30, right: 30, width: 28, height: 28, borderTop: '3px solid #00FF66', borderRight: '3px solid #00FF66' }}></div>
                     <div style={{ position: 'absolute', bottom: 30, left: 30, width: 28, height: 28, borderBottom: '3px solid #00FF66', borderLeft: '3px solid #00FF66' }}></div>
@@ -1212,6 +1389,36 @@ export default function QrScanner() {
                     {autoExposure ? '⚡ 自動露出 (Auto: ON)' : '⚪ 手動固定 (Manual)'}
                   </button>
 
+                  {/* 💡 暗所自動バックライト (Auto Torch) トグル */}
+                  <button
+                    onClick={() => {
+                      const next = !autoTorchEnabled;
+                      setAutoTorchEnabled(next);
+                      autoTorchEnabledRef.current = next;
+                      if (!next && isTorchOn) {
+                        applyTorch(false);
+                      }
+                      addLog(next ? '💡 [暗所自動ライト] 有効化 (暗すぎる場合に自動点灯)' : '⚪ [暗所自動ライト] 無効化', 'info');
+                    }}
+                    style={{
+                      background: autoTorchEnabled ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                      color: autoTorchEnabled ? '#f59e0b' : '#94a3b8',
+                      border: autoTorchEnabled ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.2)',
+                      padding: '3px 10px',
+                      borderRadius: '20px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                    title="露光調整で暗すぎる場合にスマホのバックライト（トーチ）を自動点灯"
+                  >
+                    <Lightbulb size={12} color={autoTorchEnabled ? '#f59e0b' : '#94a3b8'} />
+                    {autoTorchEnabled ? '💡 暗所自動ライト (ON)' : '⚪ 暗所自動ライト (OFF)'}
+                  </button>
+
                   {(brightness !== 100 || contrast !== 100) && (
                     <button
                       onClick={() => {
@@ -1240,9 +1447,9 @@ export default function QrScanner() {
                 }}>
                   <span style={{ color: '#00FF66', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                     {autoStatus === 'glare' && '🟡 白飛び過多検出 ➔ 暗調補正自動適用 (-2.0 EV)'}
-                    {autoStatus === 'dark' && '🔵 暗所検出 ➔ 明暗補正自動適用 (+2.0 EV)'}
+                    {autoStatus === 'dark' && `🔵 暗所検出 ➔ 明暗補正 (+2.0 EV)${isTorchOn ? ' ＆ 💡ライト点灯中' : ''}`}
                     {autoStatus === 'sweep' && '🔄 自動最適パラメータ探査中...'}
-                    {autoStatus === 'optimal' && '🟢 最適露出・リアルタイム自動調整中'}
+                    {autoStatus === 'optimal' && `🟢 最適露出・リアルタイム自動調整中${isTorchOn ? ' (💡ライト点灯中)' : ''}`}
                   </span>
                   {currentLuminance !== null && (
                     <span style={{ color: '#94a3b8', fontSize: '10px' }}>
@@ -1350,6 +1557,29 @@ export default function QrScanner() {
                   }}
                 >
                   ⚡ 自動露出 (Auto)
+                </button>
+                <button
+                  type="button"
+                  className="btn ev-btn"
+                  onClick={toggleTorch}
+                  title="スマホのバックライト（トーチ）を手動で点灯/消灯"
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: '11px',
+                    borderRadius: '6px',
+                    background: isTorchOn ? 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' : 'rgba(255,255,255,0.06)',
+                    color: isTorchOn ? '#000' : '#fff',
+                    fontWeight: isTorchOn ? 800 : 400,
+                    border: isTorchOn ? '1.5px solid #fbbf24' : '1px solid rgba(255,255,255,0.1)',
+                    boxShadow: isTorchOn ? '0 0 10px rgba(245, 158, 11, 0.5)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isTorchOn ? <Flashlight size={12} color="#000" /> : <FlashlightOff size={12} color="#fff" />}
+                  {isTorchOn ? '💡 ライト消灯' : '🔦 ライト点灯'}
                 </button>
               </div>
 
