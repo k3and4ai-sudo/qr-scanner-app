@@ -294,6 +294,15 @@ export default function UserManual() {
                 </div>
               </div>
 
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #fbbf24' }}>
+                <div style={{ fontWeight: 800, color: '#fbbf24', fontSize: '13.5px', marginBottom: '4px' }}>
+                  🔹 💡 暗所自動バックライト（カメラトーチ）点灯 ＆ 手動ライト制御
+                </div>
+                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: '1.6' }}>
+                  夜間や照明の暗い場所、影になったQRコードのスキャン時、露光判定で受光量不足を検出すると<strong>スマートフォンのカメラライト（トーチ: Torch）が自動点灯</strong>して読み取りを強力に補助します。良好な明るさに戻ると眩しさ防止のため自動消灯します。カメラ画面右上のボタンや露光パネルから手動でのON/OFFも可能です（PCや非対応環境では画面発光バックライトが作動します）。
+                </div>
+              </div>
+
               <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
                 <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '13.5px', marginBottom: '4px' }}>
                   🔹 🛡️ URL安全性自動判定 ＆ 100点未満ジャンプ警告確認ゲート

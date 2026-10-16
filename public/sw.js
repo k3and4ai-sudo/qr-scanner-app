@@ -1,5 +1,5 @@
 // QR Master Studio - Service Worker
-const CACHE_NAME = 'qr-master-cache-v6';
+const CACHE_NAME = 'qr-master-cache-v7';
 
 // Pre-cached assets for offline usage
 const PRECACHE_ASSETS = [
