@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 QR Master Studio - インタラクティブ・プレゼンテーションスライド生成スクリプト
-ブラウザで全画面発表・操作できるスタンドアロンHTMLと、16:9印刷用PDFを一括生成します。
+全14スライド：QRスキャナー・露出補正・安全診断・ファイル読み込み・QR作成・履歴・取説・PWAを網羅
 """
 
 import os
@@ -101,7 +101,7 @@ def build_presentation_html():
       left: 0;
       width: 100%;
       height: 100%;
-      padding: 40px 52px 32px 52px;
+      padding: 38px 50px 30px 50px;
       display: flex;
       flex-direction: column;
       opacity: 0;
@@ -123,7 +123,7 @@ def build_presentation_html():
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       position: relative;
       z-index: 2;
     }}
@@ -151,7 +151,7 @@ def build_presentation_html():
     }}
 
     .slide-title {{
-      font-size: 28px;
+      font-size: 27px;
       font-weight: 800;
       letter-spacing: -0.02em;
       color: #fff;
@@ -207,7 +207,7 @@ def build_presentation_html():
       background: var(--bg-card);
       border: 1px solid var(--bg-card-border);
       border-radius: 14px;
-      padding: 20px 24px;
+      padding: 18px 22px;
       backdrop-filter: blur(16px);
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
     }}
@@ -332,7 +332,7 @@ def build_presentation_html():
       z-index: 2;
     }}
 
-    /* 表紙スライド（Slide 1） */
+    /* 表紙スライド */
     .hero-slide {{
       display: flex;
       flex-direction: column;
@@ -401,7 +401,7 @@ def build_presentation_html():
       font-weight: 600;
     }}
 
-    /* 比較テーブル（Slide 2 / Slide 3） */
+    /* 比較テーブル */
     .compare-table {{
       width: 100%;
       border-collapse: collapse;
@@ -429,6 +429,36 @@ def build_presentation_html():
       color: var(--primary);
       font-weight: 700;
       background: rgba(56, 189, 248, 0.06);
+    }}
+
+    /* ナビゲーション紹介グリッド */
+    .nav-grid-box {{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }}
+
+    .nav-grid-card {{
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }}
+
+    .nav-grid-card h4 {{
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }}
+
+    .nav-grid-card p {{
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.45;
     }}
 
     /* コントロールバー（画面下部） */
@@ -469,7 +499,7 @@ def build_presentation_html():
     }}
 
     .progress-track {{
-      width: 130px;
+      width: 140px;
       height: 4px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 9999px;
@@ -480,7 +510,7 @@ def build_presentation_html():
     .progress-fill {{
       height: 100%;
       background: var(--primary-gradient);
-      width: 10%;
+      width: 7%;
       transition: width 0.3s ease;
     }}
 
@@ -490,7 +520,7 @@ def build_presentation_html():
       right: 0;
       top: 0;
       bottom: 0;
-      width: 390px;
+      width: 400px;
       background: rgba(9, 14, 26, 0.96);
       border-left: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(24px);
@@ -554,7 +584,7 @@ def build_presentation_html():
     .overview-grid {{
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 18px;
+      gap: 16px;
       margin-top: 20px;
     }}
 
@@ -562,7 +592,7 @@ def build_presentation_html():
       background: #0f172a;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px;
       cursor: pointer;
       transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     }}
@@ -583,12 +613,12 @@ def build_presentation_html():
       font-size: 11px;
       color: var(--primary);
       font-weight: 800;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       letter-spacing: 0.05em;
     }}
 
     .overview-title {{
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: #fff;
       line-height: 1.4;
@@ -667,22 +697,22 @@ def build_presentation_html():
         </div>
         <p class="hero-desc">
           ブラウザだけで動く最新のWeb標準APIとGPUハードウェア加速。<br>
-          白飛び・暗所・フィッシング詐欺の課題を根底から解決する、次世代QRコードプラットフォーム。
+          スキャン・ファイル読取・QR作成・履歴管理・マニュアルを一体化した、次世代QRコードプラットフォーム。
         </p>
         <div class="hero-pills">
-          <div class="hero-pill">⚡ 0秒起動 ＆ 完全オフライン動作</div>
-          <div class="hero-pill">☀️ 自動露出補正 (Auto-EV) ＆ 暗所自動点灯</div>
-          <div class="hero-pill">🛡️ 8項目URL安全性スコア診断</div>
-          <div class="hero-pill">📥 文字化けゼロ BOM付きCSV出力</div>
+          <div class="hero-pill">📷 カメラ瞬時スキャン</div>
+          <div class="hero-pill">🖼️ 画像・スクショ読取</div>
+          <div class="hero-pill">🎨 自由なQR作成</div>
+          <div class="hero-pill">📥 文字化けゼロ CSV出力</div>
+          <div class="hero-pill">📖 内蔵取扱説明書</div>
         </div>
         <div style="font-size: 13px; color: var(--text-muted);">
-          キーボードの [→] または [スペース] でスライドを進めます ｜ [S] で発表台本表示
+          キーボードの [→] または [スペース] でスライドを進めます ｜ [S] で発表台本表示 ｜ [O] でスライド一覧
         </div>
       </div>
       <div class="speaker-notes" style="display:none;">
         <h4>【Slide 1】表紙 (Title Slide)</h4>
-        <p>「みなさん、QRコードを読み取る際に、暗くてピントが合わなかったり、PC画面のギラつきで白飛びして読み取れなかった経験はありませんか？さらに最近では、悪質なサイトへ誘導するQRコード詐欺（QRishing）も急増しています。」</p>
-        <p>「本日ご紹介する『QR Master Studio』は、ブラウザだけで動く最新のPWA技術とGPUハードウェア加速、そしてリアルタイムの安全診断を融合させた、まったく新しいQRコードツールです。」</p>
+        <p>「みなさん、こんにちは。本日はブラウザだけでミリ秒起動し、カメラ読み取りだけでなくファイル解析・QRコード生成・Excel連携・オフラインマニュアルまでを網羅した『QR Master Studio』の全貌をご紹介します。」</p>
       </div>
     </div>
 
@@ -715,8 +745,8 @@ def build_presentation_html():
           <div class="feature-item">
             <div class="feature-icon amber">📶</div>
             <div class="feature-content">
-              <h4>3. アプリインストールの手間 ＆ オフライン停止</h4>
-              <p>専用アプリのダウンロードが億劫。電波の届かない地下街、倉庫、機内など通信圏外ではアプリが起動すらしない不便さ。</p>
+              <h4>3. アプリインストールの手間 ＆ 機能の断片化</h4>
+              <p>アプリのダウンロードが億劫、起動時に広告表示。さらに「読み取り」「ファイル解析」「QR作成」が別々のアプリに分かれている不便さ。</p>
             </div>
           </div>
         </div>
@@ -725,20 +755,20 @@ def build_presentation_html():
             <span>📊 従来アプリの現状</span>
           </h4>
           <p style="font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 16px;">
-            従来の多くの無料QRアプリは、起動時に全画面広告が挟まり、カメラ撮影したURLをノーチェックで開いてしまいます。また露光調整機能がないため、光の強い現場では無力でした。
+            従来の多くの無料QRアプリは、起動時に全画面広告が挟まり、カメラ撮影したURLをノーチェックで開いてしまいます。またファイル読み込みや履歴管理、QR生成がバラバラでした。
           </p>
           <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--accent-amber); padding: 10px 14px; border-radius: 4px; font-size: 12px; color: #fbbf24;">
-            <strong>現場の声:</strong> 「倉庫のバーコードやPC画面のQRが読めず、作業が止まる」「不審なURLを開かないか不安」
+            <strong>現場の声:</strong> 「スキャンだけでなく、画像のQRも読みたい」「履歴をCSVでExcelに出したい」「安全性を確認したい」
           </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 02 / 10</span>
+        <span>Slide 02 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
         <h4>【Slide 2】背景と課題</h4>
-        <p>「QRコードは生活やビジネスに欠かせないインフラになりましたが、現場では依然として多くの課題が存在します。直射日光やPC画面の白飛び、暗所での読取失敗。そして何より、印刷されたQRコードの先に何があるか分からないというセキュリティの不安です。通信が不安定な場所で広告に邪魔されて動かないアプリも少なくありません。」</p>
+        <p>「QRコードは生活やビジネスに欠かせないインフラになりましたが、現場では依然として多くの課題が存在します。白飛びや暗所での読取失敗、QR詐欺のリスク、そして何よりスキャン・作成・履歴がバラバラで業務に活かせないという不満です。」</p>
       </div>
     </div>
 
@@ -746,78 +776,47 @@ def build_presentation_html():
     <div class="slide" data-slide="3">
       <div class="slide-header">
         <div class="header-left">
-          <span class="slide-badge">SOLUTION & INNOVATION</span>
-          <h2 class="slide-title">課題を解決する<span class="gradient-text">3大コア・イノベーション</span></h2>
-          <p class="slide-subtitle">最先端Webテクノロジーが可能にした圧倒的な読取体験</p>
+          <span class="slide-badge">APP OVERVIEW</span>
+          <h2 class="slide-title">全機能が1つに集約<span class="gradient-text">2段グリッドナビゲーション</span></h2>
+          <p class="slide-subtitle">用途に合わせて迷わず使える、洗練された5大主要機能</p>
         </div>
         <div class="header-logo">QR Master Studio</div>
       </div>
-      <div class="slide-body">
-        <div class="feature-list">
-          <div class="feature-item">
-            <div class="feature-icon green">⚡</div>
-            <div class="feature-content">
-              <h4>GPU加速ハイブリッド・デュアルエンジン</h4>
-              <p>ブラウザ標準 `BarcodeDetector API` によるGPU直結ミリ秒デコードと、陰影に強い大津適応二値化 `jsQR` の最強タッグ。</p>
-            </div>
+      <div class="slide-body full-width">
+        <div class="nav-grid-box" style="grid-template-columns: repeat(3, 1fr); gap: 16px;">
+          <div class="nav-grid-card" style="border-top: 3px solid #10b981;">
+            <h4><span style="color:#10b981;">📷</span> QRスキャナー</h4>
+            <p>カメラで即座にリアルタイム読み取り。自動露出補正(Auto-EV)、暗所でのバックライト自動点灯、8項目URL安全診断を搭載。</p>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon">☀️</div>
-            <div class="feature-content">
-              <h4>自動露出最適化 (Auto-EV) ＆ 暗所自動点灯</h4>
-              <p>カメラ中心フレームの輝度をミリ秒解析。`-2.0EV` 〜 `+2.0EV` の物理露光調整と、暗所でのバックライト自動点灯を完備。</p>
-            </div>
+          <div class="nav-grid-card" style="border-top: 3px solid #38bdf8;">
+            <h4><span style="color:#38bdf8;">🖼️</span> ファイル読み込み</h4>
+            <p>端末の写真、PCからのドラッグ＆ドロップ、`Ctrl + V` 貼り付けに対応。大津の二値化で影やピンボケ画像も高精度復元。</p>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon purple">🛡️</div>
-            <div class="feature-content">
-              <h4>8項目安全性診断 ＆ 100点未満警告ゲート</h4>
-              <p>URLの暗号化や偽装文字を8軸で自動診断。安全スコア完全100点満点以外のURLは、直前の警告確認モーダルで誤アクセスを絶対防止。</p>
-            </div>
+          <div class="nav-grid-card" style="border-top: 3px solid #c084fc;">
+            <h4><span style="color:#c084fc;">🎨</span> QR作成</h4>
+            <p>URL、Wi-Fi接続、自由テキストからカスタムQRコードを瞬時生成。カラー変更、リアルタイムプレビュー、PNGダウンロード。</p>
           </div>
-        </div>
-        <div class="card">
-          <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 12px;">🏆 従来アプリとの徹底比較</h4>
-          <table class="compare-table">
-            <thead>
-              <tr>
-                <th>項目</th>
-                <th>従来アプリ</th>
-                <th>本アプリ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>起動速度</td>
-                <td>広告で数秒</td>
-                <td class="highlight">0秒 (即時)</td>
-              </tr>
-              <tr>
-                <td>白飛び補正</td>
-                <td>不可</td>
-                <td class="highlight">自動EV補正</td>
-              </tr>
-              <tr>
-                <td>暗所対策</td>
-                <td>手動ライト</td>
-                <td class="highlight">自動点灯+二値化</td>
-              </tr>
-              <tr>
-                <td>詐欺防止</td>
-                <td>無防備</td>
-                <td class="highlight">8項目安全診断</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="nav-grid-card" style="border-top: 3px solid #f59e0b;">
+            <h4><span style="color:#f59e0b;">📋</span> 履歴管理</h4>
+            <p>スキャン結果を自動蓄積。タイトル・現場メモの編集、誤消去を防ぐゴミ箱復元、文字化けゼロBOM付きCSV/JSON出力。</p>
+          </div>
+          <div class="nav-grid-card" style="border-top: 3px solid #ec4899;">
+            <h4><span style="color:#ec4899;">📖</span> 取扱説明書 (取説)</h4>
+            <p>画面配置と完全一致の目次アンカージャンプ、スタンドアロンHTML閲覧、A4印刷用PDFダウンロード、トラブルシューティング。</p>
+          </div>
+          <div class="nav-grid-card" style="border-top: 3px solid #6366f1;">
+            <h4><span style="color:#6366f1;">📲</span> ホーム画面追加 (PWA)</h4>
+            <p>インストール不要でブラウザから即起動。Service Workerにより電波の届かない地下や機内でも完全オフライン動作。</p>
+          </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 03 / 10</span>
+        <span>Slide 03 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 3】ソリューション</h4>
-        <p>「この課題をすべて解決するのが QR Master Studio です。ハードウェア加速と独自アルゴリズムを組み合わせ、環境光に左右されず瞬時に読み取ります。さらに、読み取った瞬間にURLの安全性を8項目で診断し、危険なサイトへの誤アクセスを完全にブロックします。」</p>
+        <h4>【Slide 3】全体構成</h4>
+        <p>「アプリの画面上部には、親指で押しやすい2段のナビゲーションボタンが並んでいます。上段はメイン読取系の『QRスキャナー』と『ファイル読み込み』。下段は実務を支える『QR作成』『履歴』『取説』です。用途に応じてワンタップでスムーズに行き来できます。」</p>
       </div>
     </div>
 
@@ -825,9 +824,9 @@ def build_presentation_html():
     <div class="slide" data-slide="4">
       <div class="slide-header">
         <div class="header-left">
-          <span class="slide-badge">USER EXPERIENCE</span>
-          <h2 class="slide-title">親指1本で完結する<span class="gradient-text">洗練されたモバイルUI</span></h2>
-          <p class="slide-subtitle">押しやすい2段ナビゲーションと、カード上部の即時起動ボタン</p>
+          <span class="slide-badge">FEATURE 1: SCANNER</span>
+          <h2 class="slide-title">【機能①】リアルタイム<span class="gradient-text">QRスキャナー</span></h2>
+          <p class="slide-subtitle">最上部の特大起動ボタンと、GPU直結ミリ秒デコード</p>
         </div>
         <div class="header-logo">QR Master Studio</div>
       </div>
@@ -836,22 +835,22 @@ def build_presentation_html():
           <div class="feature-item">
             <div class="feature-icon green">🎯</div>
             <div class="feature-content">
-              <h4>スキャンカード最上部に起動ボタンを配置</h4>
-              <p>アプリを開いて最初の視線が届く最上部に、特大の緑色「QRスキャナーを起動」ボタンを常設。迷わず1タップでスキャン開始。</p>
+              <h4>最上部に配置された大きな「QRスキャナーを起動」ボタン</h4>
+              <p>アプリ起動後、最初に視線が届くカード上部に配置。迷わず1タップでカメラプレビューが開始されます。</p>
             </div>
           </div>
           <div class="feature-item">
-            <div class="feature-icon">📱</div>
+            <div class="feature-icon">⚡</div>
             <div class="feature-content">
-              <h4>押しやすい2段グリッドナビゲーション</h4>
-              <p>上段に【QRスキャナー】【ファイル読み込み】のメイン読取系、下段に【QR作成】【履歴】【取説】を整然と配置。</p>
+              <h4>ブラウザ標準 BarcodeDetector API 搭載</h4>
+              <p>スマートフォンのGPUハードウェアアクセラレーションを直接利用し、フレーム毎のミリ秒高速認識を実現。</p>
             </div>
           </div>
           <div class="feature-item">
             <div class="feature-icon purple">🚀</div>
             <div class="feature-content">
-              <h4>迷わせない4ステップ・ワークフロー</h4>
-              <p>「起動」→「スキャン」→「8項目安全診断」→ 水色の「URLを開く」ボタンで目的のページへ安全にジャンプ。</p>
+              <h4>カメラ切り替え ＆ 手動バックライトトグル</h4>
+              <p>複数カメラ（背面・超広角・インカメラ）のワンタップ切り替えと、右上のフローティングライトボタンを常設。</p>
             </div>
           </div>
         </div>
@@ -863,68 +862,17 @@ def build_presentation_html():
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 04 / 10</span>
+        <span>Slide 04 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 4】直感的なUI</h4>
-        <p>「操作性にも徹底的にこだわりました。スマホの片手操作でも押しやすいよう、ナビゲーションを2段の特大グリッドボタンに整理。アプリを起動すると『QRスキャナー』が選択された状態になっており、カード上部の大きな緑ボタンを押せば即座にカメラが起動します。」</p>
+        <h4>【Slide 4】QRスキャナー</h4>
+        <p>「まずはメイン機能の『QRスキャナー』です。最新のUI改善により、カード最上部に特大の緑ボタンを配置。タップするとカメラが即座に起動し、Web BarcodeDetectorの圧倒的な速さでQRコードを瞬時にデコードします。」</p>
       </div>
     </div>
 
     <!-- ==================== SLIDE 5 ==================== -->
     <div class="slide" data-slide="5">
-      <div class="slide-header">
-        <div class="header-left">
-          <span class="slide-badge">ENGINE ARCHITECTURE</span>
-          <h2 class="slide-title">驚異の読取性能<span class="gradient-text">GPU加速 ＆ 大津適応二値化</span></h2>
-          <p class="slide-subtitle">ミリ秒解読のプライマリと、難読化を復元するセカンダリの二重構造</p>
-        </div>
-        <div class="header-logo">QR Master Studio</div>
-      </div>
-      <div class="slide-body">
-        <div class="feature-list">
-          <div class="feature-item">
-            <div class="feature-icon">⚡</div>
-            <div class="feature-content">
-              <h4>プライマリ: Web BarcodeDetector API</h4>
-              <p>ブラウザ標準のハードウェアアクセラレーションを利用し、GPU直結でミリ秒単位の超高速・低負荷スキャンを実現。</p>
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon green">🧬</div>
-            <div class="feature-content">
-              <h4>セカンダリ: 大津の適応二値化 ＋ jsQR</h4>
-              <p>斜めからの撮影や手ブレ、陰影でコントラストが失われた場合、統計的手法で明暗境界を再計算し強力にリカバリー。</p>
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon purple">🖼️</div>
-            <div class="feature-content">
-              <h4>写真アルバム・D&D・クリップボード貼付</h4>
-              <p>カメラ撮影だけでなく、端末内の画像ファイル、PCからのドラッグ＆ドロップ、`Ctrl + V` 画像貼り付けも即座に解析。</p>
-            </div>
-          </div>
-        </div>
-        <div class="screenshot-frame">
-          <div class="device-mockup">
-            <img src="{img_file}" alt="ファイル読み込み画面">
-          </div>
-          <div class="mockup-caption">▲ 実機画面: ファイル読み込み画面</div>
-        </div>
-      </div>
-      <div class="slide-footer">
-        <span>Slide 05 / 10</span>
-        <span>QR Master Studio Presentation</span>
-      </div>
-      <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 5】驚異の読取性能</h4>
-        <p>「心臓部には2つの高性能エンジンを搭載しています。まずはブラウザのGPU直結APIでミリ秒デコード。もしピントが甘かったり影が落ちている場合は、画像処理の大津の二値化アルゴリズムを介してjsQRが瞬時にリカバリーします。端末内の画像やスクリーンショットも瞬時に解読可能です。」</p>
-      </div>
-    </div>
-
-    <!-- ==================== SLIDE 6 ==================== -->
-    <div class="slide" data-slide="6">
       <div class="slide-header">
         <div class="header-left">
           <span class="slide-badge">PROPRIETARY TECH</span>
@@ -939,32 +887,32 @@ def build_presentation_html():
             <div class="feature-icon">☀️</div>
             <div class="feature-content">
               <h4>ミリ秒単位のリアルタイム中心輝度計測</h4>
-              <p>カメラ中心フレームの明度（0〜255）を動的にサンプリング。液晶画面の白飛びや暗闇を瞬時に察知。</p>
+              <p>カメラ中心フレームの明度（0〜255）を毎秒動的にサンプリング。PC画面の強い光や暗所を瞬時に察知。</p>
             </div>
           </div>
           <div class="feature-item">
             <div class="feature-icon green">💡</div>
             <div class="feature-content">
               <h4>暗所でのバックライト（トーチ）自動点灯</h4>
-              <p>周囲が暗い場合、背面のLEDトーチを自動で点灯。手動切り替えボタンもコンパクトに常備し、快適な夜間スキャンを保証。</p>
+              <p>周囲が暗い場合、背面のLEDトーチを自動点灯。PC画面用にはホワイト発光フォールバックも完備。</p>
             </div>
           </div>
           <div class="feature-item">
             <div class="feature-icon amber">🎛️</div>
             <div class="feature-content">
               <h4>物理露光 EV値コントロール ＆ 4大プリセット</h4>
-              <p>白飛び時は `-2.0 EV` まで自動減光。「標準」「暗く(液晶画面用)」「明るく」「ハイコントラスト」のワンタップ切替も可能。</p>
+              <p>白飛び時は `-2.0 EV` まで自動減光。「標準」「暗く(液晶画面用)」「明るく」「ハイコントラスト」もワンタップ切替。</p>
             </div>
           </div>
         </div>
         <div class="card">
           <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 12px;">🔬 露出補正のビフォー・アフター</h4>
-          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
-            <div style="background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; padding: 12px 14px; border-radius: 6px;">
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 12.5px;">
+            <div style="background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; padding: 10px 12px; border-radius: 6px;">
               <strong style="color: #f87171;">❌ 従来（補正なし）:</strong><br>
               PCモニタの白飛びによりQRコードの境界が消失し、何度カメラをかざしても認識しない。
             </div>
-            <div style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981; padding: 12px 14px; border-radius: 6px;">
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981; padding: 10px 12px; border-radius: 6px;">
               <strong style="color: #34d399;">⭕ 本アプリ (Auto-EV ＆ バックライト):</strong><br>
               強い光量を即座に減光、暗がりではトーチが自動点灯。常に最適なコントラストで一発解読。
             </div>
@@ -972,17 +920,17 @@ def build_presentation_html():
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 06 / 10</span>
+        <span>Slide 05 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 6】露出最適化</h4>
-        <p>「PCやスマートフォンの画面に表示されたQRコードを読み取ろうとして、白飛びして苦労したことはありませんか？本アプリの独自機能『Auto Exposure System』は、中心部の明るさをリアルタイムで監視し、自動で光量を絞り込みます。液晶画面の強いバックライトも一瞬で適正露出に補正されます。」</p>
+        <h4>【Slide 5】露出最適化</h4>
+        <p>「PC画面やタブレットのQRコードを読み取ろうとして白飛びした経験はありませんか？本アプリのAuto Exposure機能は、光量をリアルタイムで絞り込みます。さらに夜間や暗所ではスマホのトーチが自動で点灯し、快適なスキャン環境を自動生成します。」</p>
       </div>
     </div>
 
-    <!-- ==================== SLIDE 7 ==================== -->
-    <div class="slide" data-slide="7">
+    <!-- ==================== SLIDE 6 ==================== -->
+    <div class="slide" data-slide="6">
       <div class="slide-header">
         <div class="header-left">
           <span class="slide-badge">CYBER SECURITY</span>
@@ -1023,12 +971,63 @@ def build_presentation_html():
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 07 / 10</span>
+        <span>Slide 06 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 7】鉄壁のセキュリティ</h4>
-        <p>「セキュリティも最高水準です。URLがスキャンされると、8つのチェック項目から安全スコアを瞬時に算出します。重要なのは、安全スコアが『完全100点満点』以外のURLを開く際には、必ず直前に警告確認モーダルが割り込む設計になっている点です。誤タップによるウイルス感染や詐欺サイト誘導を確実に防ぎます。」</p>
+        <h4>【Slide 6】安全診断</h4>
+        <p>「読み取った瞬間に8項目でURLを安全性診断します。ポイントは、安全スコアが完全100点満点以外のすべてのURLに対して、直前警告確認モーダルが起動する点です。誤タップによる危険サイトへのアクセスを確実に防ぎます。」</p>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 7 ==================== -->
+    <div class="slide" data-slide="7">
+      <div class="slide-header">
+        <div class="header-left">
+          <span class="slide-badge">FEATURE 2: FILE SCANNER</span>
+          <h2 class="slide-title">【機能②】画像・スクショ即時解析<span class="gradient-text">ファイル読み込み</span></h2>
+          <p class="slide-subtitle">端末内の保存画像、D&D、クリップボード貼り付けを瞬時解読</p>
+        </div>
+        <div class="header-logo">QR Master Studio</div>
+      </div>
+      <div class="slide-body">
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon green">📁</div>
+            <div class="feature-content">
+              <h4>多彩な3大インポート方式</h4>
+              <p>①「画像ファイルを選択」で写真アルバムから選択、② PCからのドラッグ＆ドロップ、③ `Ctrl + V` クリップボード画像貼り付け。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🧬</div>
+            <div class="feature-content">
+              <h4>大津の適応二値化（Otsu Thresholding）搭載</h4>
+              <p>影が落ちていたり、薄暗い写真、解像度の低いスクリーンショットでも、統計的二値化処理で明暗境界を復元し確実にデコード。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon purple">🔄</div>
+            <div class="feature-content">
+              <h4>即座に安全診断 ＆ 履歴保存</h4>
+              <p>ファイルから読み取った結果も、カメラ同様に8項目安全診断と履歴への自動追加が行われます。</p>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-frame">
+          <div class="device-mockup">
+            <img src="{img_file}" alt="ファイル読み込み画面">
+          </div>
+          <div class="mockup-caption">▲ 実機画面: ファイル読み込み画面</div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Slide 07 / 14</span>
+        <span>QR Master Studio Presentation</span>
+      </div>
+      <div class="speaker-notes" style="display:none;">
+        <h4>【Slide 7】ファイル読み込み</h4>
+        <p>「2つ目の機能は『ファイル読み込み』です。カメラを向けられない場面でも、スマホに保存されたスクショやLINEで送られてきた画像をワンタップで読み取れます。PCではCtrl+Vで画像を貼り付けるだけで即座にデコードされます。」</p>
       </div>
     </div>
 
@@ -1036,9 +1035,111 @@ def build_presentation_html():
     <div class="slide" data-slide="8">
       <div class="slide-header">
         <div class="header-left">
-          <span class="slide-badge">ENTERPRISE UTILITY</span>
-          <h2 class="slide-title">業務効率を高める<span class="gradient-text">履歴管理 ＆ CSV/JSON出力</span></h2>
-          <p class="slide-subtitle">スキャン結果を現場の資産に変える、メモ保存とExcel完全対応エクスポート</p>
+          <span class="slide-badge">FEATURE 3: QR GENERATOR</span>
+          <h2 class="slide-title">【機能③】自由なQR生成<span class="gradient-text">QR作成</span></h2>
+          <p class="slide-subtitle">URL・Wi-Fi・自由テキストを美麗にスタイリング ＆ 高解像度保存</p>
+        </div>
+        <div class="header-logo">QR Master Studio</div>
+      </div>
+      <div class="slide-body">
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon purple">🎨</div>
+            <div class="feature-content">
+              <h4>3大コンテンツタイプ対応</h4>
+              <p>Webサイトへの誘導（URL）、来客用やオフィスの自動接続用（Wi-Fi SSID/パスワード）、自由なテキストやメモのQR化。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon green">✨</div>
+            <div class="feature-content">
+              <h4>カラーカスタマイズ ＆ リアルタイムプレビュー</h4>
+              <p>前景色（QRコードの色）と背景色をカラーピッカーで自由指定。入力と同時にプレビューがリアルタイムに更新。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📥</div>
+            <div class="feature-content">
+              <h4>ワンクリック高解像度 PNG ダウンロード</h4>
+              <p>印刷やプレゼン資料、ポスターにそのまま貼り付けられる高品質な PNG 画像としてワンタップで端末に保存。</p>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-frame">
+          <div class="device-mockup">
+            <img src="{img_gen}" alt="QR作成画面">
+          </div>
+          <div class="mockup-caption">▲ 実機画面: QR作成画面</div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Slide 08 / 14</span>
+        <span>QR Master Studio Presentation</span>
+      </div>
+      <div class="speaker-notes" style="display:none;">
+        <h4>【Slide 8】QR作成</h4>
+        <p>「3つ目の主要機能は『QR作成』です。読み取りだけでなく発行まで本アプリ1つで完結します。URLやWi-Fi情報を入力し、ブランドカラーに合わせて配色を変更、高精細なPNG画像として即座にダウンロード可能です。」</p>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 9 ==================== -->
+    <div class="slide" data-slide="9">
+      <div class="slide-header">
+        <div class="header-left">
+          <span class="slide-badge">FEATURE 4: SCAN HISTORY</span>
+          <h2 class="slide-title">【機能④】現場の資産に変える<span class="gradient-text">履歴管理</span></h2>
+          <p class="slide-subtitle">メモのインライン編集・安全スコア別バッジ・誤消去を防ぐゴミ箱機能</p>
+        </div>
+        <div class="header-logo">QR Master Studio</div>
+      </div>
+      <div class="slide-body">
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon green">📝</div>
+            <div class="feature-content">
+              <h4>タイトル ＆ 現場メモのインライン編集</h4>
+              <p>「第2倉庫 サーバー機材」「来場者A様 名刺」など、スキャン直後に自由なタイトルとメモを即座に記録・永続保存。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon purple">🛡️</div>
+            <div class="feature-content">
+              <h4>安全スコア別カラーバッジ ＆ 日時記録</h4>
+              <p>各スキャンの安全スコア（100点/満点未満）がひと目で判別可能。秒単位のタイムスタンプを自動保持。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon amber">🗑️</div>
+            <div class="feature-content">
+              <h4>安心のゴミ箱機能（一時退避・復元対応）</h4>
+              <p>削除したスキャンはゴミ箱タブへ一時退避。誤って消去した場合も個別復元や一括クリアが可能。</p>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-frame">
+          <div class="device-mockup">
+            <img src="{img_history}" alt="履歴管理画面">
+          </div>
+          <div class="mockup-caption">▲ 実機画面: 履歴管理画面</div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Slide 09 / 14</span>
+        <span>QR Master Studio Presentation</span>
+      </div>
+      <div class="speaker-notes" style="display:none;">
+        <h4>【Slide 9】履歴管理</h4>
+        <p>「4つ目の機能は『履歴管理』です。スキャンした結果は時系列で自動保存され、その場でメモやタイトルを追記できます。誤って削除してもゴミ箱から復元できるため、大切な業務データを失う心配がありません。」</p>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 10 ==================== -->
+    <div class="slide" data-slide="10">
+      <div class="slide-header">
+        <div class="header-left">
+          <span class="slide-badge">DATA EXPORT</span>
+          <h2 class="slide-title">業務直結<span class="gradient-text">文字化けゼロ BOM付きCSV ＆ JSON</span></h2>
+          <p class="slide-subtitle">Excel / スプレッドシートへワンクリック出力。棚卸しや受付業務に即投入可能</p>
         </div>
         <div class="header-logo">QR Master Studio</div>
       </div>
@@ -1047,44 +1148,122 @@ def build_presentation_html():
           <div class="feature-item">
             <div class="feature-icon green">📥</div>
             <div class="feature-content">
-              <h4>UTF-8 BOM付き CSV エクスポート</h4>
-              <p>Windows / Mac の Excel、Google スプレッドシートで直接ダブルクリックしても日本語が一切文字化けしない完全仕様。</p>
+              <h4>UTF-8 BOM (`\\uFEFF`) 付き CSV 出力</h4>
+              <p>Windows / Mac 版 Microsoft Excel や Google スプレッドシートで直接ダブルクリックして開いても、日本語メモやタイトルが一切文字化けしない完全仕様。</p>
             </div>
           </div>
           <div class="feature-item">
-            <div class="feature-icon">📝</div>
+            <div class="feature-icon">⚙️</div>
             <div class="feature-content">
-              <h4>スキャン毎のタイトル・現場メモ編集</h4>
-              <p>「第2倉庫 機材番号4」「来場者A様」など、スキャン直後に自由なメモを即座に記録・永続保存。</p>
+              <h4>構造化 JSON エクスポート</h4>
+              <p>Wi-Fi設定や名刺の解析メタデータ（`parsedData`）、安全スコア、リスク要因を含むJSONを出力し、外部基幹システムやデータベースへ連携可能。</p>
             </div>
           </div>
           <div class="feature-item">
-            <div class="feature-icon purple">🎨</div>
+            <div class="feature-icon purple">📊</div>
             <div class="feature-content">
-              <h4>自由なQR作成 ＆ スタイリング機能</h4>
-              <p>URL、Wi-Fi設定、自由テキストを綺麗なカラー指定や高解像度PNGで作成・ダウンロード可能。</p>
+              <h4>棚卸し・設備点検・来場者受付に最適</h4>
+              <p>機器シリアル番号の読み取りや参加者受付リストをCSV出力し、そのまま日報や管理表に貼り付け可能。</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 12px;">📋 CSV出力データ構造</h4>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>列名</th>
+                <th>データ例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ID / 日時</td>
+                <td>2026-10-16 14:00:15</td>
+              </tr>
+              <tr>
+                <td>タイトル</td>
+                <td>第2倉庫 ネットワーク機器</td>
+              </tr>
+              <tr>
+                <td>スキャン内容</td>
+                <td>https://internal.company.local/...</td>
+              </tr>
+              <tr>
+                <td>安全スコア</td>
+                <td>100点 (安全)</td>
+              </tr>
+              <tr>
+                <td>メモ</td>
+                <td>ラックA-03、定期点検済み</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Slide 10 / 14</span>
+        <span>QR Master Studio Presentation</span>
+      </div>
+      <div class="speaker-notes" style="display:none;">
+        <h4>【Slide 10】CSV・JSONエクスポート</h4>
+        <p>「履歴機能の最大の強みがこのエクスポートです。『CSV出力』を押せば、Excelで開いても絶対に文字化けしないBOM付きCSVが即座に手に入ります。棚卸しや点検、イベント受付の現場業務でそのまま活用できます。」</p>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 11 ==================== -->
+    <div class="slide" data-slide="11">
+      <div class="slide-header">
+        <div class="header-left">
+          <span class="slide-badge">FEATURE 5: USER MANUAL</span>
+          <h2 class="slide-title">【機能⑤】迷わせない<span class="gradient-text">取扱説明書 (取説)</span></h2>
+          <p class="slide-subtitle">UI完全連動の目次ジャンプ・スタンドアロンHTML・A4印刷用PDFダウンロード</p>
+        </div>
+        <div class="header-logo">QR Master Studio</div>
+      </div>
+      <div class="slide-body">
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon green">📖</div>
+            <div class="feature-content">
+              <h4>アプリ内蔵の目次アンカージャンプ</h4>
+              <p>アプリ上部のボタン名と完全に一致した目次テーブルから、知りたい機能へワンタップでスムーズにスクロール。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📑</div>
+            <div class="feature-content">
+              <h4>画像インライン埋め込みスタンドアロン HTML</h4>
+              <p>画面キャプチャ全6枚をBase64埋め込み。単独ファイルとして配布してもリンク切れが一切起きないマニュアルを提供。</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon purple">🖨️</div>
+            <div class="feature-content">
+              <h4>A4印刷対応 高品質 PDF ダウンロード</h4>
+              <p>社内配布や現場マニュアルとして印刷できる全14ページの公式PDFをワンクリックでダウンロード。</p>
             </div>
           </div>
         </div>
         <div class="screenshot-frame">
           <div class="device-mockup">
-            <img src="{img_history}" alt="履歴管理画面">
+            <img src="{img_manual}" alt="取扱説明書画面">
           </div>
-          <div class="mockup-caption">▲ 実機画面: 履歴管理とエクスポート</div>
+          <div class="mockup-caption">▲ 実機画面: 取扱説明書画面</div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 08 / 10</span>
+        <span>Slide 11 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 8】業務機能</h4>
-        <p>「スキャンしたデータを業務で活かすための機能も満載です。履歴にはその場でメモやタイトルを記録でき、秒単位で日時が残ります。さらに『CSV出力』ボタンを押せば、Excelで開いても絶対に文字化けしないBOM付きCSVが即座に手に入ります。棚卸しや機器管理、来場者受付などの現場業務にそのまま活用できます。」</p>
+        <h4>【Slide 11】取扱説明書</h4>
+        <p>「5つ目の機能は『取説』です。操作に迷ったときもアプリ内ですぐにマニュアルを確認できます。さらにスタンドアロンのHTMLや全14ページの印刷用PDFもダウンロードでき、組織内での導入教育にも最適です。」</p>
       </div>
     </div>
 
-    <!-- ==================== SLIDE 9 ==================== -->
-    <div class="slide" data-slide="9">
+    <!-- ==================== SLIDE 12 ==================== -->
+    <div class="slide" data-slide="12">
       <div class="slide-header">
         <div class="header-left">
           <span class="slide-badge">PWA PERFORMANCE</span>
@@ -1106,7 +1285,7 @@ def build_presentation_html():
             <div class="feature-icon">✈️</div>
             <div class="feature-content">
               <h4>完全オフライン稼働</h4>
-              <p>電波の届かない地下施設、コンテナ倉庫、機内モードでも0秒で高速起動し、全スキャン・生成機能が動作。</p>
+              <p>電波の届かない地下施設、コンテナ倉庫、機内モードでも0秒で高速起動し、全スキャン・生成・取説機能が動作。</p>
             </div>
           </div>
           <div class="feature-item">
@@ -1117,48 +1296,139 @@ def build_presentation_html():
             </div>
           </div>
         </div>
-        <div class="screenshot-frame">
-          <div class="device-mockup">
-            <img src="{img_manual}" alt="取扱説明書画面">
+        <div class="card">
+          <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 12px;">📱 PWAのメリット</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; color: var(--text-sub);">
+            <div>✔ アプリストアのダウンロード待ち・審査待ちが不要</div>
+            <div>✔ 余計な権限要求なし、プライバシーを厳格保護</div>
+            <div>✔ 端末ストレージをほぼ圧迫しない超軽量設計（約1MB）</div>
           </div>
-          <div class="mockup-caption">▲ 実機画面: 取扱説明書とPWA機能</div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 09 / 10</span>
+        <span>Slide 12 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 9】PWA技術</h4>
-        <p>「PWA技術を最大限に活用しているため、App StoreやGoogle Playからのダウンロードは不要。ヘッダーのボタンからワンタップでホーム画面に追加できます。Service Workerのおかげで、電波の一切届かない地下や倉庫でも0秒で起動。新機能がリリースされた際も、トースト通知からワンタップで最新版へリロードされます。」</p>
+        <h4>【Slide 12】PWA技術</h4>
+        <p>「PWA技術を活用しているため、アプリストアからのダウンロードは不要。ホーム画面に追加すれば0秒で起動し、地下や機内など圏外でも全機能が完全に動作します。」</p>
       </div>
     </div>
 
-    <!-- ==================== SLIDE 10 ==================== -->
-    <div class="slide" data-slide="10">
+    <!-- ==================== SLIDE 13 ==================== -->
+    <div class="slide" data-slide="13">
+      <div class="slide-header">
+        <div class="header-left">
+          <span class="slide-badge">COMPREHENSIVE MATRIX</span>
+          <h2 class="slide-title">従来アプリ vs QR Master Studio<span class="gradient-text">徹底比較</span></h2>
+          <p class="slide-subtitle">圧倒的な機能網羅性と現場最適化の実績</p>
+        </div>
+        <div class="header-logo">QR Master Studio</div>
+      </div>
+      <div class="slide-body full-width">
+        <div class="card" style="padding: 14px 20px;">
+          <table class="compare-table" style="font-size: 12px;">
+            <thead>
+              <tr>
+                <th>評価項目</th>
+                <th>一般的な無料QRリーダー</th>
+                <th>標準カメラ機能</th>
+                <th>⚡ QR Master Studio (本アプリ)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>起動速度・広告</strong></td>
+                <td>全画面広告で数秒待たされる</td>
+                <td>標準起動</td>
+                <td class="highlight">0秒即時起動（広告ゼロ・PWA）</td>
+              </tr>
+              <tr>
+                <td><strong>白飛び・液晶反射対策</strong></td>
+                <td>❌ 読取不可</td>
+                <td>△ 露出補正が難しい</td>
+                <td class="highlight">⭕ 自動露出最適化 (Auto-EV -2.0〜+2.0)</td>
+              </tr>
+              <tr>
+                <td><strong>暗所・夜間スキャン</strong></td>
+                <td>△ 手動ライト点灯が必要</td>
+                <td>△ ノイズに弱い</td>
+                <td class="highlight">⭕ バックライト自動点灯 ＆ 大津二値化</td>
+              </tr>
+              <tr>
+                <td><strong>詐欺・フィッシング防止</strong></td>
+                <td>❌ 直接開いてしまう</td>
+                <td>❌ 直接開く</td>
+                <td class="highlight">⭕ 8項目安全診断 ＆ 100点未満警告ゲート</td>
+              </tr>
+              <tr>
+                <td><strong>ファイル読み込み</strong></td>
+                <td>△ 一部アプリのみ</td>
+                <td>❌ カメラ撮影のみ</td>
+                <td class="highlight">⭕ 写真選択・D&D・Ctrl+V貼付</td>
+              </tr>
+              <tr>
+                <td><strong>QRコード作成</strong></td>
+                <td>❌ 別アプリが必要</td>
+                <td>❌ 非対応</td>
+                <td class="highlight">⭕ URL/Wi-Fi/テキスト・配色変更・PNG保存</td>
+              </tr>
+              <tr>
+                <td><strong>履歴・Excel連携</strong></td>
+                <td>❌ 閲覧のみ・制限あり</td>
+                <td>❌ 履歴が残らない</td>
+                <td class="highlight">⭕ メモ編集 ＆ 文字化けゼロBOM付きCSV</td>
+              </tr>
+              <tr>
+                <td><strong>取扱説明書 ＆ オフライン</strong></td>
+                <td>❌ 圏外では停止</td>
+                <td>⭕ カメラのみ</td>
+                <td class="highlight">⭕ 内蔵取説・HTML/PDF配布・完全オフライン</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Slide 13 / 14</span>
+        <span>QR Master Studio Presentation</span>
+      </div>
+      <div class="speaker-notes" style="display:none;">
+        <h4>【Slide 13】徹底比較</h4>
+        <p>「こちらの比較表の通り、単なるリーダーにとどまらず、露出補正、安全診断、ファイル読取、QR作成、文字化けゼロCSV、オフライン取説まで、現場で求められるすべての機能をワンストップで網羅しています。」</p>
+      </div>
+    </div>
+
+    <!-- ==================== SLIDE 14 ==================== -->
+    <div class="slide" data-slide="14">
       <div class="hero-slide">
         <div class="hero-badge">
           <span>🎯 SUMMARY & ACCESS</span>
         </div>
-        <h2 class="hero-title" style="font-size: 44px; margin-bottom: 16px;">
+        <h2 class="hero-title" style="font-size: 42px; margin-bottom: 14px;">
           これからのQR体験を、あなたの手に。<br>
           <span class="gradient-text">QR Master Studio</span>
         </h2>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 960px; margin-bottom: 24px;">
-          <div class="card" style="text-align: left;">
-            <div style="font-size: 24px; margin-bottom: 6px;">⚡</div>
-            <h4 style="font-size: 15px; color: #fff; margin-bottom: 4px;">圧倒的に速い</h4>
-            <p style="font-size: 12.5px; color: var(--text-sub);">GPU加速 × 自動露出補正 × バックライトで、どんな環境でも瞬時に読み取り完了。</p>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; max-width: 1040px; margin-bottom: 22px;">
+          <div class="card" style="text-align: left; padding: 14px 16px;">
+            <div style="font-size: 22px; margin-bottom: 4px;">⚡</div>
+            <h4 style="font-size: 14px; color: #fff; margin-bottom: 3px;">圧倒的な速さ</h4>
+            <p style="font-size: 11.5px; color: var(--text-sub);">GPU加速 × 自動露出補正 × バックライトで瞬時にデコード。</p>
           </div>
-          <div class="card" style="text-align: left;">
-            <div style="font-size: 24px; margin-bottom: 6px;">🛡️</div>
-            <h4 style="font-size: 15px; color: var(--accent-green); margin-bottom: 4px;">最高峰の安心</h4>
-            <p style="font-size: 12.5px; color: var(--text-sub);">8項目セキュリティ診断と警告確認ゲートで、QR詐欺や危険サイトを徹底ブロック。</p>
+          <div class="card" style="text-align: left; padding: 14px 16px;">
+            <div style="font-size: 22px; margin-bottom: 4px;">🛡️</div>
+            <h4 style="font-size: 14px; color: var(--accent-green); margin-bottom: 3px;">最高峰の安心</h4>
+            <p style="font-size: 11.5px; color: var(--text-sub);">8項目セキュリティ診断と警告確認ゲートでQR詐欺を未然に遮断。</p>
           </div>
-          <div class="card" style="text-align: left;">
-            <div style="font-size: 24px; margin-bottom: 6px;">💼</div>
-            <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 4px;">現場で使える</h4>
-            <p style="font-size: 12.5px; color: var(--text-sub);">文字化けしないCSV出力、オフライン稼働、取扱説明書内蔵で誰でも直感的に運用可能。</p>
+          <div class="card" style="text-align: left; padding: 14px 16px;">
+            <div style="font-size: 22px; margin-bottom: 4px;">💼</div>
+            <h4 style="font-size: 14px; color: var(--primary); margin-bottom: 3px;">業務直結の機能</h4>
+            <p style="font-size: 11.5px; color: var(--text-sub);">ファイル読込、自由なQR作成、文字化けゼロCSV出力。</p>
+          </div>
+          <div class="card" style="text-align: left; padding: 14px 16px;">
+            <div style="font-size: 22px; margin-bottom: 4px;">📖</div>
+            <h4 style="font-size: 14px; color: var(--accent-purple); margin-bottom: 3px;">取説 ＆ オフライン</h4>
+            <p style="font-size: 11.5px; color: var(--text-sub);">電波圏外でも全機能稼働。内蔵取説とPDFダウンロード。</p>
           </div>
         </div>
         <div style="font-size: 13.5px; color: var(--primary); font-weight: 700; letter-spacing: 0.05em; background: rgba(56, 189, 248, 0.1); padding: 8px 26px; border-radius: 9999px; border: 1px solid rgba(56, 189, 248, 0.3);">
@@ -1166,12 +1436,12 @@ def build_presentation_html():
         </div>
       </div>
       <div class="slide-footer">
-        <span>Slide 10 / 10</span>
+        <span>Slide 14 / 14</span>
         <span>QR Master Studio Presentation</span>
       </div>
       <div class="speaker-notes" style="display:none;">
-        <h4>【Slide 10】まとめ</h4>
-        <p>「速い、安全、そして便利。QR Master Studio は、従来のQRリーダーのストレスと危険をすべて解消した次世代のスタンダードツールです。登録不要、完全無料で今すぐお使いいただけます。ぜひ一度、お手元のスマートフォンでこの快適さを体験してください。ご清聴ありがとうございました。」</p>
+        <h4>【Slide 14】まとめ</h4>
+        <p>「速い、安全、そして多機能。QR Master Studio は現場のあらゆるニーズを満たすQRコードの新しいスタンダードです。登録不要・完全無料ですぐにお使いいただけます。ご清聴ありがとうございました。」</p>
       </div>
     </div>
 
@@ -1185,7 +1455,7 @@ def build_presentation_html():
     <div class="progress-track">
       <div class="progress-fill" id="progress-fill"></div>
     </div>
-    <span id="slide-indicator" style="font-size: 12px; font-weight: 700; min-width: 45px; text-align: center;">01 / 10</span>
+    <span id="slide-indicator" style="font-size: 12px; font-weight: 700; min-width: 50px; text-align: center;">01 / 14</span>
     <button class="control-btn" id="btn-next" title="次のスライド (→ / Space / PageDown)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
     </button>
@@ -1223,7 +1493,7 @@ def build_presentation_html():
   <!-- スライド一覧オーバーレイ -->
   <div id="overview-overlay">
     <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; width: 100%;">
-      <h3 style="font-size: 22px; font-weight: 800; color: #fff;">📋 スライド一覧</h3>
+      <h3 style="font-size: 22px; font-weight: 800; color: #fff;">📋 スライド一覧 (全14スライド)</h3>
       <button class="control-btn" id="btn-close-overview" style="font-size: 18px; padding: 6px 12px; background: rgba(255,255,255,0.1); border-radius: 8px;">✕ 閉じる (Esc)</button>
     </div>
     <div class="overview-grid" id="overview-grid" style="max-width: 1200px; margin: 20px auto 0 auto; width: 100%;">
@@ -1334,7 +1604,7 @@ def build_presentation_html():
           let title = `Slide ${{idx + 1}}`;
           const titleEl = slide.querySelector('.slide-title') || slide.querySelector('.hero-title');
           if (titleEl) {{
-            title = titleEl.innerText.replace(/\\n/g, ' ').substring(0, 36);
+            title = titleEl.innerText.replace(/\\n/g, ' ').substring(0, 38);
           }}
 
           thumb.innerHTML = `
