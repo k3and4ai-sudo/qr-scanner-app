@@ -34,8 +34,27 @@ export default function UserManual() {
             </p>
           </div>
 
-          {/* マニュアルダウンロード＆スタンドアロン閲覧ボタン */}
+          {/* マニュアル＆プレゼン資料ダウンロード＆スタンドアロン閲覧ボタン */}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <a 
+              href="./PRESENTATION.html" 
+              target="_blank" 
+              rel="noreferrer"
+              className="btn btn-primary"
+              style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg, #38bdf8 0%, #818cf8 100%)', color: '#fff', border: 'none' }}
+              title="ブラウザで全画面プレゼンテーションを開始"
+            >
+              <ExternalLink size={15} /> 📊 スライド発表
+            </a>
+            <a 
+              href="./PRESENTATION.pdf" 
+              download="QR_Master_Studio_Presentation.pdf"
+              className="btn btn-secondary"
+              style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', color: '#c084fc', borderColor: 'rgba(192, 132, 252, 0.4)' }}
+              title="16:9 プレゼン用PDFをダウンロード"
+            >
+              <Download size={15} /> スライドPDF
+            </a>
             <a 
               href="./USER_MANUAL.html" 
               target="_blank" 
@@ -43,7 +62,7 @@ export default function UserManual() {
               className="btn btn-secondary"
               style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.4)' }}
             >
-              <ExternalLink size={15} /> HTMLで別枠表示
+              <ExternalLink size={15} /> 取説HTML
             </a>
             <a 
               href="./USER_MANUAL.pdf" 
@@ -51,7 +70,7 @@ export default function UserManual() {
               className="btn btn-secondary"
               style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)' }}
             >
-              <Download size={15} /> PDF版ダウンロード
+              <Download size={15} /> 取説PDF
             </a>
           </div>
         </div>

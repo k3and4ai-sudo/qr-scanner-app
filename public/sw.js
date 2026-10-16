@@ -1,5 +1,5 @@
 // QR Master Studio - Service Worker
-const CACHE_NAME = 'qr-master-cache-v7';
+const CACHE_NAME = 'qr-master-cache-v8';
 
 // Pre-cached assets for offline usage
 const PRECACHE_ASSETS = [
@@ -10,7 +10,8 @@ const PRECACHE_ASSETS = [
   './icons/icon-192x192.png',
   './icons/icon-512x512.png',
   './icons/maskable-icon-512x512.png',
-  './USER_MANUAL.html'
+  './USER_MANUAL.html',
+  './PRESENTATION.html'
 ];
 
 // Install: Pre-cache static shell and activate for reboot updates

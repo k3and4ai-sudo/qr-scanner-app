@@ -6,7 +6,9 @@
   "description": "Ultra-fast, hardware-accelerated PWA QR Code Scanner & Generator powered by Web BarcodeDetector API & jsQR.",
   "scripts": {
     "dev": "vite --host --port 3000",
-    "build": "vite build && cp USER_MANUAL.html USER_MANUAL.pdf USER_MANUAL.md dist/",
+    "build": "vite build && cp USER_MANUAL.html USER_MANUAL.pdf USER_MANUAL.md PRESENTATION.html PRESENTATION.pdf dist/",
+    "generate:manual": "python3 scripts/generate_manual_html_and_pdf.py",
+    "generate:presentation": "python3 scripts/generate_presentation.py",
     "lint": "eslint .",
     "preview": "vite preview"
   },
