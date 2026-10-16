@@ -56,6 +56,16 @@ export default function UserManual() {
               <Download size={15} /> スライドPDF
             </a>
             <a 
+              href="./INFOGRAPHIC.html" 
+              target="_blank" 
+              rel="noreferrer"
+              className="btn btn-secondary"
+              style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+              title="徹底比較＆コアバリューのインフォグラフィック図解を表示"
+            >
+              <ExternalLink size={15} /> 🖼️ インフォ図解
+            </a>
+            <a 
               href="./USER_MANUAL.html" 
               target="_blank" 
               rel="noreferrer"
